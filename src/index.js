@@ -1,8 +1,8 @@
 import Spreadsheet from './core/Spreadsheet'
 
 const options = {
-  width: 800,
-  height: 600,
+  width: document.documentElement.clientWidth,
+  height: document.documentElement.clientHeight,
 }
 
 const spreadsheet = new Spreadsheet({
