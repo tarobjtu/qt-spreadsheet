@@ -23,12 +23,48 @@ class Spreadsheet {
     ctx.translate(10, 10)
 
     this.canvas = canvas
+    this.opts = opts
+    this.theme = opts.theme || defaultTheme
     this.ctx = ctx
-    this.sheetData = defaultSheetData(defaultConfig)
+    this.sheetData = defaultSheetData(this.opts, this.theme)
+
+    perf(() => {
+      this.drawHeader()
+    }, 'drawHeader')
 
     perf(() => {
       this.drawBody()
     }, 'drawBody')
+  }
+
+  drawHeader() {
+    const { ctx, sheetData, theme } = this
+    const { colMeta, rowMeta } = sheetData
+
+    ctx.beginPath()
+    assignStyle(ctx, theme.header)
+
+    for (let i = 0; i < colMeta.length; i += 1) {
+      const col = colMeta[i]
+      this.drawHeaderCell(
+        col,
+        { offset: 0, size: theme.colHeaderHeight },
+        i + 1
+      )
+    }
+
+    for (let j = 0; j < rowMeta.length; j += 1) {
+      const row = rowMeta[j]
+      this.drawHeaderCell({ offset: 0, size: theme.rowHeaderWidth }, row, j + 1)
+    }
+
+    this.drawHeaderCell(
+      { offset: 0, size: theme.rowHeaderWidth },
+      { offset: 0, size: theme.colHeaderHeight },
+      ''
+    )
+
+    ctx.save()
   }
 
   drawBody() {
@@ -46,6 +82,7 @@ class Spreadsheet {
       }
     }
     ctx.stroke()
+    ctx.save()
   }
 
   drawCell(col, row) {
@@ -54,7 +91,32 @@ class Spreadsheet {
     ctx.lineTo(col.offset + col.size, row.offset)
     ctx.moveTo(col.offset, row.offset)
     ctx.lineTo(col.offset, row.offset + row.size)
-    // ctx.rect(col.offset, row.offset, col.size, row.size)
+  }
+
+  drawHeaderCell(col, row, text) {
+    const { ctx, theme } = this
+    const { fillStyle, strokeStyle, color } = theme.header
+
+    // 填充颜色
+    ctx.fillStyle = fillStyle
+    ctx.fillRect(col.offset, row.offset, col.size, row.size)
+
+    // 画边框
+    this.ctx.beginPath()
+    ctx.strokeStyle = strokeStyle
+    ctx.moveTo(col.offset, row.offset)
+    ctx.lineTo(col.offset + col.size, row.offset)
+    ctx.moveTo(col.offset, row.offset)
+    ctx.lineTo(col.offset, row.offset + row.size)
+    ctx.stroke()
+
+    // 文字
+    ctx.fillStyle = color
+    ctx.fillText(
+      text + '',
+      col.offset + col.size / 2,
+      row.offset + row.size / 2
+    )
   }
 }
 

@@ -1,4 +1,8 @@
 const defaultTheme = {
+  colHeaderHeight: 24,
+  rowHeaderWidth: 40,
+  colWidth: 120,
+  rowHeight: 24,
   default: {
     fillStyle: '#ffffff',
     strokeStyle: 'rgba(140,140,140,0.3)',
