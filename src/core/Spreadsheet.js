@@ -7,26 +7,17 @@ import '../style/core.scss'
 
 class Spreadsheet {
   constructor({ root, options }) {
-    const opts = { ...defaultConfig, ...options }
-    const canvas = document.createElement('canvas')
-    canvas.classList.add('qt-spreadsheet-canvas')
-    root.appendChild(canvas)
+    this.opts = { ...defaultConfig, ...options }
+    this.canvas = document.createElement('canvas')
+    this.ctx = this.canvas.getContext('2d')
+    this.canvas.classList.add('qt-spreadsheet-canvas')
+    root.appendChild(this.canvas)
 
-    const width = opts.width || canvas.offsetWidth
-    const height = opts.height || canvas.offsetHeight
-    canvas.width = width * opts.ratio
-    canvas.height = height * opts.ratio
-    canvas.style.width = width + 'px'
-    canvas.style.height = height + 'px'
+    const width = this.opts.width || this.canvas.offsetWidth
+    const height = this.opts.height || this.canvas.offsetHeight
+    this.setCanvasSize(width, height)
 
-    const ctx = canvas.getContext('2d')
-    ctx.scale(opts.ratio, opts.ratio)
-    ctx.translate(10, 10)
-
-    this.canvas = canvas
-    this.opts = opts
-    this.theme = opts.theme || defaultTheme
-    this.ctx = ctx
+    this.theme = this.opts.theme || defaultTheme
     this.sheetData = getSheetData({
       colCount: this.opts.colMeta.count,
       rowCount: this.opts.rowMeta.count,
@@ -36,6 +27,16 @@ class Spreadsheet {
     this.draw()
   }
 
+  setCanvasSize(width, height) {
+    const { canvas, opts } = this
+    canvas.width = width * opts.ratio
+    canvas.height = height * opts.ratio
+    canvas.style.width = width + 'px'
+    canvas.style.height = height + 'px'
+    this.ctx.scale(this.opts.ratio, this.opts.ratio)
+    this.ctx.translate(10, 10)
+  }
+
   loadData(data) {
     this.sheetData = getSheetData({
       colCount: data[0].length,
@@ -43,6 +44,12 @@ class Spreadsheet {
       theme: this.theme,
       data,
     })
+    const lastCol = _.last(this.sheetData.colMeta)
+    const lastRow = _.last(this.sheetData.rowMeta)
+    this.setCanvasSize(
+      lastCol.offset + lastCol.size,
+      lastRow.offset + lastRow.size
+    )
     this.draw()
   }
 
