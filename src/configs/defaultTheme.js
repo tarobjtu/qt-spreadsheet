@@ -3,6 +3,12 @@ const defaultTheme = {
   rowHeaderWidth: 40,
   colWidth: 120,
   rowHeight: 24,
+  cellPadding: {
+    left: 5,
+    right: 5,
+    top: 4,
+    bottom: 4,
+  },
   default: {
     fillStyle: '#ffffff',
     strokeStyle: 'rgba(140,140,140,0.3)',

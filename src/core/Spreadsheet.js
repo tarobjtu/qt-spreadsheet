@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import defaultConfig from '../configs/defaultConfig'
 import defaultSheetData from '../configs/defaultSheetData'
 import defaultTheme from '../configs/defaultTheme'
@@ -28,6 +29,15 @@ class Spreadsheet {
     this.ctx = ctx
     this.sheetData = defaultSheetData(this.opts, this.theme)
 
+    this.draw()
+  }
+
+  loadData(data) {
+    this.sheetData.data = data
+    this.draw()
+  }
+
+  draw() {
     perf(() => {
       this.drawHeaderPerf()
     }, 'drawHeaderPerf')
@@ -43,7 +53,7 @@ class Spreadsheet {
 
   drawBody() {
     const { ctx, sheetData } = this
-    const { colMeta, rowMeta } = sheetData
+    const { colMeta, rowMeta, data } = sheetData
 
     ctx.beginPath()
     assignStyle(ctx, defaultTheme.default)
@@ -52,19 +62,39 @@ class Spreadsheet {
       for (let j = 0; j < rowMeta.length; j += 1) {
         const col = colMeta[i]
         const row = rowMeta[j]
-        this.drawCell(col, row)
+        const text = _.get(data, [j, i], '')
+        this.drawCell(col, row, text)
       }
     }
-    ctx.stroke()
+
     ctx.save()
   }
 
-  drawCell(col, row) {
-    const { ctx } = this
+  drawCell(col, row, text) {
+    const { ctx, theme } = this
+    const { cellPadding } = theme
+    const { strokeStyle, color, fillStyle } = theme.default
+
+    // 绘制边框
+    ctx.beginPath()
+    ctx.strokeStyle = strokeStyle
     ctx.moveTo(col.offset, row.offset)
     ctx.lineTo(col.offset + col.size, row.offset)
     ctx.moveTo(col.offset, row.offset)
     ctx.lineTo(col.offset, row.offset + row.size)
+    ctx.stroke()
+
+    // 填充背景色
+    ctx.fillStyle = fillStyle
+    ctx.fillRect(col.offset, row.offset, col.size, row.size)
+
+    // 绘制文字
+    ctx.fillStyle = color
+    ctx.textAlign = ctx.fillText(
+      text,
+      col.offset + cellPadding.left,
+      row.offset + row.size / 2
+    )
   }
 
   drawHeaderPerf() {

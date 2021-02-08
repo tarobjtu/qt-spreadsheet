@@ -1,3 +1,4 @@
+import { fetch } from 'whatwg-fetch'
 import Spreadsheet from './core/Spreadsheet'
 
 const options = {
@@ -9,4 +10,11 @@ const spreadsheet = new Spreadsheet({
   root: document.getElementById('root'),
   options,
 })
-console.warn(spreadsheet)
+fetch('/super-market.json')
+  .then((response) => {
+    return response.json()
+  })
+  .then((json) => {
+    spreadsheet.loadData(json)
+  })
+  .catch((ex) => console.warn('parsing failed', ex))
