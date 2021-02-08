@@ -48,5 +48,8 @@
   "repository": {
     "type": "git",
     "url": "git@gitlab.alibaba-inc.com:tao.qit/qt-spreadsheet.git"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20"
   }
 }

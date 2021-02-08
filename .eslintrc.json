@@ -5,7 +5,7 @@
       "error",
       {
         "ignoreUrls": true,
-        "code": 80
+        "code": 120
       }
     ],
     "prefer-template": "off",
@@ -28,9 +28,9 @@
     "no-new-wrappers": "error",
     "no-nested-ternary": "error",
     "no-console": [
-      "error",
+      "warn",
       {
-        "allow": ["error"]
+        "allow": ["error", "warn"]
       }
     ],
     "no-template-curly-in-string": "error",
