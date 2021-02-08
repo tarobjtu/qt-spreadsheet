@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import defaultConfig from '../configs/defaultConfig'
-import defaultSheetData from '../configs/defaultSheetData'
+import { getSheetData } from '../utils/sheet'
 import defaultTheme from '../configs/defaultTheme'
-import { assignStyle, perf, numberToAlpha } from '../utils/utils'
+import { assignStyle, perf, numberToAlpha } from '../utils/common'
 import '../style/core.scss'
 
 class Spreadsheet {
@@ -27,13 +27,22 @@ class Spreadsheet {
     this.opts = opts
     this.theme = opts.theme || defaultTheme
     this.ctx = ctx
-    this.sheetData = defaultSheetData(this.opts, this.theme)
+    this.sheetData = getSheetData({
+      colCount: this.opts.colMeta.count,
+      rowCount: this.opts.rowMeta.count,
+      theme: this.theme,
+    })
 
     this.draw()
   }
 
   loadData(data) {
-    this.sheetData.data = data
+    this.sheetData = getSheetData({
+      colCount: data[0].length,
+      rowCount: data.length,
+      theme: this.theme,
+      data,
+    })
     this.draw()
   }
 

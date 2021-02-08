@@ -9,21 +9,23 @@ function defaultCRMeta({ size, count, headerOffset }) {
   return crMeta
 }
 
-function defaultSheetData(config, theme) {
+export function getSheetData({ rowCount, colCount, theme, data }) {
   return {
     mode: 'edit',
     rowMeta: defaultCRMeta({
-      size: config.rowMeta.height,
-      count: config.rowMeta.count,
+      size: theme.rowHeight,
+      count: rowCount,
       headerOffset: theme.colHeaderHeight,
     }),
     colMeta: defaultCRMeta({
-      size: config.colMeta.width,
-      count: config.colMeta.count,
+      size: theme.colWidth,
+      count: colCount,
       headerOffset: theme.rowHeaderWidth,
     }),
-    data: [],
+    data: data || [],
   }
 }
 
-export default defaultSheetData
+export default {
+  getSheetData,
+}
