@@ -129,6 +129,7 @@ class Sheet {
   drawHeader() {
     const { ctx, sheetData, theme } = this
     const { colsMeta, rowsMeta } = sheetData
+    const { scrollX, scrollY } = sheetData
 
     ctx.beginPath()
     assignStyle(ctx, theme.header)
@@ -138,13 +139,19 @@ class Sheet {
       this.drawHeaderCell(
         col,
         { offset: 0, size: theme.colHeaderHeight },
-        numberToAlpha(i)
+        numberToAlpha(i),
+        { scrollX, scrollY: 0 }
       )
     }
 
     for (let j = 0; j < rowsMeta.length; j += 1) {
       const row = rowsMeta[j]
-      this.drawHeaderCell({ offset: 0, size: theme.rowHeaderWidth }, row, j + 1)
+      this.drawHeaderCell(
+        { offset: 0, size: theme.rowHeaderWidth },
+        row,
+        j + 1,
+        { scrollX: 0, scrollY }
+      )
     }
 
     this.drawHeaderCell(
@@ -156,21 +163,35 @@ class Sheet {
     ctx.save()
   }
 
-  drawHeaderCell(col, row, text) {
+  drawHeaderCell(
+    col,
+    row,
+    text,
+    { scrollX, scrollY } = { scrollX: 0, scrollY: 0 }
+  ) {
     const { ctx, theme } = this
     const { fillStyle, strokeStyle, color } = theme.header
 
     // 填充颜色
     ctx.fillStyle = fillStyle
-    ctx.fillRect(col.offset, row.offset, col.size, row.size)
+    ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 画边框
     ctx.strokeStyle = strokeStyle
-    ctx.strokeRect(col.offset, row.offset, col.size, row.size)
+    ctx.strokeRect(
+      col.offset - scrollX,
+      row.offset - scrollY,
+      col.size,
+      row.size
+    )
 
     // 文字
     ctx.fillStyle = color
-    ctx.fillText(text, col.offset + col.size / 2, row.offset + row.size / 2)
+    ctx.fillText(
+      text,
+      col.offset - scrollX + col.size / 2,
+      row.offset - scrollY + row.size / 2
+    )
   }
 }
 

@@ -12,8 +12,8 @@ function defaultCRMeta({ size, count, headerOffset }) {
 export function getSheetData({ rowCount, colCount, theme, data }) {
   return {
     mode: 'edit',
-    scrollX: 500, // 表格视窗相对文档起始点的横轴位置
-    scrollY: 500, // 表格视窗相对文档起始点的纵轴位置
+    scrollX: 0, // 表格视窗相对文档起始点的横轴位置
+    scrollY: 0, // 表格视窗相对文档起始点的纵轴位置
     rowsMeta: defaultCRMeta({
       size: theme.rowHeight,
       count: rowCount,
