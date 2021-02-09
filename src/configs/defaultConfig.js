@@ -1,11 +1,12 @@
+/**
+ * @description 与theme的区别，这里存非主题的配置数据
+ */
 const defaultConfig = {
   ratio: 2,
   colsMeta: {
-    width: 120,
     count: 20,
   },
   rowsMeta: {
-    height: 26,
     count: 128,
   },
 }

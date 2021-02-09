@@ -20,7 +20,7 @@ const defaultTheme = {
     color: '#262626',
     fontFamily:
       // eslint-disable-next-line max-len
-      '"Helvetica Neue", "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif',
+      '11px "Helvetica Neue", "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif',
   },
   cellStyleDefault: {
     fontSize: 9,

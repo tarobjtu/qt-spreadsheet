@@ -72,12 +72,12 @@ class Sheet {
     // }, 'drawHeader')
 
     perf(() => {
-      this.drawHeaderPerf()
-    }, 'drawHeaderPerf')
-
-    perf(() => {
       this.drawBody()
     }, 'drawBody')
+
+    perf(() => {
+      this.drawHeaderPerf()
+    }, 'drawHeaderPerf')
 
     perf(() => {
       this.scrollbar.draw()
@@ -85,12 +85,10 @@ class Sheet {
   }
 
   drawBody() {
-    const { ctx, sheetData } = this
+    const { ctx, sheetData, viewModel } = this
     const { colsMeta, rowsMeta, data } = sheetData
+    const { col, row, colCount, rowCount } = viewModel.getViewportCRs()
 
-    const { col, row, colCount, rowCount } = this.getViewportCRs()
-
-    ctx.beginPath()
     assignStyle(ctx, defaultTheme.default)
 
     for (let i = col; i < col + colCount; i += 1) {
@@ -101,43 +99,44 @@ class Sheet {
         this.drawCell(cMeta, rMeta, text)
       }
     }
-
-    ctx.save()
   }
 
   drawCell(col, row, text) {
-    const { ctx, theme } = this
+    const { ctx, sheetData, theme } = this
+    const { scrollX, scrollY } = sheetData
     const { cellPadding } = theme
-    const { strokeStyle, color, fillStyle } = theme.default
+    const { strokeStyle, color, fillStyle, fontFamily } = theme.default
 
     // 绘制边框
     ctx.beginPath()
     ctx.strokeStyle = strokeStyle
-    ctx.moveTo(col.offset, row.offset)
-    ctx.lineTo(col.offset + col.size, row.offset)
-    ctx.moveTo(col.offset, row.offset)
-    ctx.lineTo(col.offset, row.offset + row.size)
+    ctx.moveTo(col.offset - scrollX, row.offset - scrollY)
+    ctx.lineTo(col.offset + col.size - scrollX, row.offset - scrollY)
+    ctx.moveTo(col.offset - scrollX, row.offset - scrollY)
+    ctx.lineTo(col.offset - scrollX, row.offset + row.size - scrollY)
+    ctx.closePath()
     ctx.stroke()
 
     // 填充背景色
     ctx.fillStyle = fillStyle
-    ctx.fillRect(col.offset, row.offset, col.size, row.size)
+    ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 绘制文字
     ctx.fillStyle = color
+    ctx.font = fontFamily
     ctx.textAlign = ctx.fillText(
       text,
-      col.offset + cellPadding.left,
-      row.offset + row.size / 2
+      col.offset - scrollX + cellPadding.left,
+      row.offset - scrollY + row.size / 2
     )
   }
 
   drawHeaderPerf() {
     const { ctx, theme } = this
 
-    ctx.beginPath()
     assignStyle(ctx, theme.header)
 
+    ctx.beginPath()
     this.drawHeaderFillStyle()
     this.drawHeaderFillText()
     this.drawHeaderStroke()
@@ -178,7 +177,7 @@ class Sheet {
     const { colsMeta, rowsMeta } = sheetData
     const { strokeStyle } = theme.header
 
-    this.ctx.beginPath()
+    ctx.beginPath()
     ctx.strokeStyle = strokeStyle
 
     for (let i = 0; i < colsMeta.length; i += 1) {
@@ -198,6 +197,7 @@ class Sheet {
       ctx.moveTo(col.offset, row.offset)
       ctx.lineTo(col.offset, row.offset + row.size)
     }
+    ctx.closePath()
 
     ctx.stroke()
   }
@@ -265,111 +265,18 @@ class Sheet {
     ctx.fillRect(col.offset, row.offset, col.size, row.size)
 
     // 画边框
-    this.ctx.beginPath()
+    ctx.beginPath()
     ctx.strokeStyle = strokeStyle
     ctx.moveTo(col.offset, row.offset)
     ctx.lineTo(col.offset + col.size, row.offset)
     ctx.moveTo(col.offset, row.offset)
     ctx.lineTo(col.offset, row.offset + row.size)
+    ctx.closePath()
     ctx.stroke()
 
     // 文字
     ctx.fillStyle = color
     ctx.fillText(text, col.offset + col.size / 2, row.offset + row.size / 2)
-  }
-
-  /**
-   * @description 找到视窗范围内可见的全部单元格
-   */
-  getViewportCRs(top = 0, left = 0) {
-    const { canvas } = this
-    const { width, height } = canvas.getBoundingClientRect()
-
-    const start = this.getCellByOffset(left, top)
-    const end = this.getCellByOffset(left + width, top + height)
-
-    return {
-      row: start.row,
-      col: start.col,
-      rowCount: end.row - start.row + 1,
-      colCount: end.col - start.row + 1,
-    }
-  }
-
-  /**
-   * @description 找到坐标left、top命中的表格单元格
-   * @param {*} left
-   * @param {*} top
-   */
-  getCellByOffset(left, top) {
-    const col = this.getColByOffset(left)
-    const row = this.getRowByOffset(top)
-    return {
-      col,
-      row,
-    }
-  }
-
-  /**
-   * @description 找到坐标left命中的表格列，二分法查找
-   * @param {*} left
-   */
-  getColByOffset(left) {
-    const { colsMeta } = this.sheetData
-    let min = 0
-    let max = colsMeta.length - 1
-    let result
-
-    if (left < colsMeta[min].offset) return min
-    if (left > colsMeta[max].offset) return max
-
-    while (min !== max) {
-      const mid = Math.floor((max + min) / 2)
-      if (
-        left >= colsMeta[mid].offset &&
-        left <= colsMeta[mid].offset + colsMeta[mid].size
-      ) {
-        result = mid
-        break
-      } else if (left < colsMeta[mid].offset) {
-        max = mid
-      } else {
-        min = mid
-      }
-    }
-
-    return result
-  }
-
-  /**
-   * @description 找到坐标top命中的表格行，二分法查找
-   * @param {*} top
-   */
-  getRowByOffset(top) {
-    const { rowsMeta } = this.sheetData
-    let min = 0
-    let max = rowsMeta.length - 1
-    let result
-
-    if (top < rowsMeta[min].offset) return min
-    if (top > rowsMeta[max].offset) return max
-
-    while (min !== max) {
-      const mid = Math.floor((max + min) / 2)
-      if (
-        top >= rowsMeta[mid].offset &&
-        top <= rowsMeta[mid].offset + rowsMeta[mid].size
-      ) {
-        result = mid
-        break
-      } else if (top < rowsMeta[mid].offset) {
-        max = mid
-      } else {
-        min = mid
-      }
-    }
-
-    return result
   }
 }
 
