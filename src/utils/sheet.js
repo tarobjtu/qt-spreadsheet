@@ -12,12 +12,12 @@ function defaultCRMeta({ size, count, headerOffset }) {
 export function getSheetData({ rowCount, colCount, theme, data }) {
   return {
     mode: 'edit',
-    rowMeta: defaultCRMeta({
+    rowsMeta: defaultCRMeta({
       size: theme.rowHeight,
       count: rowCount,
       headerOffset: theme.colHeaderHeight,
     }),
-    colMeta: defaultCRMeta({
+    colsMeta: defaultCRMeta({
       size: theme.colWidth,
       count: colCount,
       headerOffset: theme.rowHeaderWidth,

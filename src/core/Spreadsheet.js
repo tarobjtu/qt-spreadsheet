@@ -18,8 +18,8 @@ class Spreadsheet {
     root.appendChild(formula)
 
     this.sheetData = getSheetData({
-      colCount: this.opts.colMeta.count,
-      rowCount: this.opts.rowMeta.count,
+      colCount: this.opts.colsMeta.count,
+      rowCount: this.opts.rowsMeta.count,
       theme: this.theme,
     })
 

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const colsMeta = [
+        { size: 120, offset: 40 },
+        { size: 120, offset: 160 },
+        { size: 120, offset: 280 },
+        { size: 120, offset: 400 },
+        { size: 120, offset: 520 },
+        { size: 120, offset: 640 },
+        { size: 120, offset: 760 },
+        { size: 120, offset: 880 },
+        { size: 120, offset: 1000 },
+        { size: 120, offset: 1120 },
+        { size: 120, offset: 1240 },
+        { size: 120, offset: 1360 },
+        { size: 120, offset: 1480 },
+        { size: 120, offset: 1600 },
+        { size: 120, offset: 1720 },
+        { size: 120, offset: 1840 },
+        { size: 120, offset: 1960 },
+        { size: 120, offset: 2080 },
+        { size: 120, offset: 2200 },
+        { size: 120, offset: 2320 },
+      ]
+
+      function getColByOffset(left) {
+        let min = 0
+        let max = colsMeta.length - 1
+        let result
+
+        if (left < colsMeta[min].offset) return min
+        if (left > colsMeta[max].offset) return max
+
+        while (min !== max) {
+          const mid = Math.floor((max + min) / 2)
+          if (
+            left >= colsMeta[mid].offset &&
+            left <= colsMeta[mid].offset + colsMeta[mid].size
+          ) {
+            result = mid
+            break
+          } else if (left < colsMeta[mid].offset) {
+            max = mid
+          } else {
+            min = mid
+          }
+        }
+
+        return result
+      }
+
+      console.warn(getColByOffset(500))
+    </script>
+  </body>
+</html>

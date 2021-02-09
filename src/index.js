@@ -10,7 +10,7 @@ const spreadsheet = new Spreadsheet({
   root: document.getElementById('root'),
   options,
 })
-fetch('/super-market-small.json')
+fetch('/super-market.json')
   .then((response) => {
     return response.json()
   })

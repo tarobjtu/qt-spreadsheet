@@ -1,10 +1,10 @@
 const defaultConfig = {
   ratio: 2,
-  colMeta: {
+  colsMeta: {
     width: 120,
     count: 20,
   },
-  rowMeta: {
+  rowsMeta: {
     height: 26,
     count: 128,
   },
