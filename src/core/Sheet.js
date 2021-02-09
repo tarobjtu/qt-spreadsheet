@@ -67,17 +67,13 @@ class Sheet {
   }
 
   draw() {
-    // perf(() => {
-    //   this.drawHeader()
-    // }, 'drawHeader')
-
     perf(() => {
       this.drawBody()
     }, 'drawBody')
 
     perf(() => {
-      this.drawHeaderPerf()
-    }, 'drawHeaderPerf')
+      this.drawHeader()
+    }, 'drawHeader')
 
     perf(() => {
       this.scrollbar.draw()
@@ -105,7 +101,7 @@ class Sheet {
     const { ctx, sheetData, theme } = this
     const { scrollX, scrollY } = sheetData
     const { cellPadding } = theme
-    const { strokeStyle, color, fillStyle, fontFamily } = theme.default
+    const { strokeStyle, color, fillStyle } = theme.default
 
     // 绘制边框
     ctx.beginPath()
@@ -123,107 +119,11 @@ class Sheet {
 
     // 绘制文字
     ctx.fillStyle = color
-    ctx.font = fontFamily
     ctx.textAlign = ctx.fillText(
       text,
       col.offset - scrollX + cellPadding.left,
       row.offset - scrollY + row.size / 2
     )
-  }
-
-  drawHeaderPerf() {
-    const { ctx, theme } = this
-
-    assignStyle(ctx, theme.header)
-
-    ctx.beginPath()
-    this.drawHeaderFillStyle()
-    this.drawHeaderFillText()
-    this.drawHeaderStroke()
-
-    this.drawHeaderCell(
-      { offset: 0, size: theme.rowHeaderWidth },
-      { offset: 0, size: theme.colHeaderHeight },
-      ''
-    )
-
-    ctx.save()
-  }
-
-  drawHeaderFillStyle() {
-    const { ctx, sheetData, theme } = this
-    const { colsMeta, rowsMeta } = sheetData
-    const { fillStyle } = theme.header
-
-    ctx.fillStyle = fillStyle
-
-    for (let i = 0; i < colsMeta.length; i += 1) {
-      const col = colsMeta[i]
-      const row = { offset: 0, size: theme.colHeaderHeight }
-      ctx.rect(col.offset, row.offset, col.size, row.size)
-    }
-
-    for (let j = 0; j < rowsMeta.length; j += 1) {
-      const row = rowsMeta[j]
-      const col = { offset: 0, size: theme.rowHeaderWidth }
-      ctx.rect(col.offset, row.offset, col.size, row.size)
-    }
-
-    ctx.fill()
-  }
-
-  drawHeaderStroke() {
-    const { ctx, sheetData, theme } = this
-    const { colsMeta, rowsMeta } = sheetData
-    const { strokeStyle } = theme.header
-
-    ctx.beginPath()
-    ctx.strokeStyle = strokeStyle
-
-    for (let i = 0; i < colsMeta.length; i += 1) {
-      const col = colsMeta[i]
-      const row = { offset: 0, size: theme.colHeaderHeight }
-      ctx.moveTo(col.offset, row.offset)
-      ctx.lineTo(col.offset + col.size, row.offset)
-      ctx.moveTo(col.offset, row.offset)
-      ctx.lineTo(col.offset, row.offset + row.size)
-    }
-
-    for (let j = 0; j < rowsMeta.length; j += 1) {
-      const row = rowsMeta[j]
-      const col = { offset: 0, size: theme.rowHeaderWidth }
-      ctx.moveTo(col.offset, row.offset)
-      ctx.lineTo(col.offset + col.size, row.offset)
-      ctx.moveTo(col.offset, row.offset)
-      ctx.lineTo(col.offset, row.offset + row.size)
-    }
-    ctx.closePath()
-
-    ctx.stroke()
-  }
-
-  drawHeaderFillText() {
-    const { ctx, sheetData, theme } = this
-    const { colsMeta, rowsMeta } = sheetData
-    const { color } = theme.header
-
-    ctx.fillStyle = color
-    // 列头
-    for (let i = 0; i < colsMeta.length; i += 1) {
-      const col = colsMeta[i]
-      const row = { offset: 0, size: theme.colHeaderHeight }
-      ctx.fillText(
-        numberToAlpha(i),
-        col.offset + col.size / 2,
-        row.offset + row.size / 2
-      )
-    }
-    // 行头
-    for (let j = 0; j < rowsMeta.length; j += 1) {
-      const row = rowsMeta[j]
-      const col = { offset: 0, size: theme.rowHeaderWidth }
-      ctx.fillText(j + 1, col.offset + col.size / 2, row.offset + row.size / 2)
-    }
   }
 
   drawHeader() {
@@ -265,14 +165,8 @@ class Sheet {
     ctx.fillRect(col.offset, row.offset, col.size, row.size)
 
     // 画边框
-    ctx.beginPath()
     ctx.strokeStyle = strokeStyle
-    ctx.moveTo(col.offset, row.offset)
-    ctx.lineTo(col.offset + col.size, row.offset)
-    ctx.moveTo(col.offset, row.offset)
-    ctx.lineTo(col.offset, row.offset + row.size)
-    ctx.closePath()
-    ctx.stroke()
+    ctx.strokeRect(col.offset, row.offset, col.size, row.size)
 
     // 文字
     ctx.fillStyle = color
