@@ -1,4 +1,6 @@
 import _ from 'lodash'
+import ViewModel from './ViewModel'
+import Scrollbar from '../components/Scrollbar'
 import defaultTheme from '../configs/defaultTheme'
 import { assignStyle, perf, numberToAlpha } from '../utils/common'
 import '../style/core.scss'
@@ -13,13 +15,33 @@ class Sheet {
     this.ctx = this.canvas.getContext('2d')
     this.canvas.classList.add('qt-spreadsheet-canvas')
     container.appendChild(this.canvas)
+    this.viewModel = new ViewModel({
+      canvas: this.canvas,
+      sheetData: this.sheetData,
+      theme: this.theme,
+    })
+    this.scrollbar = new Scrollbar({
+      container,
+      theme: this.theme,
+      viewModel: this.viewModel,
+    })
     this.setCanvasSize()
     this.draw()
     this.bindEvent()
   }
 
+  destroy() {
+    const { resize } = this.events
+    window.removeEventListener('resize', resize)
+  }
+
   bindEvent() {
-    window.addEventListener('resize', _.throttle(this.resize.bind(this), 300))
+    // 缓存事件列表，对象销毁时使用
+    this.events = {}
+    const resize = _.throttle(this.resize.bind(this), 300)
+    this.events.resize = resize
+
+    window.addEventListener('resize', resize)
   }
 
   resize() {
@@ -41,20 +63,25 @@ class Sheet {
 
   loadData(data) {
     this.sheetData = data
+    this.viewModel.updateData(data)
   }
 
   draw() {
-    perf(() => {
-      this.drawHeaderPerf()
-    }, 'drawHeaderPerf')
-
     // perf(() => {
     //   this.drawHeader()
     // }, 'drawHeader')
 
     perf(() => {
+      this.drawHeaderPerf()
+    }, 'drawHeaderPerf')
+
+    perf(() => {
       this.drawBody()
     }, 'drawBody')
+
+    perf(() => {
+      this.scrollbar.draw()
+    }, 'drawScrollbar')
   }
 
   drawBody() {

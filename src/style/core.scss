@@ -17,9 +17,38 @@ body {
   height: 20px;
 }
 .qt-spreadsheet-canvas-container {
+  position: relative;
   width: 100vw;
   height: calc(100vh - 60px);
 }
 .qt-spreadsheet-canvas {
   display: block;
+}
+.qt-spreadsheet-scrollbar-trigger {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.qt-spreadsheet-scrollbar-x {
+  position: absolute;
+  bottom: 3px;
+  left: 40px;
+  right: 3px;
+  height: 10px;
+
+  .qt-spreadsheet-scrollbar-trigger {
+    height: 10px;
+  }
+}
+.qt-spreadsheet-scrollbar-y {
+  position: absolute;
+  top: 24px;
+  bottom: 3px;
+  right: 3px;
+  width: 10px;
+
+  .qt-spreadsheet-scrollbar-trigger {
+    width: 10px;
+  }
 }
