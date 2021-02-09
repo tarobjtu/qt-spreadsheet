@@ -4,28 +4,39 @@ import { assignStyle, perf, numberToAlpha } from '../utils/common'
 import '../style/core.scss'
 
 class Sheet {
-  constructor({ data, root, options }) {
+  constructor({ data, container, options }) {
     this.sheetData = data
     this.opts = options
+    this.container = container
     this.theme = this.opts.theme || defaultTheme
     this.canvas = document.createElement('canvas')
     this.ctx = this.canvas.getContext('2d')
     this.canvas.classList.add('qt-spreadsheet-canvas')
-    root.appendChild(this.canvas)
+    container.appendChild(this.canvas)
+    this.setCanvasSize()
+    this.draw()
+    this.bindEvent()
+  }
+
+  bindEvent() {
+    window.addEventListener('resize', _.throttle(this.resize.bind(this), 300))
+  }
+
+  resize() {
     this.setCanvasSize()
     this.draw()
   }
 
   setCanvasSize() {
-    const { canvas, opts } = this
-    const width = this.canvas.offsetWidth
-    const height = this.canvas.offsetHeight
+    const { container, canvas, opts, ctx } = this
+    const width = container.offsetWidth
+    const height = container.offsetHeight
     canvas.width = width * opts.ratio
     canvas.height = height * opts.ratio
     canvas.style.width = width + 'px'
     canvas.style.height = height + 'px'
-    this.ctx.scale(this.opts.ratio, this.opts.ratio)
-    this.ctx.translate(-0.5, 0.5)
+    ctx.scale(opts.ratio, opts.ratio)
+    ctx.translate(-0.5, 0.5)
   }
 
   loadData(data) {

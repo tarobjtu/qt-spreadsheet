@@ -16,7 +16,10 @@ body {
   width: 100vw;
   height: 20px;
 }
-.qt-spreadsheet-canvas {
+.qt-spreadsheet-canvas-container {
   width: 100vw;
   height: calc(100vh - 60px);
+}
+.qt-spreadsheet-canvas {
+  display: block;
 }

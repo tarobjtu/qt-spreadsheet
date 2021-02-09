@@ -16,6 +16,9 @@ class Spreadsheet {
     const formula = document.createElement('div')
     formula.classList.add('qt-spreadsheet-formula')
     root.appendChild(formula)
+    const container = document.createElement('div')
+    container.classList.add('qt-spreadsheet-canvas-container')
+    root.appendChild(container)
 
     this.sheetData = getSheetData({
       colCount: this.opts.colsMeta.count,
@@ -23,7 +26,11 @@ class Spreadsheet {
       theme: this.theme,
     })
 
-    this.sheet = new Sheet({ data: this.sheetData, root, options: this.opts })
+    this.sheet = new Sheet({
+      data: this.sheetData,
+      container,
+      options: this.opts,
+    })
   }
 
   loadData(data) {
