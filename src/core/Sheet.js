@@ -25,7 +25,7 @@ class Sheet {
     canvas.style.width = width + 'px'
     canvas.style.height = height + 'px'
     this.ctx.scale(this.opts.ratio, this.opts.ratio)
-    this.ctx.translate(10, 10)
+    this.ctx.translate(-0.5, 0.5)
   }
 
   loadData(data) {
@@ -48,17 +48,19 @@ class Sheet {
 
   drawBody() {
     const { ctx, sheetData } = this
-    const { colMeta, rowMeta, data } = sheetData
+    const { colsMeta, rowsMeta, data } = sheetData
+
+    const { col, row, colCount, rowCount } = this.getViewportCRs()
 
     ctx.beginPath()
     assignStyle(ctx, defaultTheme.default)
 
-    for (let i = 0; i < colMeta.length; i += 1) {
-      for (let j = 0; j < rowMeta.length; j += 1) {
-        const col = colMeta[i]
-        const row = rowMeta[j]
+    for (let i = col; i < col + colCount; i += 1) {
+      for (let j = row; j < row + rowCount; j += 1) {
+        const cMeta = colsMeta[i]
+        const rMeta = rowsMeta[j]
         const text = _.get(data, [j, i], '')
-        this.drawCell(col, row, text)
+        this.drawCell(cMeta, rMeta, text)
       }
     }
 
@@ -113,19 +115,19 @@ class Sheet {
 
   drawHeaderFillStyle() {
     const { ctx, sheetData, theme } = this
-    const { colMeta, rowMeta } = sheetData
+    const { colsMeta, rowsMeta } = sheetData
     const { fillStyle } = theme.header
 
     ctx.fillStyle = fillStyle
 
-    for (let i = 0; i < colMeta.length; i += 1) {
-      const col = colMeta[i]
+    for (let i = 0; i < colsMeta.length; i += 1) {
+      const col = colsMeta[i]
       const row = { offset: 0, size: theme.colHeaderHeight }
       ctx.rect(col.offset, row.offset, col.size, row.size)
     }
 
-    for (let j = 0; j < rowMeta.length; j += 1) {
-      const row = rowMeta[j]
+    for (let j = 0; j < rowsMeta.length; j += 1) {
+      const row = rowsMeta[j]
       const col = { offset: 0, size: theme.rowHeaderWidth }
       ctx.rect(col.offset, row.offset, col.size, row.size)
     }
@@ -135,14 +137,14 @@ class Sheet {
 
   drawHeaderStroke() {
     const { ctx, sheetData, theme } = this
-    const { colMeta, rowMeta } = sheetData
+    const { colsMeta, rowsMeta } = sheetData
     const { strokeStyle } = theme.header
 
     this.ctx.beginPath()
     ctx.strokeStyle = strokeStyle
 
-    for (let i = 0; i < colMeta.length; i += 1) {
-      const col = colMeta[i]
+    for (let i = 0; i < colsMeta.length; i += 1) {
+      const col = colsMeta[i]
       const row = { offset: 0, size: theme.colHeaderHeight }
       ctx.moveTo(col.offset, row.offset)
       ctx.lineTo(col.offset + col.size, row.offset)
@@ -150,8 +152,8 @@ class Sheet {
       ctx.lineTo(col.offset, row.offset + row.size)
     }
 
-    for (let j = 0; j < rowMeta.length; j += 1) {
-      const row = rowMeta[j]
+    for (let j = 0; j < rowsMeta.length; j += 1) {
+      const row = rowsMeta[j]
       const col = { offset: 0, size: theme.rowHeaderWidth }
       ctx.moveTo(col.offset, row.offset)
       ctx.lineTo(col.offset + col.size, row.offset)
@@ -164,13 +166,13 @@ class Sheet {
 
   drawHeaderFillText() {
     const { ctx, sheetData, theme } = this
-    const { colMeta, rowMeta } = sheetData
+    const { colsMeta, rowsMeta } = sheetData
     const { color } = theme.header
 
     ctx.fillStyle = color
     // 列头
-    for (let i = 0; i < colMeta.length; i += 1) {
-      const col = colMeta[i]
+    for (let i = 0; i < colsMeta.length; i += 1) {
+      const col = colsMeta[i]
       const row = { offset: 0, size: theme.colHeaderHeight }
       ctx.fillText(
         numberToAlpha(i),
@@ -179,8 +181,8 @@ class Sheet {
       )
     }
     // 行头
-    for (let j = 0; j < rowMeta.length; j += 1) {
-      const row = rowMeta[j]
+    for (let j = 0; j < rowsMeta.length; j += 1) {
+      const row = rowsMeta[j]
       const col = { offset: 0, size: theme.rowHeaderWidth }
       ctx.fillText(j + 1, col.offset + col.size / 2, row.offset + row.size / 2)
     }
@@ -188,13 +190,13 @@ class Sheet {
 
   drawHeader() {
     const { ctx, sheetData, theme } = this
-    const { colMeta, rowMeta } = sheetData
+    const { colsMeta, rowsMeta } = sheetData
 
     ctx.beginPath()
     assignStyle(ctx, theme.header)
 
-    for (let i = 0; i < colMeta.length; i += 1) {
-      const col = colMeta[i]
+    for (let i = 0; i < colsMeta.length; i += 1) {
+      const col = colsMeta[i]
       this.drawHeaderCell(
         col,
         { offset: 0, size: theme.colHeaderHeight },
@@ -202,8 +204,8 @@ class Sheet {
       )
     }
 
-    for (let j = 0; j < rowMeta.length; j += 1) {
-      const row = rowMeta[j]
+    for (let j = 0; j < rowsMeta.length; j += 1) {
+      const row = rowsMeta[j]
       this.drawHeaderCell({ offset: 0, size: theme.rowHeaderWidth }, row, j + 1)
     }
 
@@ -236,6 +238,100 @@ class Sheet {
     // 文字
     ctx.fillStyle = color
     ctx.fillText(text, col.offset + col.size / 2, row.offset + row.size / 2)
+  }
+
+  /**
+   * @description 找到视窗范围内可见的全部单元格
+   */
+  getViewportCRs(top = 0, left = 0) {
+    const { canvas } = this
+    const { width, height } = canvas.getBoundingClientRect()
+
+    const start = this.getCellByOffset(left, top)
+    const end = this.getCellByOffset(left + width, top + height)
+
+    return {
+      row: start.row,
+      col: start.col,
+      rowCount: end.row - start.row + 1,
+      colCount: end.col - start.row + 1,
+    }
+  }
+
+  /**
+   * @description 找到坐标left、top命中的表格单元格
+   * @param {*} left
+   * @param {*} top
+   */
+  getCellByOffset(left, top) {
+    const col = this.getColByOffset(left)
+    const row = this.getRowByOffset(top)
+    return {
+      col,
+      row,
+    }
+  }
+
+  /**
+   * @description 找到坐标left命中的表格列，二分法查找
+   * @param {*} left
+   */
+  getColByOffset(left) {
+    const { colsMeta } = this.sheetData
+    let min = 0
+    let max = colsMeta.length - 1
+    let result
+
+    if (left < colsMeta[min].offset) return min
+    if (left > colsMeta[max].offset) return max
+
+    while (min !== max) {
+      const mid = Math.floor((max + min) / 2)
+      if (
+        left >= colsMeta[mid].offset &&
+        left <= colsMeta[mid].offset + colsMeta[mid].size
+      ) {
+        result = mid
+        break
+      } else if (left < colsMeta[mid].offset) {
+        max = mid
+      } else {
+        min = mid
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * @description 找到坐标top命中的表格行，二分法查找
+   * @param {*} top
+   */
+  getRowByOffset(top) {
+    const { rowsMeta } = this.sheetData
+    let min = 0
+    let max = rowsMeta.length - 1
+    let result
+
+    if (top < rowsMeta[min].offset) return min
+    if (top > rowsMeta[max].offset) return max
+
+    while (min !== max) {
+      const mid = Math.floor((max + min) / 2)
+      if (
+        top >= rowsMeta[mid].offset &&
+        top <= rowsMeta[mid].offset + rowsMeta[mid].size
+      ) {
+        result = mid
+        break
+      } else if (top < rowsMeta[mid].offset) {
+        max = mid
+      } else {
+        min = mid
+      }
+    }
+
+    return result
   }
 }
 
