@@ -30,6 +30,11 @@ class Selector {
     this.selectorEl.style.display = 'block'
     return this
   }
+
+  hide() {
+    this.selectorEl.style.display = 'none'
+    return this
+  }
 }
 
 export default Selector

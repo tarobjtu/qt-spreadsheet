@@ -241,6 +241,16 @@ class ViewModel {
 
     return result
   }
+
+  getCellData(col, row) {
+    const { data } = this.sheetData
+    return data[row][col]
+  }
+
+  setCellData(col, row, value) {
+    const { data } = this.sheetData
+    data[row][col] = value
+  }
 }
 
 export default ViewModel

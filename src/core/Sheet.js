@@ -3,6 +3,7 @@ import ViewModel from './ViewModel'
 import Events from './Events'
 import Scrollbar from '../components/Scrollbar'
 import Selector from '../components/Selector'
+import Editor from '../components/Editor'
 import defaultTheme from '../configs/defaultTheme'
 import { assignStyle, perf, numberToAlpha } from '../utils/common'
 
@@ -15,6 +16,7 @@ class Sheet {
     this.ctx = this.canvas.getContext('2d')
     this.canvas.classList.add('qt-spreadsheet-canvas')
     container.appendChild(this.canvas)
+
     this.viewModel = new ViewModel({
       canvas: this.canvas,
       sheetData: data,
@@ -36,6 +38,12 @@ class Sheet {
       container,
       viewModel: this.viewModel,
     })
+    this.editor = new Editor({
+      sheet: this,
+      container,
+      viewModel: this.viewModel,
+    })
+
     this.setCanvasSize()
     this.draw()
     this.bindEvent()
@@ -57,9 +65,18 @@ class Sheet {
     window.addEventListener('resize', resize)
   }
 
-  // edit(offsetX, offsetY) {
-  //   console.warn('sheet.edit', offsetX, offsetY)
-  // }
+  edit(offsetX, offsetY) {
+    const { scrollX, scrollY } = this.viewModel.sheetData
+    const { row, col, type } = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
+
+    if (type === 'cell') {
+      const { left, top, width, height } = this.viewModel.getCellBBox(col, row, type)
+      const cellData = this.viewModel.getCellData(col, row)
+      this.editor.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
+      this.editor.setValue(cellData, col, row).show().focus()
+      this.selector.hide()
+    }
+  }
 
   select(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
@@ -72,25 +89,24 @@ class Sheet {
       const { left, top, width, height } = this.viewModel.getCellBBox(col, row, type)
       this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
       this.selector.show()
+      this.editor.hide()
     } else {
       // 圈选
-      console.warn({ startOffsetX, startOffsetY, endOffsetX, endOffsetY })
       const { col, row, colCount, rowCount } = this.viewModel.getRectCRs({
         left: Math.min(startOffsetX, endOffsetX) + scrollX,
         top: Math.min(startOffsetY, endOffsetY) + scrollY,
         width: Math.abs(startOffsetX - endOffsetX),
         height: Math.abs(startOffsetY - endOffsetY),
       })
-      console.warn({ col, row, colCount, rowCount })
       const { left, top, width, height } = this.viewModel.getCellsBBox({
         col,
         row,
         colCount,
         rowCount,
       })
-      console.warn({ left, top, width, height })
       this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
       this.selector.show()
+      this.editor.hide()
     }
   }
 
