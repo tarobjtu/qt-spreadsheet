@@ -1,8 +1,10 @@
 class Scrollbar {
-  constructor({ container, theme, viewModel }) {
+  constructor({ sheet, container, theme, viewModel, canvas }) {
+    this.sheet = sheet
     this.theme = theme
     this.viewModel = viewModel
     this.container = container
+    this.canvas = canvas
 
     this.scrollX = document.createElement('div')
     this.scrollY = document.createElement('div')
@@ -17,6 +19,20 @@ class Scrollbar {
     this.triggerY.classList.add('qt-spreadsheet-scrollbar-trigger')
     this.scrollX.appendChild(this.triggerX)
     this.scrollY.appendChild(this.triggerY)
+
+    this.bindEvent()
+  }
+
+  bindEvent() {
+    this.canvas.addEventListener('wheel', (event) => {
+      const { deltaX, deltaY } = event
+      const { scrollX, scrollY } = this.viewModel.sheetData
+      console.warn({ scrollX, scrollY, deltaX, deltaY })
+      this.sheet.scroll(
+        scrollX + Math.round(deltaX),
+        scrollY + Math.round(deltaY)
+      )
+    })
   }
 
   draw() {

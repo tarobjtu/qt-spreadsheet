@@ -12,6 +12,20 @@ class ViewModel {
     this.sheetData = data
   }
 
+  updateScroll(scrollX, scrollY) {
+    const { canvas } = this
+    const { width, height } = canvas.getBoundingClientRect()
+    const minScrollX = 0
+    const minScrollY = 0
+    const maxScrollX = this.getSheetWidth() - width
+    const maxScrollY = this.getSheetHeight() - height
+
+    const x = Math.max(Math.min(scrollX, maxScrollX), minScrollX)
+    const y = Math.max(Math.min(scrollY, maxScrollY), minScrollY)
+    this.sheetData.scrollX = x
+    this.sheetData.scrollY = y
+  }
+
   /**
    * @description 获取电子表格的高度
    */
@@ -48,7 +62,6 @@ class ViewModel {
       colCount: end.col - start.col + 1,
     }
 
-    console.warn(result)
     return result
   }
 

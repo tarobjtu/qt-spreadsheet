@@ -7,7 +7,6 @@ import '../style/core.scss'
 
 class Sheet {
   constructor({ data, container, options }) {
-    this.sheetData = data
     this.opts = options
     this.container = container
     this.theme = this.opts.theme || defaultTheme
@@ -17,11 +16,13 @@ class Sheet {
     container.appendChild(this.canvas)
     this.viewModel = new ViewModel({
       canvas: this.canvas,
-      sheetData: this.sheetData,
+      sheetData: data,
       theme: this.theme,
     })
     this.scrollbar = new Scrollbar({
+      sheet: this,
       container,
+      canvas: this.canvas,
       theme: this.theme,
       viewModel: this.viewModel,
     })
@@ -49,6 +50,11 @@ class Sheet {
     this.draw()
   }
 
+  scroll(scrollX, scrollY) {
+    this.viewModel.updateScroll(scrollX, scrollY)
+    this.draw()
+  }
+
   setCanvasSize() {
     const { container, canvas, opts, ctx } = this
     const width = container.offsetWidth
@@ -62,7 +68,6 @@ class Sheet {
   }
 
   loadData(data) {
-    this.sheetData = data
     this.viewModel.updateData(data)
   }
 
@@ -81,8 +86,8 @@ class Sheet {
   }
 
   drawBody() {
-    const { ctx, sheetData, viewModel } = this
-    const { colsMeta, rowsMeta, data } = sheetData
+    const { ctx, viewModel } = this
+    const { colsMeta, rowsMeta, data } = viewModel.sheetData
     const { col, row, colCount, rowCount } = viewModel.getViewportCRs()
 
     assignStyle(ctx, defaultTheme.default)
@@ -98,8 +103,8 @@ class Sheet {
   }
 
   drawCell(col, row, text) {
-    const { ctx, sheetData, theme } = this
-    const { scrollX, scrollY } = sheetData
+    const { ctx, viewModel, theme } = this
+    const { scrollX, scrollY } = viewModel.sheetData
     const { cellPadding } = theme
     const { strokeStyle, color, fillStyle } = theme.default
 
@@ -127,9 +132,9 @@ class Sheet {
   }
 
   drawHeader() {
-    const { ctx, sheetData, theme } = this
-    const { colsMeta, rowsMeta } = sheetData
-    const { scrollX, scrollY } = sheetData
+    const { ctx, viewModel, theme } = this
+    const { colsMeta, rowsMeta } = viewModel.sheetData
+    const { scrollX, scrollY } = viewModel.sheetData
 
     ctx.beginPath()
     assignStyle(ctx, theme.header)
