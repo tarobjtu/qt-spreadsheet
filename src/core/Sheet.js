@@ -139,25 +139,26 @@ class Sheet {
     const { ctx, viewModel, theme } = this
     const { colsMeta, rowsMeta } = viewModel.sheetData
     const { scrollX, scrollY } = viewModel.sheetData
+    const { col, row, colCount, rowCount } = viewModel.getViewportCRs()
 
     ctx.beginPath()
     assignStyle(ctx, theme.header)
 
-    for (let i = 0; i < colsMeta.length; i += 1) {
-      const col = colsMeta[i]
+    for (let i = col; i < col + colCount; i += 1) {
+      const cMeta = colsMeta[i]
       this.drawHeaderCell(
-        col,
+        cMeta,
         { offset: 0, size: theme.colHeaderHeight },
         numberToAlpha(i),
         { scrollX, scrollY: 0 }
       )
     }
 
-    for (let j = 0; j < rowsMeta.length; j += 1) {
-      const row = rowsMeta[j]
+    for (let j = row; j < row + rowCount; j += 1) {
+      const rMeta = rowsMeta[j]
       this.drawHeaderCell(
         { offset: 0, size: theme.rowHeaderWidth },
-        row,
+        rMeta,
         j + 1,
         { scrollX: 0, scrollY }
       )
