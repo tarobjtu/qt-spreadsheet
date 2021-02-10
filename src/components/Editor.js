@@ -46,7 +46,15 @@ class Editor {
     this.sheet.draw()
   }
 
-  onKeydown() {}
+  onKeydown(e) {
+    const { keyCode } = e
+    // 回车键
+    if (keyCode === 13) {
+      const { col, row } = this
+      e.preventDefault()
+      this.sheet.selectCell(col, row + 1)
+    }
+  }
 
   setOffset({ left, top, width, height }) {
     this.editorEl.style.left = left + 'px'

@@ -78,6 +78,19 @@ class Sheet {
     }
   }
 
+  /**
+   * @description 选中某个单元格,通过行列位置
+   * @param {*} col 单元格列坐标
+   * @param {*} row 单元格行坐标
+   */
+  selectCell(col, row) {
+    const { scrollX, scrollY } = this.viewModel.sheetData
+    const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
+    this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
+    this.selector.show()
+    this.editor.hide()
+  }
+
   select(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     // 点击选择
