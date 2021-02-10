@@ -51,8 +51,10 @@ class Sheet {
   }
 
   scroll(scrollX, scrollY) {
-    this.viewModel.updateScroll(scrollX, scrollY)
-    this.draw()
+    const changed = this.viewModel.updateScroll(scrollX, scrollY)
+    if (changed) {
+      this.draw()
+    }
   }
 
   setCanvasSize() {

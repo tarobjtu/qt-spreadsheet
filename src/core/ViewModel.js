@@ -8,22 +8,38 @@ class ViewModel {
     this.theme = theme
   }
 
+  /**
+   * @description 更新电子表格数据
+   * @param {*} data
+   */
   updateData(data) {
     this.sheetData = data
   }
 
+  /**
+   * @description 更新滚动相关的数据
+   * @param {*} scrollX
+   * @param {*} scrollY
+   * @param {boolean} changed 数据是否发生变化，变化返回true
+   */
   updateScroll(scrollX, scrollY) {
     const { canvas } = this
     const { width, height } = canvas.getBoundingClientRect()
+    // 判断边界
     const minScrollX = 0
     const minScrollY = 0
     const maxScrollX = this.getSheetWidth() - width
     const maxScrollY = this.getSheetHeight() - height
-
     const x = Math.max(Math.min(scrollX, maxScrollX), minScrollX)
     const y = Math.max(Math.min(scrollY, maxScrollY), minScrollY)
-    this.sheetData.scrollX = x
-    this.sheetData.scrollY = y
+
+    if (this.sheetData.scrollX !== x || this.sheetData.scrollY !== y) {
+      this.sheetData.scrollX = x
+      this.sheetData.scrollY = y
+      return true
+    }
+
+    return false
   }
 
   /**

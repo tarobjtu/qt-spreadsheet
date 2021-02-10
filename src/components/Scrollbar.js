@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 class Scrollbar {
   constructor({ sheet, container, theme, viewModel, canvas }) {
     this.sheet = sheet
@@ -24,15 +26,21 @@ class Scrollbar {
   }
 
   bindEvent() {
-    this.canvas.addEventListener('wheel', (event) => {
-      const { deltaX, deltaY } = event
-      const { scrollX, scrollY } = this.viewModel.sheetData
-      console.warn({ scrollX, scrollY, deltaX, deltaY })
-      this.sheet.scroll(
-        scrollX + Math.round(deltaX),
-        scrollY + Math.round(deltaY)
-      )
-    })
+    this.canvas.addEventListener(
+      'wheel',
+      _.throttle(this.onWheel.bind(this), 50)
+    )
+  }
+
+  onWheel(event) {
+    event.preventDefault()
+    const { deltaX, deltaY } = event
+    const { scrollX, scrollY } = this.viewModel.sheetData
+    console.warn({ deltaX, deltaY })
+    this.sheet.scroll(
+      scrollX + Math.round(deltaX),
+      scrollY + Math.round(deltaY)
+    )
   }
 
   draw() {
