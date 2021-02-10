@@ -25,18 +25,90 @@ class Scrollbar {
     this.bindEvent()
   }
 
+  destroy() {
+    this.events.forEach((ea) => {
+      ea[0].removeEventListener(ea[1], ea[2])
+    })
+  }
+
   bindEvent() {
-    this.canvas.addEventListener(
-      'wheel',
-      _.throttle(this.onWheel.bind(this), 50)
-    )
+    this.events = []
+    // 滚轮事件
+    const wheel = _.throttle(this.onWheel.bind(this), 50)
+    this.events.push([this.canvas, 'wheel', wheel])
+    this.canvas.addEventListener('wheel', wheel)
+
+    // triggerX 拖拽事件
+    const xMouseDown = this.onMouseDown.bind(this, 'X')
+    const yMouseDown = this.onMouseDown.bind(this, 'Y')
+    const mouseMove = _.throttle(this.onMouseMove.bind(this), 50)
+    const mouseUp = this.onMouseUp.bind(this)
+    this.events.push([this.triggerX, 'mousedown', xMouseDown])
+    this.events.push([this.triggerY, 'mousedown', yMouseDown])
+    this.events.push([window, 'mousemove', mouseMove])
+    this.events.push([window, 'mouseup', mouseUp])
+
+    this.triggerX.addEventListener('mousedown', xMouseDown, false)
+    this.triggerY.addEventListener('mousedown', yMouseDown, false)
+    window.addEventListener('mousemove', mouseMove, false)
+    window.addEventListener('mouseup', mouseUp, false)
+  }
+
+  onMouseDown(direction, e) {
+    this.dragStart = true
+    this.direction = direction
+    this.startPosition = this.direction === 'X' ? e.clientX : e.clientY
+  }
+
+  onMouseMove(e) {
+    if (!this.dragStart) return
+    this.moveTrigger(e.clientX, e.clientY)
+  }
+
+  onMouseUp(e) {
+    if (!this.dragStart) return
+    this.dragStart = false
+    this.moveTrigger(e.clientX, e.clientY)
+  }
+
+  /**
+   * @description 用鼠标拖拽滚动条的处理
+   * @param {*} clientX
+   * @param {*} clientY
+   */
+  moveTrigger(clientX, clientY) {
+    const { viewModel, container } = this
+    const { scrollX, scrollY } = viewModel.sheetData
+    const docHeight = viewModel.getSheetHeight() // 表格文档的高度
+    const docWidth = viewModel.getSheetWidth() // 表格文档的宽度
+    const viewWidth = container.offsetWidth // 表格窗口的宽度（不含公式、工具条）
+    const viewHeight = container.offsetHeight // 表格窗口的宽度（不含公式、工具条）
+
+    this.curPosition = this.direction === 'X' ? clientX : clientY
+    const delta = this.curPosition - this.startPosition
+
+    // console.warn('moving distance', this.curPosition - this.startPosition)
+
+    if (this.direction === 'X') {
+      this.sheet.scroll(
+        scrollX + Math.round((delta * docWidth) / viewWidth),
+        scrollY
+      )
+      this.startPosition = this.curPosition
+    } else {
+      this.sheet.scroll(
+        scrollX,
+        scrollY + Math.round((delta * docHeight) / viewHeight)
+      )
+      this.startPosition = this.curPosition
+    }
   }
 
   onWheel(event) {
     event.preventDefault()
     const { deltaX, deltaY } = event
     const { scrollX, scrollY } = this.viewModel.sheetData
-    console.warn({ deltaX, deltaY })
+    // console.warn({ deltaX, deltaY })
     this.sheet.scroll(
       scrollX + Math.round(deltaX),
       scrollY + Math.round(deltaY)

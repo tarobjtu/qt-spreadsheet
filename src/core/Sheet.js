@@ -34,6 +34,8 @@ class Sheet {
   destroy() {
     const { resize } = this.events
     window.removeEventListener('resize', resize)
+
+    this.scrollbar.destroy()
   }
 
   bindEvent() {
