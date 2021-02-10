@@ -62,17 +62,35 @@ class Sheet {
   // }
 
   select(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
+    const { scrollX, scrollY } = this.viewModel.sheetData
     // 点击选择
     if (endOffsetX === undefined || endOffsetY === undefined) {
-      const { row, col, type } = this.viewModel.getCellByOffset(startOffsetX, startOffsetY)
+      const { row, col, type } = this.viewModel.getCellByOffset(
+        startOffsetX + scrollX,
+        startOffsetY + scrollY
+      )
       const { left, top, width, height } = this.viewModel.getCellBBox(col, row, type)
-      this.selector.setOffset({ left, top, width, height }).show()
+      this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
+      this.selector.show()
     } else {
       // 圈选
-      // const left = Math.min(startOffsetX, endOffsetX)
-      // const top = Math.min(startOffsetY, endOffsetY)
-      // const width = Math.abs(startOffsetY - endOffsetY)
-      // const height = Math.abs(startOffsetY - endOffsetY)
+      console.warn({ startOffsetX, startOffsetY, endOffsetX, endOffsetY })
+      const { col, row, colCount, rowCount } = this.viewModel.getRectCRs({
+        left: Math.min(startOffsetX, endOffsetX) + scrollX,
+        top: Math.min(startOffsetY, endOffsetY) + scrollY,
+        width: Math.abs(startOffsetX - endOffsetX),
+        height: Math.abs(startOffsetY - endOffsetY),
+      })
+      console.warn({ col, row, colCount, rowCount })
+      const { left, top, width, height } = this.viewModel.getCellsBBox({
+        col,
+        row,
+        colCount,
+        rowCount,
+      })
+      console.warn({ left, top, width, height })
+      this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
+      this.selector.show()
     }
   }
 
@@ -105,17 +123,22 @@ class Sheet {
   }
 
   draw() {
-    perf(() => {
-      this.drawBody()
-    }, 'drawBody')
+    this.drawBody()
+    this.drawHeader()
+    this.scrollbar.draw()
 
-    perf(() => {
-      this.drawHeader()
-    }, 'drawHeader')
+    perf()
+    // perf(() => {
+    //   this.drawBody()
+    // }, 'drawBody')
 
-    perf(() => {
-      this.scrollbar.draw()
-    }, 'drawScrollbar')
+    // perf(() => {
+    //   this.drawHeader()
+    // }, 'drawHeader')
+
+    // perf(() => {
+    //   this.scrollbar.draw()
+    // }, 'drawScrollbar')
   }
 
   drawBody() {

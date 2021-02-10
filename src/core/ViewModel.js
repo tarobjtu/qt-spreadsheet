@@ -68,17 +68,23 @@ class ViewModel {
     const { scrollX, scrollY } = sheetData
     const { width, height } = canvas.getBoundingClientRect()
 
-    const start = this.getCellByOffset(scrollX, scrollY)
-    const end = this.getCellByOffset(scrollX + width, scrollY + height)
+    return this.getRectCRs({ left: scrollX, top: scrollY, width, height })
+  }
 
-    const result = {
+  /**
+   * @description 获取一个矩形区域内的所有单元格
+   * @param {*} param0
+   */
+  getRectCRs({ left, top, width, height }) {
+    const start = this.getCellByOffset(left, top)
+    const end = this.getCellByOffset(left + width, top + height)
+
+    return {
       row: start.row,
       col: start.col,
       rowCount: end.row - start.row + 1,
       colCount: end.col - start.col + 1,
     }
-
-    return result
   }
 
   /**
@@ -122,6 +128,23 @@ class ViewModel {
       top: rowsMeta[row].offset,
       width: colsMeta[col].size,
       height: rowsMeta[col].size,
+    }
+  }
+
+  /**
+   * @description 获取一组cells的区域信息
+   * @param {*} param0
+   */
+  getCellsBBox({ col, row, colCount, rowCount }) {
+    const { colsMeta, rowsMeta } = this.sheetData
+    const endCol = col + colCount - 1
+    const endRow = row + rowCount - 1
+
+    return {
+      left: colsMeta[col].offset,
+      top: rowsMeta[row].offset,
+      width: colsMeta[endCol].offset + colsMeta[endCol].size - colsMeta[col].offset,
+      height: rowsMeta[endRow].offset + rowsMeta[endRow].size - rowsMeta[row].offset,
     }
   }
 

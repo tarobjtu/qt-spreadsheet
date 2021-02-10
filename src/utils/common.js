@@ -17,6 +17,7 @@ export function numberToAlpha(number) {
 }
 
 export function perf(func, name) {
+  if (func === undefined) return
   const t0 = window.performance.now()
   func.apply(this)
   const t1 = window.performance.now()
