@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import './scrollbar.scss'
 
 class Scrollbar {
   constructor({ sheet, container, theme, viewModel, canvas }) {
@@ -8,6 +9,12 @@ class Scrollbar {
     this.container = container
     this.canvas = canvas
 
+    this.initElement()
+    this.bindEvent()
+  }
+
+  initElement() {
+    const { container } = this
     this.scrollX = document.createElement('div')
     this.scrollY = document.createElement('div')
     this.scrollX.classList.add('qt-spreadsheet-scrollbar-x')
@@ -21,8 +28,6 @@ class Scrollbar {
     this.triggerY.classList.add('qt-spreadsheet-scrollbar-trigger')
     this.scrollX.appendChild(this.triggerX)
     this.scrollY.appendChild(this.triggerY)
-
-    this.bindEvent()
   }
 
   destroy() {
@@ -90,16 +95,10 @@ class Scrollbar {
     // console.warn('moving distance', this.curPosition - this.startPosition)
 
     if (this.direction === 'X') {
-      this.sheet.scroll(
-        scrollX + Math.round((delta * docWidth) / viewWidth),
-        scrollY
-      )
+      this.sheet.scroll(scrollX + Math.round((delta * docWidth) / viewWidth), scrollY)
       this.startPosition = this.curPosition
     } else {
-      this.sheet.scroll(
-        scrollX,
-        scrollY + Math.round((delta * docHeight) / viewHeight)
-      )
+      this.sheet.scroll(scrollX, scrollY + Math.round((delta * docHeight) / viewHeight))
       this.startPosition = this.curPosition
     }
   }
@@ -109,10 +108,7 @@ class Scrollbar {
     const { deltaX, deltaY } = event
     const { scrollX, scrollY } = this.viewModel.sheetData
     // console.warn({ deltaX, deltaY })
-    this.sheet.scroll(
-      scrollX + Math.round(deltaX),
-      scrollY + Math.round(deltaY)
-    )
+    this.sheet.scroll(scrollX + Math.round(deltaX), scrollY + Math.round(deltaY))
   }
 
   draw() {

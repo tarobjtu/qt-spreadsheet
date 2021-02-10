@@ -82,16 +82,84 @@ class ViewModel {
   }
 
   /**
+   * @description 获取单元格的BBox信息
+   * @param {*} col
+   * @param {*} row
+   */
+  getCellBBox(col, row, type) {
+    const { colsMeta, rowsMeta } = this.sheetData
+    const { rowHeaderWidth, colHeaderHeight } = this.theme
+
+    if (type === 'corner') {
+      return {
+        left: 0,
+        top: 0,
+        width: rowHeaderWidth,
+        height: colHeaderHeight,
+      }
+    }
+
+    if (type === 'rowHeader') {
+      return {
+        left: 0,
+        top: rowsMeta[row].offset,
+        width: rowHeaderWidth,
+        height: rowsMeta[row].size,
+      }
+    }
+
+    if (type === 'colHeader') {
+      return {
+        left: colsMeta[col].offset,
+        top: 0,
+        width: colsMeta[col].size,
+        height: colHeaderHeight,
+      }
+    }
+
+    return {
+      left: colsMeta[col].offset,
+      top: rowsMeta[row].offset,
+      width: colsMeta[col].size,
+      height: rowsMeta[col].size,
+    }
+  }
+
+  /**
    * @description 找到坐标left、top命中的表格单元格
    * @param {*} left
    * @param {*} top
    */
   getCellByOffset(left, top) {
-    const col = this.getColByOffset(left)
-    const row = this.getRowByOffset(top)
+    const { rowHeaderWidth, colHeaderHeight } = this.theme
+
+    // 左上角的角标
+    if (left < rowHeaderWidth && top < colHeaderHeight) {
+      return { col: 0, row: 0, type: 'corner' }
+    }
+
+    // 左边的行头
+    if (left < rowHeaderWidth && top >= colHeaderHeight) {
+      return {
+        row: this.getRowByOffset(top),
+        col: 0,
+        type: 'rowHeader',
+      }
+    }
+
+    // 顶部的列头
+    if (left >= rowHeaderWidth && top < colHeaderHeight) {
+      return {
+        row: 0,
+        col: this.getColByOffset(left),
+        type: 'colHeader',
+      }
+    }
+
     return {
-      col,
-      row,
+      col: this.getColByOffset(left),
+      row: this.getRowByOffset(top),
+      type: 'cell',
     }
   }
 
@@ -110,10 +178,7 @@ class ViewModel {
 
     while (min !== max) {
       const mid = Math.floor((max + min) / 2)
-      if (
-        left >= colsMeta[mid].offset &&
-        left <= colsMeta[mid].offset + colsMeta[mid].size
-      ) {
+      if (left >= colsMeta[mid].offset && left <= colsMeta[mid].offset + colsMeta[mid].size) {
         result = mid
         break
       } else if (left < colsMeta[mid].offset) {
@@ -141,10 +206,7 @@ class ViewModel {
 
     while (min !== max) {
       const mid = Math.floor((max + min) / 2)
-      if (
-        top >= rowsMeta[mid].offset &&
-        top <= rowsMeta[mid].offset + rowsMeta[mid].size
-      ) {
+      if (top >= rowsMeta[mid].offset && top <= rowsMeta[mid].offset + rowsMeta[mid].size) {
         result = mid
         break
       } else if (top < rowsMeta[mid].offset) {

@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+}
+
+.qt-spreadsheet {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+.qt-spreadsheet-toolbar {
+  width: 100vw;
+  height: 40px;
+  background: #fcfcfc;
+}
+.qt-spreadsheet-formula {
+  width: 100vw;
+  height: 20px;
+}
+.qt-spreadsheet-canvas-container {
+  position: relative;
+  width: 100vw;
+  height: calc(100vh - 60px);
+}
+.qt-spreadsheet-canvas {
+  display: block;
+}

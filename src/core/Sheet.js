@@ -1,9 +1,10 @@
 import _ from 'lodash'
 import ViewModel from './ViewModel'
+import Events from './Events'
 import Scrollbar from '../components/Scrollbar'
+import Selector from '../components/Selector'
 import defaultTheme from '../configs/defaultTheme'
 import { assignStyle, perf, numberToAlpha } from '../utils/common'
-import '../style/core.scss'
 
 class Sheet {
   constructor({ data, container, options }) {
@@ -19,11 +20,20 @@ class Sheet {
       sheetData: data,
       theme: this.theme,
     })
+    this.events = new Events({
+      sheet: this,
+      canvas: this.canvas,
+      viewModel: this.viewModel,
+    })
     this.scrollbar = new Scrollbar({
       sheet: this,
       container,
       canvas: this.canvas,
       theme: this.theme,
+      viewModel: this.viewModel,
+    })
+    this.selector = new Selector({
+      container,
       viewModel: this.viewModel,
     })
     this.setCanvasSize()
@@ -45,6 +55,25 @@ class Sheet {
     this.events.resize = resize
 
     window.addEventListener('resize', resize)
+  }
+
+  // edit(offsetX, offsetY) {
+  //   console.warn('sheet.edit', offsetX, offsetY)
+  // }
+
+  select(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
+    // 点击选择
+    if (endOffsetX === undefined || endOffsetY === undefined) {
+      const { row, col, type } = this.viewModel.getCellByOffset(startOffsetX, startOffsetY)
+      const { left, top, width, height } = this.viewModel.getCellBBox(col, row, type)
+      this.selector.setOffset({ left, top, width, height }).show()
+    } else {
+      // 圈选
+      // const left = Math.min(startOffsetX, endOffsetX)
+      // const top = Math.min(startOffsetY, endOffsetY)
+      // const width = Math.abs(startOffsetY - endOffsetY)
+      // const height = Math.abs(startOffsetY - endOffsetY)
+    }
   }
 
   resize() {
@@ -146,22 +175,18 @@ class Sheet {
 
     for (let i = col; i < col + colCount; i += 1) {
       const cMeta = colsMeta[i]
-      this.drawHeaderCell(
-        cMeta,
-        { offset: 0, size: theme.colHeaderHeight },
-        numberToAlpha(i),
-        { scrollX, scrollY: 0 }
-      )
+      this.drawHeaderCell(cMeta, { offset: 0, size: theme.colHeaderHeight }, numberToAlpha(i), {
+        scrollX,
+        scrollY: 0,
+      })
     }
 
     for (let j = row; j < row + rowCount; j += 1) {
       const rMeta = rowsMeta[j]
-      this.drawHeaderCell(
-        { offset: 0, size: theme.rowHeaderWidth },
-        rMeta,
-        j + 1,
-        { scrollX: 0, scrollY }
-      )
+      this.drawHeaderCell({ offset: 0, size: theme.rowHeaderWidth }, rMeta, j + 1, {
+        scrollX: 0,
+        scrollY,
+      })
     }
 
     this.drawHeaderCell(
@@ -173,12 +198,7 @@ class Sheet {
     ctx.save()
   }
 
-  drawHeaderCell(
-    col,
-    row,
-    text,
-    { scrollX, scrollY } = { scrollX: 0, scrollY: 0 }
-  ) {
+  drawHeaderCell(col, row, text, { scrollX, scrollY } = { scrollX: 0, scrollY: 0 }) {
     const { ctx, theme } = this
     const { fillStyle, strokeStyle, color } = theme.header
 
@@ -188,20 +208,11 @@ class Sheet {
 
     // 画边框
     ctx.strokeStyle = strokeStyle
-    ctx.strokeRect(
-      col.offset - scrollX,
-      row.offset - scrollY,
-      col.size,
-      row.size
-    )
+    ctx.strokeRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 文字
     ctx.fillStyle = color
-    ctx.fillText(
-      text,
-      col.offset - scrollX + col.size / 2,
-      row.offset - scrollY + row.size / 2
-    )
+    ctx.fillText(text, col.offset - scrollX + col.size / 2, row.offset - scrollY + row.size / 2)
   }
 }
 

@@ -2,7 +2,7 @@ import Sheet from './Sheet'
 import defaultConfig from '../configs/defaultConfig'
 import defaultTheme from '../configs/defaultTheme'
 import { getSheetData } from '../utils/sheet'
-import '../style/core.scss'
+import './spreadsheet.scss'
 
 class Spreadsheet {
   constructor({ root, options }) {

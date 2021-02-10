@@ -1,0 +1,24 @@
+.qt-spreadsheet-selector {
+  position: absolute;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  background-color: rgba(100, 200, 255, 0.1);
+  border: 2px solid #2a83ea;
+  box-sizing: border-box;
+  transition: 0.15s;
+}
+.qt-spreadsheet-selector-corner {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 4px;
+  height: 4px;
+  border: 1px solid #fff;
+  background-color: #2a83ea;
+  pointer-events: all;
+  cursor: crosshair;
+}

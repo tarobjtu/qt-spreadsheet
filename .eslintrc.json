@@ -30,7 +30,7 @@
     "no-console": [
       "warn",
       {
-        "allow": ["error", "warn"]
+        "allow": ["error", "warn", "time"]
       }
     ],
     "no-template-curly-in-string": "error",

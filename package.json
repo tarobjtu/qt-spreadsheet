@@ -50,6 +50,7 @@
     "url": "git@gitlab.alibaba-inc.com:tao.qit/qt-spreadsheet.git"
   },
   "dependencies": {
+    "eventemitter3": "^4.0.7",
     "lodash": "^4.17.20",
     "whatwg-fetch": "^3.5.0"
   }
