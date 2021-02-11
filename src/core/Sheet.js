@@ -67,17 +67,74 @@ class Sheet {
     window.addEventListener('resize', resize)
   }
 
-  edit(offsetX, offsetY) {
+  /**
+   * @description 编辑器
+   * @param {*} offsetX
+   * @param {*} offsetY
+   */
+  showEditorByOffset(offsetX, offsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { row, col, type } = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
 
+    this.showEditor({ colIndex: col, rowIndex: row, cellType: type })
+  }
+
+  /**
+   * @description 开启编辑器
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   * @param {*} cellType
+   * @param {*} clearText 清空单元格现有数据
+   */
+  showEditor({ colIndex, rowIndex, cellType, clearText } = {}) {
+    const { scrollX, scrollY } = this.viewModel.sheetData
+    const selector = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selector.col : colIndex
+    const row = rowIndex === undefined ? selector.row : rowIndex
+    const type = cellType === undefined ? selector.type : cellType
+
     if (type === 'cell') {
-      const { left, top, width, height } = this.viewModel.getCellBBox(col, row, type)
-      const cellData = this.viewModel.getCellData(col, row)
+      const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
+      const cellData = clearText === true ? '' : this.viewModel.getCellData(col, row)
       this.editor.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
       this.editor.setValue(cellData, col, row).show().focus()
       this.selector.hide()
     }
+  }
+
+  /**
+   * @description 清除单元格的值
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   */
+  clearCellText(colIndex, rowIndex) {
+    const selector = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selector.col : colIndex
+    const row = rowIndex === undefined ? selector.row : rowIndex
+    this.viewModel.setCellData(col, row, '')
+    this.draw()
+  }
+
+  /**
+   * @description 设置单元格的值
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   * @param {*} value
+   */
+  setCellText(value, colIndex, rowIndex) {
+    const selector = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selector.col : colIndex
+    const row = rowIndex === undefined ? selector.row : rowIndex
+    this.viewModel.setCellData(col, row, value)
+    this.draw()
+  }
+
+  appendCellText(value, colIndex, rowIndex) {
+    const selector = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selector.col : colIndex
+    const row = rowIndex === undefined ? selector.row : rowIndex
+    this.viewModel.appendCellData(col, row, value)
+    this.draw()
   }
 
   /**

@@ -293,6 +293,11 @@ class ViewModel {
     const { data } = this.sheetData
     data[row][col] = value
   }
+
+  appendCellData(col, row, value) {
+    const { data } = this.sheetData
+    data[row][col] += value
+  }
 }
 
 export default ViewModel

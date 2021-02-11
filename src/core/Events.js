@@ -29,7 +29,7 @@ class Events extends EventEmitter {
     // 键盘事件
     const keydown = this.onKeydown.bind(this)
     this.events.push([document, 'keydown', keydown])
-    document.addEventListener('keydown', keydown)
+    document.addEventListener('keydown', keydown, false)
 
     // 鼠标事件
     const mousedown = this.onMousedown.bind(this)
@@ -57,7 +57,7 @@ class Events extends EventEmitter {
   onKeydown(e) {
     if (!this.canvasActive) return
     const keyCode = e.keyCode || e.which
-    const { shiftKey, metaKey, ctrlKey } = e // switch+case缩进的eslint判断有些问题
+    const { shiftKey } = e // switch+case缩进的eslint判断有些问题
 
     /* eslint-disable */
     switch (keyCode) {
@@ -77,10 +77,32 @@ class Events extends EventEmitter {
         this.sheet.selectorMove('down', shiftKey)
         e.preventDefault()
         break
+      case 9: // tab
+        this.sheet.selectorMove(shiftKey ? 'left' : 'right')
+        e.preventDefault()
+        break
+      case 13: // enter
+        this.sheet.selectorMove(shiftKey ? 'up' : 'down')
+        e.preventDefault()
+        break
+      case 8: // backspace
+        this.sheet.clearCellText()
+        e.preventDefault()
+        break
       default:
         break
     }
     /* eslint-enable */
+
+    // 输入文本 或 等号
+    if (
+      (keyCode >= 65 && keyCode <= 90) ||
+      (keyCode >= 48 && keyCode <= 57) ||
+      (keyCode >= 96 && keyCode <= 105) ||
+      e.key === '='
+    ) {
+      this.sheet.showEditor({ clearText: true })
+    }
   }
 
   onMousedown(e) {
@@ -120,7 +142,7 @@ class Events extends EventEmitter {
 
   dbclick(e) {
     const { offsetX, offsetY } = e
-    this.sheet.edit(offsetX, offsetY)
+    this.sheet.showEditorByOffset(offsetX, offsetY)
   }
 }
 

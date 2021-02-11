@@ -35,25 +35,24 @@ class Editor {
     this.events.push([this.textareaEl, 'keydown', keydown])
 
     this.textareaEl.addEventListener('input', input)
-    this.textareaEl.addEventListener('keydown', keydown)
+    this.textareaEl.addEventListener('keydown', keydown, false)
   }
 
   onInput() {
     if (!this.visible) return
-    const { row, col } = this
-    console.warn('input', this.textareaEl.value)
-    this.viewModel.setCellData(col, row, this.textareaEl.value)
-    this.sheet.draw()
+    this.sheet.setCellText(this.textareaEl.value)
   }
 
   onKeydown(e) {
     const keyCode = e.keyCode || e.which
-    // 回车键
-    if (keyCode === 13) {
-      const { col, row } = this
-      e.preventDefault()
-      this.sheet.selectCell(col, row + 1)
+    // 禁止enter、tab以外的keydown冒泡到全局keydown事件中（Events.js中）
+    if (keyCode !== 13 && keyCode !== 9) e.stopPropagation()
+    // Alt + 回车键
+    if (keyCode === 13 && e.altKey) {
+      e.stopPropagation()
+      this.sheet.appendCellText('\n')
     }
+    if (keyCode === 13 && !e.altKey) e.preventDefault()
   }
 
   setOffset({ left, top, width, height }) {
