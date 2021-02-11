@@ -23,18 +23,12 @@ class ViewModel {
   updateSelector({ col, row, colCount, rowCount, type }) {
     const { colsMeta, rowsMeta } = this.sheetData
 
-    const defaultValue = {
-      colCount: 1,
-      rowCount: 1,
-      type: 'cell',
-    }
     this.sheetData.selector = {
-      ...defaultValue,
       col: Math.max(Math.min(col, colsMeta.length - 1), 0),
       row: Math.max(Math.min(row, rowsMeta.length - 1), 0),
-      colCount,
-      rowCount,
-      type,
+      colCount: colCount === undefined ? 1 : colCount,
+      rowCount: rowCount === undefined ? 1 : rowCount,
+      type: type === undefined ? 'cell' : type,
     }
   }
 
@@ -87,6 +81,22 @@ class ViewModel {
     const { colsMeta } = this.sheetData
     const maxCM = colsMeta[colsMeta.length - 1]
     return maxCM.offset + maxCM.size
+  }
+
+  /**
+   * @description 获得最大列的位置
+   */
+  getMaxColIndex() {
+    const { colsMeta } = this.sheetData
+    return colsMeta.length - 1
+  }
+
+  /**
+   * @description 获得最大行的位置
+   */
+  getMaxRowIndex() {
+    const { rowsMeta } = this.sheetData
+    return rowsMeta.length - 1
   }
 
   /**

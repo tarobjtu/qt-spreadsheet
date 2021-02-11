@@ -86,28 +86,71 @@ class Sheet {
    * @param {*} multiple 多选
    */
   selectorMove(direction, multiple) {
-    const { col, row, colCount, rowCount, type } = this.viewModel.getSelector()
+    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    const maxCol = this.viewModel.getMaxColIndex()
+    const maxRow = this.viewModel.getMaxRowIndex()
 
-    if (direction === 'left') {
-      this.selectCell(col - 1, row)
-    } else if (direction === 'right') {
-      this.selectCell(col + 1, row)
-    } else if (direction === 'up') {
-      this.selectCell(col, row - 1)
-    } else if (direction === 'down') {
-      this.selectCell(col, row + 1)
+    // 单选
+    if (multiple !== true) {
+      if (direction === 'left') {
+        this.selectCell(col - 1, row)
+      } else if (direction === 'right') {
+        this.selectCell(col + 1, row)
+      } else if (direction === 'up') {
+        this.selectCell(col, row - 1)
+      } else if (direction === 'down') {
+        this.selectCell(col, row + 1)
+      }
+    }
+
+    // 多选
+    if (multiple === true) {
+      if (direction === 'left') {
+        if (col <= 0) return
+        this.selectCells(col - 1, row, colCount + 1, rowCount)
+      } else if (direction === 'right') {
+        if (col + colCount - 1 >= maxCol) return
+        this.selectCells(col, row, colCount + 1, rowCount)
+      } else if (direction === 'up') {
+        if (row <= 0) return
+        this.selectCells(col, row - 1, colCount, rowCount + 1)
+      } else if (direction === 'down') {
+        if (row + rowCount - 1 >= maxRow) return
+        this.selectCells(col, row, colCount, rowCount + 1)
+      }
     }
   }
 
   /**
    * @description 选中某个单元格,通过行列位置
-   * @param {*} col 单元格列坐标
-   * @param {*} row 单元格行坐标
+   * @param {*} col 选中的单元格列位置
+   * @param {*} row 选中的单元格行位置
    */
   selectCell(col = 0, row = 0) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
     this.viewModel.updateSelector({ col, row })
+    this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
+    this.selector.show()
+    this.editor.hide()
+  }
+
+  /**
+   * @description 选中一些单元格,通过行列位置
+   * @param {*} col 选中的起始单元格列位置
+   * @param {*} row 选中的起始单元格行位置
+   * @param {*} colCount 选中的列个数
+   * @param {*} rowCount 选中的行个数
+   */
+  selectCells(col = 0, row = 0, colCount = 1, rowCount = 1) {
+    const { scrollX, scrollY } = this.viewModel.sheetData
+    const { left, top, width, height } = this.viewModel.getCellsBBox({
+      col,
+      row,
+      colCount,
+      rowCount,
+    })
+    this.viewModel.updateSelector({ col, row, colCount, rowCount })
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()
