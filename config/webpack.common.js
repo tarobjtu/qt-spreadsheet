@@ -38,6 +38,10 @@ module.exports = {
           from: paths.assets + '/super-market.json',
           to: 'assets',
         },
+        {
+          from: paths.assets + '/icons',
+          to: 'assets/icons',
+        },
       ],
     }),
 
