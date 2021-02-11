@@ -7,11 +7,11 @@ class Editor {
     this.viewModel = viewModel
     this.sheet = sheet
 
-    this.initElement()
+    this.initElements()
     this.bindEvent()
   }
 
-  initElement() {
+  initElements() {
     const { container } = this
     this.editorEl = document.createElement('div')
     this.editorEl.classList.add('qt-spreadsheet-editor')

@@ -9,11 +9,11 @@ class Scrollbar {
     this.container = container
     this.canvas = canvas
 
-    this.initElement()
+    this.initElements()
     this.bindEvent()
   }
 
-  initElement() {
+  initElements() {
     const { container } = this
     this.scrollX = document.createElement('div')
     this.scrollY = document.createElement('div')

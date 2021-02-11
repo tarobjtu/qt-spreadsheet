@@ -284,16 +284,33 @@ class ViewModel {
     return result
   }
 
+  /**
+   * @description 获取单元格信息
+   * @param {*} col
+   * @param {*} row
+   */
   getCellData(col, row) {
     const { data } = this.sheetData
     return data[row][col]
   }
 
+  /**
+   * @description 设置单元格值
+   * @param {*} col
+   * @param {*} row
+   * @param {*} value
+   */
   setCellData(col, row, value) {
     const { data } = this.sheetData
     data[row][col] = value
   }
 
+  /**
+   * @description 在单元格值后面追加内容
+   * @param {*} col
+   * @param {*} row
+   * @param {*} value
+   */
   appendCellData(col, row, value) {
     const { data } = this.sheetData
     data[row][col] += value

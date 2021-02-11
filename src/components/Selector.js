@@ -5,10 +5,10 @@ class Selector {
     this.container = container
     this.viewModel = viewModel
 
-    this.initElement()
+    this.initElements()
   }
 
-  initElement() {
+  initElements() {
     const { container } = this
     this.selectorEl = document.createElement('div')
     this.selectorEl.classList.add('qt-spreadsheet-selector')

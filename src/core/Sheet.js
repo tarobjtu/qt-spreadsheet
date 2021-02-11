@@ -9,6 +9,7 @@ import { assignStyle, perf, numberToAlpha } from '../utils/common'
 
 class Sheet {
   constructor({ data, container, options }) {
+    this.data = data
     this.opts = options
     this.container = container
     this.theme = this.opts.theme || defaultTheme
@@ -17,38 +18,45 @@ class Sheet {
     this.canvas.classList.add('qt-spreadsheet-canvas')
     container.appendChild(this.canvas)
 
+    this.initComponents()
+    this.setCanvasSize()
+    this.draw()
+    this.selectCell()
+    this.bindEvent()
+  }
+
+  initComponents() {
+    const { data, container, canvas, theme } = this
     this.viewModel = new ViewModel({
-      canvas: this.canvas,
+      canvas,
       sheetData: data,
-      theme: this.theme,
+      theme,
     })
     this.events = new Events({
       sheet: this,
       container,
-      canvas: this.canvas,
+      canvas,
       viewModel: this.viewModel,
     })
+    // 初始化滚动条
     this.scrollbar = new Scrollbar({
       sheet: this,
       container,
-      canvas: this.canvas,
-      theme: this.theme,
+      canvas,
+      theme,
       viewModel: this.viewModel,
     })
+    // 初始化选择器
     this.selector = new Selector({
       container,
       viewModel: this.viewModel,
     })
+    // 初始化编辑器
     this.editor = new Editor({
       sheet: this,
       container,
       viewModel: this.viewModel,
     })
-
-    this.setCanvasSize()
-    this.draw()
-    this.selectCell()
-    this.bindEvent()
   }
 
   destroy() {
@@ -68,7 +76,7 @@ class Sheet {
   }
 
   /**
-   * @description 编辑器
+   * @description 通过鼠标位置开启编辑器
    * @param {*} offsetX
    * @param {*} offsetY
    */
@@ -129,6 +137,12 @@ class Sheet {
     this.draw()
   }
 
+  /**
+   * @description 在单元格值后面追加内容
+   * @param {*} value
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   */
   appendCellText(value, colIndex, rowIndex) {
     const selector = this.viewModel.getSelector()
     const col = colIndex === undefined ? selector.col : colIndex
@@ -213,6 +227,13 @@ class Sheet {
     this.editor.hide()
   }
 
+  /**
+   * @description 通过鼠标位置选中单元格（点击、圈选）
+   * @param {*} startOffsetX 点击或圈选的起始位置
+   * @param {*} startOffsetY 点击或圈选的起始位置
+   * @param {*} endOffsetX 圈选的终止位置
+   * @param {*} endOffsetY 圈选的终止位置
+   */
   select(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     // 点击选择
