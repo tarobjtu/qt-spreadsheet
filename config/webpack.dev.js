@@ -1,5 +1,4 @@
 const webpack = require('webpack')
-// const CopyPlugin = require('copy-webpack-plugin')
 const { merge } = require('webpack-merge')
 const common = require('./webpack.common.js')
 const paths = require('./paths')
@@ -42,9 +41,5 @@ module.exports = merge(common, {
   plugins: [
     // Only update what has changed on hot reload
     new webpack.HotModuleReplacementPlugin(),
-    // Copies individual files or entire directories, which already exist, to the build directory.
-    // new CopyPlugin({
-    //   patterns: [{ from: 'assets', to: 'dist' }],
-    // }),
   ],
 })

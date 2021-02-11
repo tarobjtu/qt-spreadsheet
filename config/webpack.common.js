@@ -32,6 +32,10 @@ module.exports = {
           },
           noErrorOnMissing: true,
         },
+        {
+          from: paths.assets + '/super-market.json',
+          to: 'assets',
+        },
       ],
     }),
 
