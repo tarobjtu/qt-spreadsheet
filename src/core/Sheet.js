@@ -24,6 +24,7 @@ class Sheet {
     })
     this.events = new Events({
       sheet: this,
+      container,
       canvas: this.canvas,
       viewModel: this.viewModel,
     })
@@ -46,6 +47,7 @@ class Sheet {
 
     this.setCanvasSize()
     this.draw()
+    this.selectCell()
     this.bindEvent()
   }
 
@@ -102,7 +104,7 @@ class Sheet {
    * @param {*} col 单元格列坐标
    * @param {*} row 单元格行坐标
    */
-  selectCell(col, row) {
+  selectCell(col = 0, row = 0) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
     this.viewModel.updateSelector({ col, row })

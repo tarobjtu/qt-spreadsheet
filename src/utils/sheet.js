@@ -14,7 +14,13 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
     mode: 'edit',
     scrollX: 0, // 表格视窗相对文档起始点的横轴位置
     scrollY: 0, // 表格视窗相对文档起始点的纵轴位置
-    selector: {}, // 选中的单元格或区域
+    selector: {
+      col: 0,
+      row: 0,
+      colCount: 1,
+      rowCount: 1,
+      type: 'cell',
+    }, // 选中的单元格或区域
     rowsMeta: defaultCRMeta({
       size: theme.rowHeight,
       count: rowCount,
