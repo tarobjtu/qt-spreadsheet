@@ -5,10 +5,11 @@ import _ from 'lodash'
  * @description 电子表格通用事件注册与处理
  */
 class Events extends EventEmitter {
-  constructor({ sheet, canvas, viewModel }) {
+  constructor({ sheet, canvas, container, viewModel }) {
     super()
 
     this.sheet = sheet
+    this.container = container
     this.canvas = canvas
     this.viewModel = viewModel
 
@@ -34,30 +35,47 @@ class Events extends EventEmitter {
     const mousedown = this.onMousedown.bind(this)
     const mousemove = _.throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
+    const click = this.onClick.bind(this)
     this.events.push([canvas, 'mousedown', mousedown])
     this.events.push([window, 'mousemove', mousemove])
     this.events.push([window, 'mouseup', mouseup])
+    this.events.push([window, 'click', click])
     canvas.addEventListener('mousedown', mousedown, false)
     window.addEventListener('mousemove', mousemove, false)
     window.addEventListener('mouseup', mouseup, false)
+    window.addEventListener('click', click, false)
+  }
+
+  onClick(e) {
+    if (this.container.contains(e.target)) {
+      this.canvasActive = true
+    } else {
+      this.canvasActive = false
+    }
   }
 
   onKeydown(e) {
+    if (!this.canvasActive) return
     const keyCode = e.keyCode || e.which
     const { shiftKey, metaKey, ctrlKey } = e // switch+case缩进的eslint判断有些问题
 
-    /* eslint-disable */ switch (keyCode) {
+    /* eslint-disable */
+    switch (keyCode) {
       case 37: // left
         this.sheet.selectorMove('left', shiftKey)
+        e.preventDefault()
         break
       case 38: // up
         this.sheet.selectorMove('up', shiftKey)
+        e.preventDefault()
         break
       case 39: // right
         this.sheet.selectorMove('right', shiftKey)
+        e.preventDefault()
         break
       case 40: // down
         this.sheet.selectorMove('down', shiftKey)
+        e.preventDefault()
         break
       default:
         break
