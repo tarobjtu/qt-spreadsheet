@@ -79,6 +79,25 @@ class Sheet {
   }
 
   /**
+   * @description 选中某个单元格，通过快捷键
+   * @param {*} direction 选择方向
+   * @param {*} multiple 多选
+   */
+  selectorMove(direction, multiple) {
+    const { col, row, colCount, rowCount, type } = this.viewModel.getSelector()
+
+    if (direction === 'left') {
+      this.selectCell(col - 1, row)
+    } else if (direction === 'right') {
+      this.selectCell(col + 1, row)
+    } else if (direction === 'up') {
+      this.selectCell(col, row - 1)
+    } else if (direction === 'down') {
+      this.selectCell(col, row + 1)
+    }
+  }
+
+  /**
    * @description 选中某个单元格,通过行列位置
    * @param {*} col 单元格列坐标
    * @param {*} row 单元格行坐标
@@ -86,6 +105,7 @@ class Sheet {
   selectCell(col, row) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
+    this.viewModel.updateSelector({ col, row })
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()
@@ -95,11 +115,12 @@ class Sheet {
     const { scrollX, scrollY } = this.viewModel.sheetData
     // 点击选择
     if (endOffsetX === undefined || endOffsetY === undefined) {
-      const { row, col, type } = this.viewModel.getCellByOffset(
+      const { col, row, type } = this.viewModel.getCellByOffset(
         startOffsetX + scrollX,
         startOffsetY + scrollY
       )
       const { left, top, width, height } = this.viewModel.getCellBBox(col, row, type)
+      this.viewModel.updateSelector({ col, row, type })
       this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
       this.selector.show()
       this.editor.hide()
@@ -117,6 +138,7 @@ class Sheet {
         colCount,
         rowCount,
       })
+      this.viewModel.updateSelector({ col, row, colCount, rowCount })
       this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
       this.selector.show()
       this.editor.hide()

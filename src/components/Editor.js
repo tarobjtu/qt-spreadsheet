@@ -47,7 +47,7 @@ class Editor {
   }
 
   onKeydown(e) {
-    const { keyCode } = e
+    const keyCode = e.keyCode || e.which
     // 回车键
     if (keyCode === 13) {
       const { col, row } = this

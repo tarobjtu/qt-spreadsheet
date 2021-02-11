@@ -17,6 +17,35 @@ class ViewModel {
   }
 
   /**
+   * @description 更新选中区域或单元格信息
+   * @param {*} param0
+   */
+  updateSelector({ col, row, colCount, rowCount, type }) {
+    const { colsMeta, rowsMeta } = this.sheetData
+
+    const defaultValue = {
+      colCount: 1,
+      rowCount: 1,
+      type: 'cell',
+    }
+    this.sheetData.selector = {
+      ...defaultValue,
+      col: Math.max(Math.min(col, colsMeta.length - 1), 0),
+      row: Math.max(Math.min(row, rowsMeta.length - 1), 0),
+      colCount,
+      rowCount,
+      type,
+    }
+  }
+
+  /**
+   * @description 取得电子表格的选中区域属性
+   */
+  getSelector() {
+    return this.sheetData.selector
+  }
+
+  /**
    * @description 更新滚动相关的数据
    * @param {*} scrollX
    * @param {*} scrollY
@@ -89,12 +118,15 @@ class ViewModel {
 
   /**
    * @description 获取单元格的BBox信息
-   * @param {*} col
-   * @param {*} row
+   * @param {*} colIndex
+   * @param {*} rowIndex
    */
-  getCellBBox(col, row, type) {
+  getCellBBox(colIndex, rowIndex, type) {
     const { colsMeta, rowsMeta } = this.sheetData
     const { rowHeaderWidth, colHeaderHeight } = this.theme
+
+    const col = Math.max(Math.min(colIndex, colsMeta.length - 1), 0)
+    const row = Math.max(Math.min(rowIndex, rowsMeta.length - 1), 0)
 
     if (type === 'corner') {
       return {
