@@ -108,7 +108,12 @@ class Toolbar {
 
   setFontColor() {
     const { sheet } = this
-    sheet.setCellsStyle({ color: 'red' })
+    sheet.setCellsStyle({ color: '#d81e06' })
+  }
+
+  setBackgroundColor() {
+    const { sheet } = this
+    sheet.setCellsStyle({ backgroundColor: '#c1f5fe' })
   }
 }
 
