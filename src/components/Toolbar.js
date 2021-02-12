@@ -52,8 +52,8 @@ class Toolbar {
    * @param {*} selector
    */
   updateStyleState() {
-    const cells = this.viewModel.getSelector()
-    console.warn(cells)
+    const selector = this.viewModel.getSelector()
+    console.warn(selector)
   }
 
   onClick(e) {

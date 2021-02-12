@@ -18,10 +18,9 @@ class ViewModel {
 
   /**
    * @description 更新选中区域或单元格信息
-   * @param {*} param0
    */
-  setSelector({ col, row, colCount, rowCount, type }) {
-    const { colsMeta, rowsMeta } = this.sheetData
+  setSelector({ col, row, colCount, rowCount, type, activeCol, activeRow }) {
+    const { colsMeta, rowsMeta, selector } = this.sheetData
 
     this.sheetData.selector = {
       col: Math.max(Math.min(col, colsMeta.length - 1), 0),
@@ -29,6 +28,14 @@ class ViewModel {
       colCount: colCount === undefined ? 1 : colCount,
       rowCount: rowCount === undefined ? 1 : rowCount,
       type: type === undefined ? 'cell' : type,
+      activeCol:
+        activeCol === undefined
+          ? selector.activeCol
+          : Math.max(Math.min(activeCol, colsMeta.length - 1), 0),
+      activeRow:
+        activeRow === undefined
+          ? selector.activeRow
+          : Math.max(Math.min(activeRow, rowsMeta.length - 1), 0),
     }
   }
 

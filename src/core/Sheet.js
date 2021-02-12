@@ -216,10 +216,10 @@ class Sheet extends EventEmitter {
    * @param {*} col 选中的单元格列位置
    * @param {*} row 选中的单元格行位置
    */
-  selectCell({ col, row, type } = { col: 0, row: 0, type: 'cell' }) {
+  selectCell({ col, row, type, activeCol, activeRow } = { col: 0, row: 0, type: 'cell' }) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
-    this.viewModel.setSelector({ col, row, type })
+    this.viewModel.setSelector({ col, row, type, activeCol, activeRow })
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()
@@ -233,7 +233,14 @@ class Sheet extends EventEmitter {
    * @param {*} colCount 选中的列个数
    * @param {*} rowCount 选中的行个数
    */
-  selectCells({ col, row, colCount, rowCount } = { col: 0, row: 0, colCount: 1, rowCount: 1 }) {
+  selectCells(
+    { col, row, colCount, rowCount, activeCol, activeRow } = {
+      col: 0,
+      row: 0,
+      colCount: 1,
+      rowCount: 1,
+    }
+  ) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellsBBox({
       col,
@@ -241,7 +248,7 @@ class Sheet extends EventEmitter {
       colCount,
       rowCount,
     })
-    this.viewModel.setSelector({ col, row, colCount, rowCount })
+    this.viewModel.setSelector({ col, row, colCount, rowCount, activeCol, activeRow })
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()
@@ -263,7 +270,7 @@ class Sheet extends EventEmitter {
         startOffsetX + scrollX,
         startOffsetY + scrollY
       )
-      this.selectCell({ col, row, type })
+      this.selectCell({ col, row, type, activeCol: col, activeRow: row })
     } else {
       // 圈选
       const { col, row, colCount, rowCount } = this.viewModel.getRectCRs({
