@@ -60,6 +60,8 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
       row: 0,
       colCount: 1,
       rowCount: 1,
+      activeCol: 0,
+      activeRow: 0,
       type: 'cell',
     }, // 选中的单元格或区域
     rowsMeta: defaultCRMeta({

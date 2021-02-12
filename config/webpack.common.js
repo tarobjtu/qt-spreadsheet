@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -62,6 +63,12 @@ module.exports = {
 
     // Prettier configuration
     new PrettierPlugin(),
+
+    new webpack.DefinePlugin({
+      __ENV__: JSON.stringify(process.env.NODE_ENV),
+      PROCESS_ENV: JSON.stringify(process.env.NODE_ENV),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    }),
   ],
 
   // Determine how modules within the project are treated

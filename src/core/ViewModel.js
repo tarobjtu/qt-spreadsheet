@@ -47,6 +47,15 @@ class ViewModel {
   }
 
   /**
+   * @description 获取选中的激活的单元格（数据）
+   */
+  getSelectedActiveCell() {
+    const { data, selector } = this.sheetData
+    const { activeCol, activeRow } = selector
+    return data[activeRow][activeCol]
+  }
+
+  /**
    * @description 获取选中的单元格（数据）
    */
   getSelectedCells() {
