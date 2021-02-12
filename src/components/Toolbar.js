@@ -71,7 +71,7 @@ class Toolbar {
     stylesOfUpdateState.forEach((key) => {
       const itemEl = this.itemEls[key]
       if (!itemEl) return
-      if (cell.style[key]) {
+      if (cell && cell.style[key]) {
         itemEl.classList.add('active')
       } else {
         itemEl.classList.remove('active')

@@ -357,7 +357,7 @@ class Sheet extends EventEmitter {
     const { strokeStyle, color, fillStyle, textAlign } = theme.default
 
     // 绘制边框
-    ctx.strokeStyle = data.style.border?.color || strokeStyle
+    ctx.strokeStyle = data.style?.border?.color || strokeStyle
     ctx.beginPath()
     ctx.moveTo(col.offset - scrollX, row.offset - scrollY)
     ctx.lineTo(col.offset + col.size - scrollX, row.offset - scrollY)
@@ -368,11 +368,11 @@ class Sheet extends EventEmitter {
     ctx.stroke()
 
     // 填充背景色
-    ctx.fillStyle = data.style.backgroundColor || fillStyle
+    ctx.fillStyle = data.style?.backgroundColor || fillStyle
     ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 绘制文字
-    ctx.fillStyle = data.style.color || color
+    ctx.fillStyle = data.style?.color || color
     ctx.textAlign = textAlign
     ctx.font = font(theme.default, data.style)
     ctx.fillText(

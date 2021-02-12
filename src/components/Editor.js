@@ -1,6 +1,16 @@
 import _ from 'lodash'
 import './editor.scss'
 
+const stylesOfUpdateState = {
+  color: 'color',
+  bold: 'fontWeight',
+  italic: 'fontStyle',
+  underline: 'textDecoration',
+  fontSize: 'fontSize',
+  fontFamily: 'fontFamily',
+  backgroundColor: 'backgroundColor',
+}
+
 class Editor {
   constructor({ container, viewModel, sheet }) {
     this.container = container
@@ -63,7 +73,21 @@ class Editor {
     return this
   }
 
+  setStyle() {
+    const cell = this.viewModel.getSelectedActiveCell()
+
+    Object.keys(stylesOfUpdateState).forEach((key) => {
+      const cssStyleName = stylesOfUpdateState[key]
+      if (cell.style[key]) {
+        this.textareaEl.style[cssStyleName] = cell.style[key]
+      } else {
+        this.textareaEl.style[cssStyleName] = ''
+      }
+    })
+  }
+
   show() {
+    this.setStyle()
     this.editorEl.style.display = 'block'
     this.visible = true
     return this
