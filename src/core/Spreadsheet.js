@@ -21,10 +21,6 @@ class Spreadsheet {
     canvas.classList.add('qt-spreadsheet-canvas-container')
     root.appendChild(canvas)
 
-    this.toolbar = new Toolbar({
-      container: toolbar,
-    })
-
     this.sheetData = getSheetData({
       colCount: this.opts.colsMeta.count,
       rowCount: this.opts.rowsMeta.count,
@@ -35,6 +31,11 @@ class Spreadsheet {
       data: this.sheetData,
       container: canvas,
       options: this.opts,
+    })
+
+    this.toolbar = new Toolbar({
+      container: toolbar,
+      sheet: this.sheet,
     })
   }
 

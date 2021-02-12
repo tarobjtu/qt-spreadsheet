@@ -300,7 +300,7 @@ class ViewModel {
    * @param {*} row
    * @param {*} value
    */
-  setCellData(col, row, value) {
+  setCellText(col, row, value) {
     const { data } = this.sheetData
     data[row][col] = value
   }
@@ -311,7 +311,7 @@ class ViewModel {
    * @param {*} row
    * @param {*} value
    */
-  appendCellData(col, row, value) {
+  appendCellText(col, row, value) {
     const { data } = this.sheetData
     data[row][col] += value
   }

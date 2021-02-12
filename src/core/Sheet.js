@@ -111,19 +111,6 @@ class Sheet {
   }
 
   /**
-   * @description 清除单元格的值
-   * @param {*} colIndex
-   * @param {*} rowIndex
-   */
-  clearCellText(colIndex, rowIndex) {
-    const selector = this.viewModel.getSelector()
-    const col = colIndex === undefined ? selector.col : colIndex
-    const row = rowIndex === undefined ? selector.row : rowIndex
-    this.viewModel.setCellData(col, row, '')
-    this.draw()
-  }
-
-  /**
    * @description 设置单元格的值
    * @param {*} colIndex
    * @param {*} rowIndex
@@ -133,7 +120,7 @@ class Sheet {
     const selector = this.viewModel.getSelector()
     const col = colIndex === undefined ? selector.col : colIndex
     const row = rowIndex === undefined ? selector.row : rowIndex
-    this.viewModel.setCellData(col, row, value)
+    this.viewModel.setCellText(col, row, value)
     this.draw()
   }
 
@@ -147,7 +134,34 @@ class Sheet {
     const selector = this.viewModel.getSelector()
     const col = colIndex === undefined ? selector.col : colIndex
     const row = rowIndex === undefined ? selector.row : rowIndex
-    this.viewModel.appendCellData(col, row, value)
+    this.viewModel.appendCellText(col, row, value)
+    this.draw()
+  }
+
+  /**
+   * @description 清除单元格的值
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   */
+  clearCellText(colIndex, rowIndex) {
+    const selector = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selector.col : colIndex
+    const row = rowIndex === undefined ? selector.row : rowIndex
+    this.viewModel.setCellText(col, row, '')
+    this.draw()
+  }
+
+  /**
+   * @description 设置单元格的样式
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   * @param {*} style
+   */
+  setCellStyle(style, colIndex, rowIndex) {
+    const selector = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selector.col : colIndex
+    const row = rowIndex === undefined ? selector.row : rowIndex
+    this.viewModel.setCellStyle(col, row, style)
     this.draw()
   }
 
@@ -317,7 +331,7 @@ class Sheet {
 
   drawBody() {
     const { ctx, viewModel } = this
-    const { colsMeta, rowsMeta, data } = viewModel.sheetData
+    const { colsMeta, rowsMeta } = viewModel.sheetData
     const { col, row, colCount, rowCount } = viewModel.getViewportCRs()
 
     assignStyle(ctx, defaultTheme.default)
@@ -326,8 +340,8 @@ class Sheet {
       for (let j = row; j < row + rowCount; j += 1) {
         const cMeta = colsMeta[i]
         const rMeta = rowsMeta[j]
-        const text = _.get(data, [j, i], '')
-        this.drawCell(cMeta, rMeta, text)
+        const data = viewModel.getCellData(i, j)
+        this.drawCell(cMeta, rMeta, data)
       }
     }
   }
