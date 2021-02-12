@@ -1,3 +1,4 @@
+import EventEmitter from 'eventemitter3'
 import _ from 'lodash'
 import ViewModel from './ViewModel'
 import Events from './Events'
@@ -8,8 +9,9 @@ import defaultTheme from '../configs/defaultTheme'
 import { assignStyle, perf, numberToAlpha } from '../utils/common'
 import { font } from '../utils/canvas'
 
-class Sheet {
+class Sheet extends EventEmitter {
   constructor({ data, container, options }) {
+    super()
     this.data = data
     this.opts = options
     this.container = container
@@ -22,7 +24,6 @@ class Sheet {
     this.initComponents()
     this.setCanvasSize()
     this.draw()
-    this.selectCell()
     this.bindEvent()
   }
 
@@ -182,13 +183,13 @@ class Sheet {
     // 单选
     if (multiple !== true) {
       if (direction === 'left') {
-        this.selectCell(col - 1, row)
+        this.selectCell({ col: col - 1, row })
       } else if (direction === 'right') {
-        this.selectCell(col + 1, row)
+        this.selectCell({ col: col + 1, row })
       } else if (direction === 'up') {
-        this.selectCell(col, row - 1)
+        this.selectCell({ col, row: row - 1 })
       } else if (direction === 'down') {
-        this.selectCell(col, row + 1)
+        this.selectCell({ col, row: row + 1 })
       }
     }
 
@@ -196,16 +197,16 @@ class Sheet {
     if (multiple === true) {
       if (direction === 'left') {
         if (col <= 0) return
-        this.selectCells(col - 1, row, colCount + 1, rowCount)
+        this.selectCells({ col: col - 1, row, colCount: colCount + 1, rowCount })
       } else if (direction === 'right') {
         if (col + colCount - 1 >= maxCol) return
-        this.selectCells(col, row, colCount + 1, rowCount)
+        this.selectCells({ col, row, colCount: colCount + 1, rowCount })
       } else if (direction === 'up') {
         if (row <= 0) return
-        this.selectCells(col, row - 1, colCount, rowCount + 1)
+        this.selectCells({ col, row: row - 1, colCount, rowCount: rowCount + 1 })
       } else if (direction === 'down') {
         if (row + rowCount - 1 >= maxRow) return
-        this.selectCells(col, row, colCount, rowCount + 1)
+        this.selectCells({ col, row, colCount, rowCount: rowCount + 1 })
       }
     }
   }
@@ -215,13 +216,14 @@ class Sheet {
    * @param {*} col 选中的单元格列位置
    * @param {*} row 选中的单元格行位置
    */
-  selectCell(col = 0, row = 0) {
+  selectCell({ col, row, type } = { col: 0, row: 0, type: 'cell' }) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
-    this.viewModel.updateSelector({ col, row })
+    this.viewModel.setSelector({ col, row, type })
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()
+    this.emit('select')
   }
 
   /**
@@ -231,7 +233,7 @@ class Sheet {
    * @param {*} colCount 选中的列个数
    * @param {*} rowCount 选中的行个数
    */
-  selectCells(col = 0, row = 0, colCount = 1, rowCount = 1) {
+  selectCells({ col, row, colCount, rowCount } = { col: 0, row: 0, colCount: 1, rowCount: 1 }) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellsBBox({
       col,
@@ -239,10 +241,11 @@ class Sheet {
       colCount,
       rowCount,
     })
-    this.viewModel.updateSelector({ col, row, colCount, rowCount })
+    this.viewModel.setSelector({ col, row, colCount, rowCount })
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()
+    this.emit('select')
   }
 
   /**
@@ -252,7 +255,7 @@ class Sheet {
    * @param {*} endOffsetX 圈选的终止位置
    * @param {*} endOffsetY 圈选的终止位置
    */
-  select(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
+  selectCellsByOffset(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     // 点击选择
     if (endOffsetX === undefined || endOffsetY === undefined) {
@@ -260,11 +263,7 @@ class Sheet {
         startOffsetX + scrollX,
         startOffsetY + scrollY
       )
-      const { left, top, width, height } = this.viewModel.getCellBBox(col, row, type)
-      this.viewModel.updateSelector({ col, row, type })
-      this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
-      this.selector.show()
-      this.editor.hide()
+      this.selectCell({ col, row, type })
     } else {
       // 圈选
       const { col, row, colCount, rowCount } = this.viewModel.getRectCRs({
@@ -273,16 +272,7 @@ class Sheet {
         width: Math.abs(startOffsetX - endOffsetX),
         height: Math.abs(startOffsetY - endOffsetY),
       })
-      const { left, top, width, height } = this.viewModel.getCellsBBox({
-        col,
-        row,
-        colCount,
-        rowCount,
-      })
-      this.viewModel.updateSelector({ col, row, colCount, rowCount })
-      this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
-      this.selector.show()
-      this.editor.hide()
+      this.selectCells({ col, row, colCount, rowCount })
     }
   }
 
@@ -312,6 +302,8 @@ class Sheet {
 
   loadData(data) {
     this.viewModel.updateData(data)
+    this.draw()
+    this.emit('loadData')
   }
 
   draw() {
@@ -320,6 +312,7 @@ class Sheet {
     this.scrollbar.draw()
 
     perf()
+    // 测试渲染性能
     // perf(() => {
     //   this.drawBody()
     // }, 'drawBody')

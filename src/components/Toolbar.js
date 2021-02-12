@@ -42,6 +42,18 @@ class Toolbar {
     const click = this.onClick.bind(this)
     this.events.push([container, 'click', click])
     container.addEventListener('click', click, false)
+
+    this.sheet.on('select', this.updateStyleState.bind(this))
+    this.sheet.on('loadData', this.updateStyleState.bind(this))
+  }
+
+  /**
+   * @description 选中单元格后，更新工具栏中样式按钮的状态
+   * @param {*} selector
+   */
+  updateStyleState() {
+    const cells = this.viewModel.getSelector()
+    console.warn(cells)
   }
 
   onClick(e) {

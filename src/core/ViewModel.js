@@ -20,7 +20,7 @@ class ViewModel {
    * @description 更新选中区域或单元格信息
    * @param {*} param0
    */
-  updateSelector({ col, row, colCount, rowCount, type }) {
+  setSelector({ col, row, colCount, rowCount, type }) {
     const { colsMeta, rowsMeta } = this.sheetData
 
     this.sheetData.selector = {
@@ -37,6 +37,21 @@ class ViewModel {
    */
   getSelector() {
     return this.sheetData.selector
+  }
+
+  /**
+   * @description 获取选中的单元格（数据）
+   */
+  getSelectedCells() {
+    const cells = []
+    const { data, selector } = this.sheetData
+    const { col, row, colCount, rowCount } = selector
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      for (let ci = col; ci < col + colCount; ci += 1) {
+        cells.push(data[ri][ci])
+      }
+    }
+    return cells
   }
 
   /**

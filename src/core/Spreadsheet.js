@@ -37,6 +37,9 @@ class Spreadsheet {
       container: toolbar,
       sheet: this.sheet,
     })
+
+    // 选中上次打开时选中的单元格，默认第一个单元格
+    this.sheet.selectCell()
   }
 
   loadData(data) {
@@ -47,7 +50,6 @@ class Spreadsheet {
       data,
     })
     this.sheet.loadData(this.sheetData)
-    this.sheet.draw()
   }
 }
 

@@ -110,7 +110,7 @@ class Events extends EventEmitter {
     const { offsetX, offsetY } = e
     this.startOffsetX = offsetX
     this.startOffsetY = offsetY
-    this.sheet.select(offsetX, offsetY)
+    this.sheet.selectCellsByOffset(offsetX, offsetY)
   }
 
   onMousemove(e) {
@@ -119,7 +119,7 @@ class Events extends EventEmitter {
 
     const { startOffsetX, startOffsetY } = this
     const { offsetX, offsetY } = e
-    this.sheet.select(startOffsetX, startOffsetY, offsetX, offsetY)
+    this.sheet.selectCellsByOffset(startOffsetX, startOffsetY, offsetX, offsetY)
   }
 
   onMouseup(e) {
@@ -130,7 +130,7 @@ class Events extends EventEmitter {
       this.mousemoving = false
       const { startOffsetX, startOffsetY } = this
       const { offsetX, offsetY } = e
-      this.sheet.select(startOffsetX, startOffsetY, offsetX, offsetY)
+      this.sheet.selectCellsByOffset(startOffsetX, startOffsetY, offsetX, offsetY)
     }
     // 鼠标双击
     if (this.mouseupTiming === undefined) this.mouseupTiming = 0
