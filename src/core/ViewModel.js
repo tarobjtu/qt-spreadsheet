@@ -294,6 +294,11 @@ class ViewModel {
     return data[row][col]
   }
 
+  getCellText(col, row) {
+    const { data } = this.sheetData
+    return data[row][col]?.value
+  }
+
   /**
    * @description 设置单元格值
    * @param {*} col
@@ -314,6 +319,17 @@ class ViewModel {
   appendCellText(col, row, value) {
     const { data } = this.sheetData
     data[row][col] += value
+  }
+
+  /**
+   * @description 设置单元格样式
+   * @param {*} col
+   * @param {*} row
+   * @param {*} style
+   */
+  setCellStyle(col, row, style = {}) {
+    const { data } = this.sheetData
+    data[row][col].style = { ...data[row][col]?.style, ...style }
   }
 }
 

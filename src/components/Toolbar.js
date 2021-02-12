@@ -55,7 +55,7 @@ class Toolbar {
 
   setBold() {
     const { sheet } = this
-    console.warn(sheet)
+    sheet.setCellsStyle({ bold: 'bold' })
   }
 }
 

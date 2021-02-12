@@ -27,7 +27,7 @@ function defaultCells(data) {
         // eslint-disable-next-line no-param-reassign
         arr[ci] = {
           style: {},
-          value: item,
+          value: item === undefined ? '' : item,
         }
       }
     })
@@ -37,18 +37,20 @@ function defaultCells(data) {
 }
 
 function defaultData(rowCount, colCount) {
-  const data = new Array(rowCount)
-  for (let i = 0; i < data.length; i += 1) {
-    data[i] = new Array(colCount)
+  const data = []
+  for (let i = 0; i < rowCount; i += 1) {
+    data.push([])
+    for (let j = 0; j < colCount; j += 1) {
+      data[i].push({
+        style: {},
+        value: '',
+      })
+    }
   }
   return data
 }
 
 export function getSheetData({ rowCount, colCount, theme, data }) {
-  let d = data
-  if (d === undefined) {
-    d = defaultData(rowCount, colCount)
-  }
   return {
     mode: 'edit',
     scrollX: 0, // 表格视窗相对文档起始点的横轴位置
@@ -70,7 +72,7 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
       count: colCount,
       headerOffset: theme.rowHeaderWidth,
     }),
-    data: defaultCells(d),
+    data: data === undefined ? defaultData(rowCount, colCount) : defaultCells(data),
   }
 }
 

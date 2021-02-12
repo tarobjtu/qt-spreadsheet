@@ -6,6 +6,7 @@ import Selector from '../components/Selector'
 import Editor from '../components/Editor'
 import defaultTheme from '../configs/defaultTheme'
 import { assignStyle, perf, numberToAlpha } from '../utils/common'
+import { font } from '../utils/canvas'
 
 class Sheet {
   constructor({ data, container, options }) {
@@ -103,7 +104,7 @@ class Sheet {
 
     if (type === 'cell') {
       const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
-      const cellData = clearText === true ? '' : this.viewModel.getCellData(col, row)
+      const cellData = clearText === true ? '' : this.viewModel.getCellText(col, row)
       this.editor.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
       this.editor.setValue(cellData, col, row).show().focus()
       this.selector.hide()
@@ -152,16 +153,19 @@ class Sheet {
   }
 
   /**
-   * @description 设置单元格的样式
+   * @description 设置选中单元格的样式
    * @param {*} colIndex
    * @param {*} rowIndex
    * @param {*} style
    */
-  setCellStyle(style, colIndex, rowIndex) {
-    const selector = this.viewModel.getSelector()
-    const col = colIndex === undefined ? selector.col : colIndex
-    const row = rowIndex === undefined ? selector.row : rowIndex
-    this.viewModel.setCellStyle(col, row, style)
+  setCellsStyle(style) {
+    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    for (let i = col; i < col + colCount; i += 1) {
+      for (let j = row; j < row + rowCount; j += 1) {
+        this.viewModel.setCellStyle(i, j, style)
+      }
+    }
+
     this.draw()
   }
 
@@ -346,11 +350,11 @@ class Sheet {
     }
   }
 
-  drawCell(col, row, text) {
+  drawCell(col, row, data) {
     const { ctx, viewModel, theme } = this
     const { scrollX, scrollY } = viewModel.sheetData
     const { cellPadding } = theme
-    const { strokeStyle, color, fillStyle } = theme.default
+    const { strokeStyle, color, fillStyle, textAlign } = theme.default
 
     // 绘制边框
     ctx.beginPath()
@@ -367,9 +371,11 @@ class Sheet {
     ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 绘制文字
-    ctx.fillStyle = color
-    ctx.textAlign = ctx.fillText(
-      text,
+    ctx.fillStyle = data.style.color || color
+    ctx.textAlign = textAlign
+    ctx.font = font(theme.default, data.style)
+    ctx.fillText(
+      data.value,
       col.offset - scrollX + cellPadding.left,
       row.offset - scrollY + row.size / 2
     )

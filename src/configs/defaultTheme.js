@@ -16,11 +16,9 @@ const defaultTheme = {
     lineWidth: 1,
     textAlign: 'left',
     textBaseline: 'middle',
-    fontSize: 9,
+    fontSize: 12,
     color: '#262626',
-    font:
-      // eslint-disable-next-line max-len
-      '12px "Helvetica Neue", "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif',
+    fontFamily: 'Arial, sans-serif, "Microsoft YaHei"',
   },
   cellStyleDefault: {
     fontSize: 9,
@@ -40,9 +38,7 @@ const defaultTheme = {
     lineWidth: 1,
     textAlign: 'center',
     textBaseline: 'middle',
-    font:
-      // eslint-disable-next-line max-len
-      '12px "Helvetica Neue", "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif',
+    font: '12px Arial, sans-serif, "Microsoft YaHei"',
     color: '#666',
   },
 }
