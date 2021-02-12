@@ -86,7 +86,7 @@ class Events extends EventEmitter {
         e.preventDefault()
         break
       case 8: // backspace
-        this.sheet.clearCellText()
+        this.sheet.clearSelectedCellsText()
         e.preventDefault()
         break
       default:

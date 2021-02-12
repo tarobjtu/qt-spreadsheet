@@ -148,14 +148,22 @@ class Sheet extends EventEmitter {
 
   /**
    * @description 清除单元格的值
-   * @param {*} colIndex
-   * @param {*} rowIndex
+   * @param {*} col
+   * @param {*} row
    */
-  clearCellText(colIndex, rowIndex) {
-    const selector = this.viewModel.getSelector()
-    const col = colIndex === undefined ? selector.col : colIndex
-    const row = rowIndex === undefined ? selector.row : rowIndex
+  clearCellText(col, row) {
     this.viewModel.setCellText(col, row, '')
+    this.draw()
+  }
+
+  /**
+   * @description 清除选中单元格的值
+   */
+  clearSelectedCellsText() {
+    const cells = this.viewModel.getSelectedCells()
+    cells.forEach(({ col, row }) => {
+      this.viewModel.setCellText(col, row, '')
+    })
     this.draw()
   }
 

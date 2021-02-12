@@ -58,13 +58,28 @@ class ViewModel {
   /**
    * @description 获取选中的单元格（数据）
    */
-  getSelectedCells() {
-    const cells = []
+  getSelectedCellsData() {
+    const cellsData = []
     const { data, selector } = this.sheetData
     const { col, row, colCount, rowCount } = selector
     for (let ri = row; ri < row + rowCount; ri += 1) {
       for (let ci = col; ci < col + colCount; ci += 1) {
-        cells.push(data[ri][ci])
+        cellsData.push(data[ri][ci])
+      }
+    }
+    return cellsData
+  }
+
+  /**
+   * @description 获取选中的单元格（坐标）
+   */
+  getSelectedCells() {
+    const cells = []
+    const { selector } = this.sheetData
+    const { col, row, colCount, rowCount } = selector
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      for (let ci = col; ci < col + colCount; ci += 1) {
+        cells.push({ col: ci, row: ri })
       }
     }
     return cells
