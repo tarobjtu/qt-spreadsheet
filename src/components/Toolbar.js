@@ -96,6 +96,20 @@ class Toolbar {
       sheet.setCellsStyle({ bold: '' })
     }
   }
+
+  setItalic(key) {
+    const { sheet, itemEls } = this
+    if (!itemEls[key].classList.contains('active')) {
+      sheet.setCellsStyle({ italic: 'italic' })
+    } else {
+      sheet.setCellsStyle({ italic: '' })
+    }
+  }
+
+  setFontColor() {
+    const { sheet } = this
+    sheet.setCellsStyle({ color: 'red' })
+  }
 }
 
 export default Toolbar
