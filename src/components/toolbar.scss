@@ -1,0 +1,35 @@
+.qt-spreadsheet-toolbar {
+  width: 100vw;
+  height: 40px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  background: #fcfcfc;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+
+  & > ul {
+    list-style: none;
+    margin: 0;
+    display: flex;
+    padding: 0 20px;
+  }
+  .qt-spreadsheet-toolbar-item {
+    height: 38px;
+    box-sizing: border-box;
+    width: 38px;
+    background-size: 45% 45%;
+    background-position: 10px 11px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    opacity: 0.8;
+
+    &.disable {
+      opacity: 0.3;
+    }
+  }
+  .qt-spreadsheet-toolbar-divider {
+    border-left: 1px solid #e8e8e8;
+    margin-left: 4px;
+    margin-right: 3px;
+  }
+}

@@ -1,5 +1,6 @@
 import { fetch } from 'whatwg-fetch'
 import Spreadsheet from './core/Spreadsheet'
+import './style/common.scss'
 
 const options = {
   width: document.documentElement.clientWidth,

@@ -1,8 +1,8 @@
+import Toolbar from '../components/Toolbar'
 import Sheet from './Sheet'
 import defaultConfig from '../configs/defaultConfig'
 import defaultTheme from '../configs/defaultTheme'
 import { getSheetData } from '../utils/sheet'
-import './common.scss'
 import './spreadsheet.scss'
 
 class Spreadsheet {
@@ -17,9 +17,13 @@ class Spreadsheet {
     const formula = document.createElement('div')
     formula.classList.add('qt-spreadsheet-formula')
     root.appendChild(formula)
-    const container = document.createElement('div')
-    container.classList.add('qt-spreadsheet-canvas-container')
-    root.appendChild(container)
+    const canvas = document.createElement('div')
+    canvas.classList.add('qt-spreadsheet-canvas-container')
+    root.appendChild(canvas)
+
+    this.toolbar = new Toolbar({
+      container: toolbar,
+    })
 
     this.sheetData = getSheetData({
       colCount: this.opts.colsMeta.count,
@@ -29,7 +33,7 @@ class Spreadsheet {
 
     this.sheet = new Sheet({
       data: this.sheetData,
-      container,
+      container: canvas,
       options: this.opts,
     })
   }

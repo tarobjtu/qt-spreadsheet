@@ -15,7 +15,7 @@ export default [
   {
     key: 'bold',
     name: '粗体',
-    icon: 'assets/icons/undo.png',
+    icon: 'assets/icons/bold.png',
   },
   {
     key: 'italic',
