@@ -38,6 +38,11 @@ export default [
     icon: 'assets/icons/background-color.png',
   },
   {
+    key: 'border-all',
+    name: '边框',
+    icon: 'assets/icons/border-all.png',
+  },
+  {
     key: 'divider',
   },
   {

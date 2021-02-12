@@ -115,6 +115,11 @@ class Toolbar {
     const { sheet } = this
     sheet.setCellsStyle({ backgroundColor: '#c1f5fe' })
   }
+
+  setBorderAll() {
+    const { sheet } = this
+    sheet.setCellsStyle({ border: { type: 'all', color: 'rgba(100,100,100,1)' } })
+  }
 }
 
 export default Toolbar

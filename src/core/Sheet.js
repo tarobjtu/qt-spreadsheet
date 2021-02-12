@@ -357,12 +357,13 @@ class Sheet extends EventEmitter {
     const { strokeStyle, color, fillStyle, textAlign } = theme.default
 
     // 绘制边框
+    ctx.strokeStyle = data.style.border?.color || strokeStyle
     ctx.beginPath()
-    ctx.strokeStyle = strokeStyle
     ctx.moveTo(col.offset - scrollX, row.offset - scrollY)
     ctx.lineTo(col.offset + col.size - scrollX, row.offset - scrollY)
-    ctx.moveTo(col.offset - scrollX, row.offset - scrollY)
+    ctx.lineTo(col.offset + col.size - scrollX, row.offset + row.size - scrollY)
     ctx.lineTo(col.offset - scrollX, row.offset + row.size - scrollY)
+    ctx.lineTo(col.offset - scrollX, row.offset - scrollY)
     ctx.closePath()
     ctx.stroke()
 
