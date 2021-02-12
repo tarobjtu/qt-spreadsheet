@@ -367,7 +367,7 @@ class Sheet extends EventEmitter {
     ctx.stroke()
 
     // 填充背景色
-    ctx.fillStyle = fillStyle
+    ctx.fillStyle = data.style.backgroundColor || fillStyle
     ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 绘制文字
