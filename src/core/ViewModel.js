@@ -338,7 +338,7 @@ class ViewModel {
    */
   setCellText(col, row, value) {
     const { data } = this.sheetData
-    data[row][col] = value
+    data[row][col].value = value
   }
 
   /**
@@ -349,7 +349,7 @@ class ViewModel {
    */
   appendCellText(col, row, value) {
     const { data } = this.sheetData
-    data[row][col] += value
+    data[row][col].value += value
   }
 
   /**
