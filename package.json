@@ -3,7 +3,19 @@
   "version": "0.0.1",
   "description": "导演的电子表格",
   "private": true,
-  "author": "导演",
+  "author": "导演 <taro.bjtu@gmail.com> (https://github.com/tarobjtu)",
+  "contributors": [
+    {
+      "name": "导演",
+      "email": "taro.bjtu@gmail.com",
+      "url": "https://github.com/tarobjtu"
+    },
+    {
+      "name": "欢迎你来贡献代码",
+      "email": "welcome.your@contribution.com",
+      "url": "https://welcome.your.com/contribution"
+    }
+  ],
   "license": "MIT",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve --config config/webpack.dev.js",
