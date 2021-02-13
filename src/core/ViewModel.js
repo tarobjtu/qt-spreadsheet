@@ -1,3 +1,7 @@
+import update from '../utils/immutability-helper-y'
+import { deepClone } from '../utils/common'
+import History from './History'
+
 /**
  * @description 电子表格视图相关数据的计算函数
  */
@@ -6,6 +10,11 @@ class ViewModel {
     this.sheetData = sheetData
     this.canvas = canvas
     this.theme = theme
+    this.history = new History()
+
+    if (process.env.NODE_ENV === 'development') {
+      window.update = update
+    }
   }
 
   /**
@@ -14,6 +23,14 @@ class ViewModel {
    */
   updateData(data) {
     this.sheetData = data
+    this.history.save(deepClone(this.sheetData))
+  }
+
+  /**
+   * @description 获取电子表格数据
+   */
+  getSheetData() {
+    return this.sheetData
   }
 
   /**
@@ -350,10 +367,20 @@ class ViewModel {
    * @param {*} col
    * @param {*} row
    * @param {*} value
+   * @param {*} state 状态包括：input、finished（历史版本只保存最后的一次输入）
    */
-  setCellText(col, row, value) {
-    const { data } = this.sheetData
-    data[row][col].value = value
+  setCellText(col, row, value, state = 'input') {
+    const { sheetData } = this
+
+    if (state === 'finished') {
+      // 通过immutable函数创建一个新的sheetData对象，旧的对象存储到history中
+      // 新对象的属性值发生变化，不会改变旧的值，immutable比深拷贝节省存储空间
+      // 性能：super-market.json 数据量 10000行 * 21列，deepClone耗时125ms，_.cloneDeep耗时275ms，immutable拷贝耗时2.5ms
+      this.sheetData = update.$set(sheetData, ['data', row, col, 'value'], value)
+      this.history.save(sheetData)
+    } else {
+      this.sheetData = update.$set(sheetData, ['data', row, col, 'value'], value)
+    }
   }
 
   /**
@@ -362,9 +389,9 @@ class ViewModel {
    * @param {*} row
    * @param {*} value
    */
-  appendCellText(col, row, value) {
-    const { data } = this.sheetData
-    data[row][col].value += value
+  appendCellText(col, row, value, state = 'input') {
+    const originValue = this.getCellText(col, row)
+    this.setCellText(col, row, originValue + value, state)
   }
 
   /**
@@ -374,8 +401,12 @@ class ViewModel {
    * @param {*} style
    */
   setCellStyle(col, row, style = {}) {
-    const { data } = this.sheetData
-    data[row][col].style = { ...data[row][col]?.style, ...style }
+    const { sheetData } = this
+    this.sheetData = update.$set(sheetData, ['data', row, col, 'style'], {
+      ...sheetData.data[row][col]?.style,
+      ...style,
+    })
+    this.history.save(sheetData)
   }
 }
 
