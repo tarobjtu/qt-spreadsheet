@@ -26,19 +26,22 @@ class Sheet extends EventEmitter {
     this.draw()
     this.bindEvent()
 
+    // 在开发环境快速查看电子表格核心数据，调试便利
     if (process.env.NODE_ENV === 'development') {
-      window.sheet = this
-      window.viewModel = this.viewModel
-      window.sheetData = this.viewModel.sheetData
+      window.qtSheet = this
+      window.qtViewModel = this.viewModel
+      window.qtSheetData = () => this.viewModel.getSheetData()
+      window.qtHistory = this.viewModel.history
     }
   }
 
   initComponents() {
     const { data, container, canvas, theme } = this
+
     this.viewModel = new ViewModel({
       canvas,
-      sheetData: data,
       theme,
+      sheetData: data,
     })
     this.events = new Events({
       sheet: this,
