@@ -57,51 +57,94 @@ class Events extends EventEmitter {
   onKeydown(e) {
     if (!this.canvasActive) return
     const keyCode = e.keyCode || e.which
-    const { shiftKey } = e // switch+case缩进的eslint判断有些问题
+    const { shiftKey, ctrlKey, metaKey } = e
 
-    /* eslint-disable */
-    switch (keyCode) {
-      case 37: // left
-        this.sheet.selectorMove('left', shiftKey)
-        e.preventDefault()
-        break
-      case 38: // up
-        this.sheet.selectorMove('up', shiftKey)
-        e.preventDefault()
-        break
-      case 39: // right
-        this.sheet.selectorMove('right', shiftKey)
-        e.preventDefault()
-        break
-      case 40: // down
-        this.sheet.selectorMove('down', shiftKey)
-        e.preventDefault()
-        break
-      case 9: // tab
-        this.sheet.selectorMove(shiftKey ? 'left' : 'right')
-        e.preventDefault()
-        break
-      case 13: // enter
-        this.sheet.selectorMove(shiftKey ? 'up' : 'down')
-        e.preventDefault()
-        break
-      case 8: // backspace
-        this.sheet.clearSelectedCellsText()
-        e.preventDefault()
-        break
-      default:
-        break
-    }
-    /* eslint-enable */
+    // Windows的Ctrl、Mac的Command辅助键与功能键同时按下的情况
+    if (ctrlKey || metaKey) {
+      // switch+case缩进的eslint判断有些问题
+      /* eslint-disable */
+      switch (keyCode) {
+        case 90: //Command + Z 撤销， Command + Shift + Z 重做
+          if (shiftKey) {
+            this.sheet.redo()
+          } else {
+            this.sheet.undo()
+          }
+          e.preventDefault()
+          break
+        case 89: //Command + Y 重做
+          this.sheet.redo()
+          e.preventDefault()
+          break
+        case 66: // Command + B 加粗
+          this.sheet.setCellsStyle({ bold: 'bold' })
+          e.preventDefault()
+          break
+        case 73: // Command + I 斜体
+          this.sheet.setCellsStyle({ italic: 'italic' })
+          e.preventDefault()
+          break
+        case 67: // Command + C 复制
+          // this.sheet.copy()
+          e.preventDefault()
+          break
+        case 86: // Command + V 黏贴
+          // this.sheet.paste()
+          e.preventDefault()
+          break
+        case 88: // Command + X 剪贴
+          // this.sheet.cut()
+          e.preventDefault()
+          break
+        default:
+          break
+      }
+      /* eslint-enable */
+    } else {
+      /* eslint-disable */
+      switch (keyCode) {
+        case 37: // left
+          this.sheet.selectorMove('left', shiftKey)
+          e.preventDefault()
+          break
+        case 38: // up
+          this.sheet.selectorMove('up', shiftKey)
+          e.preventDefault()
+          break
+        case 39: // right
+          this.sheet.selectorMove('right', shiftKey)
+          e.preventDefault()
+          break
+        case 40: // down
+          this.sheet.selectorMove('down', shiftKey)
+          e.preventDefault()
+          break
+        case 9: // tab
+          this.sheet.selectorMove(shiftKey ? 'left' : 'right')
+          e.preventDefault()
+          break
+        case 13: // enter
+          this.sheet.selectorMove(shiftKey ? 'up' : 'down')
+          e.preventDefault()
+          break
+        case 8: // backspace
+          this.sheet.clearSelectedCellsText()
+          e.preventDefault()
+          break
+        default:
+          break
+      }
+      /* eslint-enable */
 
-    // 输入文本 或 等号
-    if (
-      (keyCode >= 65 && keyCode <= 90) ||
-      (keyCode >= 48 && keyCode <= 57) ||
-      (keyCode >= 96 && keyCode <= 105) ||
-      e.key === '='
-    ) {
-      this.sheet.showEditor({ clearText: true })
+      // 输入文本 或 等号
+      if (
+        (keyCode >= 65 && keyCode <= 90) ||
+        (keyCode >= 48 && keyCode <= 57) ||
+        (keyCode >= 96 && keyCode <= 105) ||
+        e.key === '='
+      ) {
+        this.sheet.showEditor({ clearText: true })
+      }
     }
   }
 
