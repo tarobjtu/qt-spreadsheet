@@ -123,15 +123,16 @@ class Sheet extends EventEmitter {
 
   /**
    * @description 设置单元格的值
+   * @param {*} value
    * @param {*} colIndex
    * @param {*} rowIndex
-   * @param {*} value
+   * @param {*} state 状态包括：input、finished（历史版本只保存最后的一次输入）
    */
-  setCellText(value, colIndex, rowIndex) {
+  setCellText(value, colIndex, rowIndex, state = 'input') {
     const selector = this.viewModel.getSelector()
     const col = colIndex === undefined ? selector.col : colIndex
     const row = rowIndex === undefined ? selector.row : rowIndex
-    this.viewModel.setCellText(col, row, value)
+    this.viewModel.setCellText(col, row, value, state)
     this.draw()
   }
 

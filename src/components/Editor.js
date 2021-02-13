@@ -41,15 +41,23 @@ class Editor {
     this.events = []
     const input = _.throttle(this.onInput.bind(this), 300)
     const keydown = this.onKeydown.bind(this)
+    const change = this.onChange.bind(this)
     this.events.push([this.textareaEl, 'input', input])
     this.events.push([this.textareaEl, 'keydown', keydown])
 
     this.textareaEl.addEventListener('input', input)
     this.textareaEl.addEventListener('keydown', keydown, false)
+    this.textareaEl.addEventListener('change', change, false)
+  }
+
+  onChange() {
+    const { col, row } = this.curEditingCell
+    this.sheet.setCellText(this.textareaEl.value, col, row, 'finished')
   }
 
   onInput() {
     if (!this.visible) return
+    this.curEditingCell = this.viewModel.getSelector()
     this.sheet.setCellText(this.textareaEl.value)
   }
 
