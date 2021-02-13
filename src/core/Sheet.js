@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3'
 import _ from 'lodash'
+import History from './History'
 import ViewModel from './ViewModel'
 import Events from './Events'
 import Scrollbar from '../components/Scrollbar'
@@ -38,10 +39,12 @@ class Sheet extends EventEmitter {
   initComponents() {
     const { data, container, canvas, theme } = this
 
+    this.history = new History(data)
     this.viewModel = new ViewModel({
       canvas,
       theme,
       sheetData: data,
+      history: this.history,
     })
     this.events = new Events({
       sheet: this,
@@ -84,6 +87,22 @@ class Sheet extends EventEmitter {
     this.events.resize = resize
 
     window.addEventListener('resize', resize)
+  }
+
+  undo() {
+    if (!this.history.canUndo()) return
+    this.history.undo((sheetData) => {
+      this.viewModel.setSheetData(sheetData)
+      this.draw()
+    })
+  }
+
+  redo() {
+    if (!this.history.canRedo()) return
+    this.history.redo((sheetData) => {
+      this.viewModel.setSheetData(sheetData)
+      this.draw()
+    })
   }
 
   /**

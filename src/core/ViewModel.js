@@ -1,16 +1,15 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone } from '../utils/common'
-import History from './History'
 
 /**
  * @description 电子表格视图相关数据的计算函数
  */
 class ViewModel {
-  constructor({ sheetData, canvas, theme }) {
+  constructor({ sheetData, canvas, theme, history }) {
     this.sheetData = sheetData
     this.canvas = canvas
     this.theme = theme
-    this.history = new History()
+    this.history = history
 
     if (process.env.NODE_ENV === 'development') {
       window.update = update
@@ -22,8 +21,16 @@ class ViewModel {
    * @param {*} data
    */
   updateData(data) {
-    this.sheetData = data
+    this.setSheetData(data)
     this.history.save(deepClone(this.sheetData))
+  }
+
+  /**
+   * @description 设置电子表格数据
+   * @param {*} data
+   */
+  setSheetData(sheetData) {
+    this.sheetData = sheetData
   }
 
   /**

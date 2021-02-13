@@ -18,6 +18,7 @@ class Toolbar {
   constructor({ container, sheet }) {
     this.sheet = sheet
     this.viewModel = sheet.viewModel
+    this.history = sheet.history
     this.container = container
 
     this.initElements()
@@ -60,6 +61,17 @@ class Toolbar {
     this.sheet.on('select', this.updateStyleState.bind(this))
     this.sheet.on('loadData', this.updateStyleState.bind(this))
     this.sheet.on('cellStyleChange', this.updateStyleState.bind(this))
+    this.history.on('change', this.updateHistoryState.bind(this))
+  }
+
+  /**
+   * @description 更新工具栏 Redo、Undo按钮的状态
+   */
+  updateHistoryState() {
+    const { redo, undo } = this.itemEls
+
+    redo.classList.toggle('disable', !this.history.canRedo())
+    undo.classList.toggle('disable', !this.history.canUndo())
   }
 
   /**
@@ -86,6 +98,14 @@ class Toolbar {
       const action = 'set' + _.upperFirst(_.camelCase(itemKey))
       if (this[action]) this[action](itemKey)
     }
+  }
+
+  setUndo() {
+    this.sheet.undo()
+  }
+
+  setRedo() {
+    this.sheet.redo()
   }
 
   setBold(key) {
