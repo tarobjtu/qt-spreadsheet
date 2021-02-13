@@ -205,7 +205,6 @@ class Sheet extends EventEmitter {
     }
 
     this.draw()
-    this.emit('cellStyleChange')
   }
 
   /**

@@ -60,7 +60,7 @@ class Toolbar {
 
     this.sheet.on('select', this.updateStyleState.bind(this))
     this.sheet.on('loadData', this.updateStyleState.bind(this))
-    this.sheet.on('cellStyleChange', this.updateStyleState.bind(this))
+    this.history.on('change', this.updateStyleState.bind(this))
     this.history.on('change', this.updateHistoryState.bind(this))
   }
 
