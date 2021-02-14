@@ -108,22 +108,14 @@ class Toolbar {
     this.sheet.redo()
   }
 
-  setBold(key) {
-    const { sheet, itemEls } = this
-    if (!itemEls[key].classList.contains('active')) {
-      sheet.setCellsStyle({ bold: 'bold' })
-    } else {
-      sheet.setCellsStyle({ bold: '' })
-    }
+  setBold() {
+    const { sheet } = this
+    sheet.toggleCellsStyle('bold')
   }
 
-  setItalic(key) {
-    const { sheet, itemEls } = this
-    if (!itemEls[key].classList.contains('active')) {
-      sheet.setCellsStyle({ italic: 'italic' })
-    } else {
-      sheet.setCellsStyle({ italic: '' })
-    }
+  setItalic() {
+    const { sheet } = this
+    sheet.toggleCellsStyle('italic')
   }
 
   setFontColor() {

@@ -200,8 +200,21 @@ class Sheet extends EventEmitter {
     const { col, row, colCount, rowCount } = this.viewModel.getSelector()
     for (let i = col; i < col + colCount; i += 1) {
       for (let j = row; j < row + rowCount; j += 1) {
-        this.viewModel.setCellStyle(i, j, style)
+        const finished = i === col + colCount - 1 && j === row + rowCount - 1 ? 'finished' : ''
+        this.viewModel.setCellStyle(i, j, style, finished)
       }
+    }
+
+    this.draw()
+  }
+
+  toggleCellsStyle(key) {
+    const { col, row } = this.viewModel.getSelector()
+    const style = this.viewModel.getCellStyle(col, row)
+    if (style[key] === undefined || style[key] === '') {
+      this.setCellsStyle({ [key]: key })
+    } else {
+      this.setCellsStyle({ [key]: '' })
     }
 
     this.draw()

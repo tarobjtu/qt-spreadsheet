@@ -364,9 +364,14 @@ class ViewModel {
     return data[row][col]
   }
 
+  /**
+   * @description 获取单元格文本信息
+   * @param {*} col
+   * @param {*} row
+   */
   getCellText(col, row) {
-    const { data } = this.sheetData
-    return data[row][col]?.value
+    const cell = this.getCellData(col, row)
+    return cell?.value
   }
 
   /**
@@ -378,15 +383,12 @@ class ViewModel {
    */
   setCellText(col, row, value, state = 'input') {
     const { sheetData } = this
-
+    this.sheetData = update.$set(sheetData, ['data', row, col, 'value'], value)
     if (state === 'finished') {
       // 通过immutable函数创建一个新的sheetData对象，旧的对象存储到history中
       // 新对象的属性值发生变化，不会改变旧的值，immutable比深拷贝节省存储空间
       // 性能：super-market.json 数据量 10000行 * 21列，deepClone耗时125ms，_.cloneDeep耗时275ms，immutable拷贝耗时2.5ms
-      this.sheetData = update.$set(sheetData, ['data', row, col, 'value'], value)
       this.history.save(sheetData)
-    } else {
-      this.sheetData = update.$set(sheetData, ['data', row, col, 'value'], value)
     }
   }
 
@@ -395,6 +397,7 @@ class ViewModel {
    * @param {*} col
    * @param {*} row
    * @param {*} value
+   * @param {*} state 状态包括：input、finished（历史版本只保存最后的一次输入）
    */
   appendCellText(col, row, value, state = 'input') {
     const originValue = this.getCellText(col, row)
@@ -402,18 +405,30 @@ class ViewModel {
   }
 
   /**
+   * @description 获取单元格样式信息
+   * @param {*} col
+   * @param {*} row
+   */
+  getCellStyle(col, row) {
+    const cell = this.getCellData(col, row)
+    return cell?.style
+  }
+
+  /**
    * @description 设置单元格样式
    * @param {*} col
    * @param {*} row
    * @param {*} style
+   * @param {*} state 批量更新单元格样式时，历史版本只保存最后的一次输入，比如圈选多个单元格后设置样式
    */
-  setCellStyle(col, row, style = {}) {
-    const { sheetData } = this
-    this.sheetData = update.$set(sheetData, ['data', row, col, 'style'], {
-      ...sheetData.data[row][col]?.style,
+  setCellStyle(col, row, style = {}, state) {
+    this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], {
+      ...this.getCellStyle(col, row),
       ...style,
     })
-    this.history.save(sheetData)
+    if (state === 'finished') {
+      this.history.save(this.sheetData)
+    }
   }
 }
 
