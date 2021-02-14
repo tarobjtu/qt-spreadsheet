@@ -84,6 +84,10 @@ class Events extends EventEmitter {
           this.sheet.setCellsStyle({ italic: 'italic' })
           e.preventDefault()
           break
+        case 65: // Command + A 全选
+          this.sheet.selectAllCells()
+          e.preventDefault()
+          break
         case 67: // Command + C 复制
           // this.sheet.copy()
           e.preventDefault()

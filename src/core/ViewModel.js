@@ -110,6 +110,30 @@ class ViewModel {
   }
 
   /**
+   * @description 获取电子表格最后一个单元格
+   */
+  getLastCell() {
+    const { colsMeta, rowsMeta } = this.sheetData
+    return {
+      col: colsMeta.length - 1,
+      row: rowsMeta.length - 1,
+    }
+  }
+
+  /**
+   * @description 获取电子表格所有单元格
+   */
+  getAllCells() {
+    const { colsMeta, rowsMeta } = this.sheetData
+    return {
+      col: 0,
+      row: 0,
+      colCount: colsMeta.length,
+      rowCount: rowsMeta.length,
+    }
+  }
+
+  /**
    * @description 更新滚动相关的数据
    * @param {*} scrollX
    * @param {*} scrollY

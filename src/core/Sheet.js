@@ -299,6 +299,14 @@ class Sheet extends EventEmitter {
   }
 
   /**
+   * @description 选中全部单元格
+   */
+  selectAllCells() {
+    const { col, row, colCount, rowCount } = this.viewModel.getAllCells()
+    this.selectCells({ col, row, colCount, rowCount })
+  }
+
+  /**
    * @description 通过鼠标位置选中单元格（点击、圈选）
    * @param {*} startOffsetX 点击或圈选的起始位置
    * @param {*} startOffsetY 点击或圈选的起始位置
