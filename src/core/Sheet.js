@@ -306,6 +306,16 @@ class Sheet extends EventEmitter {
     this.selectCells({ col, row, colCount, rowCount })
   }
 
+  selectRow(row) {
+    const maxCol = this.viewModel.getMaxColIndex()
+    this.selectCells({ col: 0, row, colCount: maxCol, rowCount: 1 })
+  }
+
+  selectCol(col) {
+    const maxRow = this.viewModel.getMaxRowIndex()
+    this.selectCells({ col, row: 0, colCount: 1, rowCount: maxRow })
+  }
+
   /**
    * @description 通过鼠标位置选中单元格（点击、圈选）
    * @param {*} startOffsetX 点击或圈选的起始位置
@@ -321,7 +331,25 @@ class Sheet extends EventEmitter {
         startOffsetX + scrollX,
         startOffsetY + scrollY
       )
-      this.selectCell({ col, row, type })
+      // switch+case缩进的eslint判断有些问题
+      /* eslint-disable */
+      switch (type) {
+        case 'corner':
+          this.selectAllCells()
+          break
+        case 'colHeader':
+          this.selectCol(col)
+          break
+        case 'rowHeader':
+          this.selectRow(row)
+          break
+        case 'cell':
+          this.selectCell({ col, row, type })
+          break
+        default:
+          break
+      }
+      /* eslint-enable */
     } else {
       // 圈选
       const { col, row, colCount, rowCount } = this.viewModel.getRectCRs({
