@@ -41,6 +41,10 @@ const defaultTheme = {
     font: '12px Arial, sans-serif, "Microsoft YaHei"',
     color: '#666',
   },
+  activeHeader: {
+    fillStyle: '#ebebeb',
+    color: '#2a83ea',
+  },
 }
 
 export default defaultTheme
