@@ -221,53 +221,6 @@ class ViewModel {
   }
 
   /**
-   * @description 获取单元格的BBox信息
-   * @param {*} colIndex
-   * @param {*} rowIndex
-   */
-  getCellBBox(colIndex, rowIndex, type) {
-    const { colsMeta, rowsMeta } = this.sheetData
-    const { rowHeaderWidth, colHeaderHeight } = this.theme
-
-    const col = Math.max(Math.min(colIndex, colsMeta.length - 1), 0)
-    const row = Math.max(Math.min(rowIndex, rowsMeta.length - 1), 0)
-
-    if (type === 'corner') {
-      return {
-        left: 0,
-        top: 0,
-        width: rowHeaderWidth,
-        height: colHeaderHeight,
-      }
-    }
-
-    if (type === 'rowHeader') {
-      return {
-        left: 0,
-        top: rowsMeta[row].offset,
-        width: rowHeaderWidth,
-        height: rowsMeta[row].size,
-      }
-    }
-
-    if (type === 'colHeader') {
-      return {
-        left: colsMeta[col].offset,
-        top: 0,
-        width: colsMeta[col].size,
-        height: colHeaderHeight,
-      }
-    }
-
-    return {
-      left: colsMeta[col].offset,
-      top: rowsMeta[row].offset,
-      width: colsMeta[col].size,
-      height: rowsMeta[col].size,
-    }
-  }
-
-  /**
    * @description 获取一组cells的区域信息
    * @param {*} param0
    */

@@ -156,7 +156,12 @@ class Sheet extends EventEmitter {
     const type = cellType === undefined ? selector.type : cellType
 
     if (type === 'cell') {
-      const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
+      const { left, top, width, height } = this.viewModel.getCellsBBox({
+        col,
+        row,
+        colCount: 1,
+        rowCount: 1,
+      })
       const cellData = clearText === true ? '' : this.viewModel.getCellText(col, row)
       this.editor.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
       this.editor.setValue(cellData, col, row).show().focus()
@@ -257,13 +262,13 @@ class Sheet extends EventEmitter {
     // 单选
     if (multiple !== true) {
       if (direction === 'left') {
-        this.selectCell({ col: col - 1, row })
+        this.selectCell(col - 1, row)
       } else if (direction === 'right') {
-        this.selectCell({ col: col + 1, row })
+        this.selectCell(col + 1, row)
       } else if (direction === 'up') {
-        this.selectCell({ col, row: row - 1 })
+        this.selectCell(col, row - 1)
       } else if (direction === 'down') {
-        this.selectCell({ col, row: row + 1 })
+        this.selectCell(col, row + 1)
       }
     }
 
@@ -290,15 +295,8 @@ class Sheet extends EventEmitter {
    * @param {*} col 选中的单元格列位置
    * @param {*} row 选中的单元格行位置
    */
-  selectCell({ col, row, type } = { col: 0, row: 0, type: 'cell' }) {
-    const { scrollX, scrollY } = this.viewModel.sheetData
-    const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
-    this.viewModel.setSelector({ col, row, type, activeCol: col, activeRow: row })
-    this.painter.drawHeader() // 行、列头样式变化为选中状态
-    this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
-    this.selector.show()
-    this.editor.hide()
-    this.emit('select')
+  selectCell(col = 0, row = 0) {
+    this.selectCells({ col, row, colCount: 1, rowCount: 1, activeCol: col, activeRow: row })
   }
 
   /**
@@ -308,7 +306,7 @@ class Sheet extends EventEmitter {
    * @param {*} colCount 选中的列个数
    * @param {*} rowCount 选中的行个数
    */
-  selectCells({ col, row, colCount, rowCount } = { col: 0, row: 0, colCount: 1, rowCount: 1 }) {
+  selectCells({ col, row, colCount, rowCount, activeCol, activeRow }) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellsBBox({
       col,
@@ -316,7 +314,7 @@ class Sheet extends EventEmitter {
       colCount,
       rowCount,
     })
-    this.viewModel.setSelector({ col, row, colCount, rowCount })
+    this.viewModel.setSelector({ col, row, colCount, rowCount, activeCol, activeRow })
     this.painter.drawHeader() // 行、列头样式变化为选中状态
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
@@ -370,7 +368,7 @@ class Sheet extends EventEmitter {
           this.selectRow(row)
           break
         case 'cell':
-          this.selectCell({ col, row, type })
+          this.selectCell(col, row)
           break
         default:
           break
