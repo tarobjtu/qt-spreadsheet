@@ -307,17 +307,9 @@ class Sheet extends EventEmitter {
    * @param {*} rowCount 选中的行个数
    */
   selectCells({ col, row, colCount, rowCount, activeCol, activeRow }) {
-    const { scrollX, scrollY } = this.viewModel.sheetData
-    const { left, top, width, height } = this.viewModel.getCellsBBox({
-      col,
-      row,
-      colCount,
-      rowCount,
-    })
     this.viewModel.setSelector({ col, row, colCount, rowCount, activeCol, activeRow })
     this.painter.drawHeader() // 行、列头样式变化为选中状态
-    this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
-    this.selector.show()
+    this.selector.position().show()
     this.editor.hide()
     this.emit('select')
   }
@@ -327,17 +319,17 @@ class Sheet extends EventEmitter {
    */
   selectAllCells() {
     const { col, row, colCount, rowCount } = this.viewModel.getAllCells()
-    this.selectCells({ col, row, colCount, rowCount })
+    this.selectCells({ col, row, colCount, rowCount, activeCol: col, activeRow: row })
   }
 
   selectRow(row) {
     const maxCol = this.viewModel.getMaxColIndex()
-    this.selectCells({ col: 0, row, colCount: maxCol, rowCount: 1 })
+    this.selectCells({ col: 0, row, colCount: maxCol, rowCount: 1, activeCol: 0, activeRow: row })
   }
 
   selectCol(col) {
     const maxRow = this.viewModel.getMaxRowIndex()
-    this.selectCells({ col, row: 0, colCount: 1, rowCount: maxRow })
+    this.selectCells({ col, row: 0, colCount: 1, rowCount: maxRow, activeCol: col, activeRow: 0 })
   }
 
   /**
