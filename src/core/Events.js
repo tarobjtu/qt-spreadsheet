@@ -169,6 +169,7 @@ class Events extends EventEmitter {
       this.startOffsetY = offsetY
       this.sheet.selectCellsByOffset(offsetX, offsetY)
     }
+    this.sheet.emit('startSelectCell')
   }
 
   onMousemove(e) {
@@ -178,11 +179,13 @@ class Events extends EventEmitter {
     const { startOffsetX, startOffsetY } = this
     const { offsetX, offsetY } = e
     this.sheet.selectCellsByOffset(startOffsetX, startOffsetY, offsetX, offsetY)
+    this.sheet.emit('SelectingCell')
   }
 
   onMouseup(e) {
     if (!this.startMousedown) return
     this.startMousedown = false
+    this.sheet.emit('endSelectCell')
 
     if (this.mousemoving) {
       this.mousemoving = false

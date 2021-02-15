@@ -70,6 +70,7 @@ class Sheet extends EventEmitter {
     })
     // 初始化选择器
     this.selector = new Selector({
+      sheet: this,
       container,
       viewModel: this.viewModel,
     })
