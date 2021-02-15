@@ -42,7 +42,7 @@ const defaultTheme = {
     color: '#666',
   },
   activeHeader: {
-    fillStyle: '#ebebeb',
+    fillStyle: '#eff9ff',
     color: '#2a83ea',
   },
 }
