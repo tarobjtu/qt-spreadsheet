@@ -42,6 +42,11 @@ class Spreadsheet {
     this.sheet.selectCell()
   }
 
+  destroy() {
+    this.sheet.destroy()
+    this.toolbar.destroy()
+  }
+
   loadData(data) {
     this.sheetData = getSheetData({
       colCount: data[0].length,

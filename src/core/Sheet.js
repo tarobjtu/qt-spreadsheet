@@ -30,6 +30,14 @@ class Sheet extends EventEmitter {
     }
   }
 
+  destroy() {
+    const { resize } = this.events
+    window.removeEventListener('resize', resize)
+    this.scrollbar.destroy()
+    this.editor.destroy()
+    this.events.destroy()
+  }
+
   initComponents() {
     const { data, container, theme, ctx, opts } = this
 
@@ -73,11 +81,9 @@ class Sheet extends EventEmitter {
     })
   }
 
-  destroy() {
-    const { resize } = this.events
-    window.removeEventListener('resize', resize)
-
-    this.scrollbar.destroy()
+  draw() {
+    this.painter.draw()
+    this.scrollbar.draw()
   }
 
   bindEvent() {
@@ -87,6 +93,24 @@ class Sheet extends EventEmitter {
     this.events.resize = resize
 
     window.addEventListener('resize', resize)
+  }
+
+  loadData(data) {
+    this.viewModel.updateData(data)
+    this.draw()
+    this.emit('loadData')
+  }
+
+  resize() {
+    this.painter.setCanvasSize()
+    this.draw()
+  }
+
+  scroll(scrollX, scrollY) {
+    const changed = this.viewModel.updateScroll(scrollX, scrollY)
+    if (changed) {
+      this.draw()
+    }
   }
 
   undo() {
@@ -360,29 +384,6 @@ class Sheet extends EventEmitter {
       })
       this.selectCells({ col, row, colCount, rowCount })
     }
-  }
-
-  resize() {
-    this.painter.setCanvasSize()
-    this.draw()
-  }
-
-  scroll(scrollX, scrollY) {
-    const changed = this.viewModel.updateScroll(scrollX, scrollY)
-    if (changed) {
-      this.draw()
-    }
-  }
-
-  loadData(data) {
-    this.viewModel.updateData(data)
-    this.draw()
-    this.emit('loadData')
-  }
-
-  draw() {
-    this.painter.draw()
-    this.scrollbar.draw()
   }
 }
 
