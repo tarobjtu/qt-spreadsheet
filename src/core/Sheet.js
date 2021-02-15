@@ -294,6 +294,7 @@ class Sheet extends EventEmitter {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { left, top, width, height } = this.viewModel.getCellBBox(col, row)
     this.viewModel.setSelector({ col, row, type, activeCol: col, activeRow: row })
+    this.painter.drawHeader()
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()
@@ -316,6 +317,7 @@ class Sheet extends EventEmitter {
       rowCount,
     })
     this.viewModel.setSelector({ col, row, colCount, rowCount })
+    this.painter.drawHeader()
     this.selector.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
     this.selector.show()
     this.editor.hide()

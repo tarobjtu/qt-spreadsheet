@@ -107,44 +107,59 @@ class Painter {
 
   drawHeader() {
     const { ctx, viewModel, theme } = this
-    const { colsMeta, rowsMeta } = viewModel.sheetData
-    const { scrollX, scrollY } = viewModel.sheetData
+    const { colsMeta, rowsMeta, scrollX, scrollY } = viewModel.sheetData
+    const selector = viewModel.getSelector()
     const { col, row, colCount, rowCount } = viewModel.getViewportCRs()
 
-    ctx.beginPath()
     assignStyle(ctx, theme.header)
 
-    for (let i = col; i < col + colCount; i += 1) {
-      const cMeta = colsMeta[i]
-      this.drawHeaderCell(cMeta, { offset: 0, size: theme.colHeaderHeight }, numberToAlpha(i), {
+    // 绘制列头
+    for (let ci = col; ci < col + colCount; ci += 1) {
+      const cMeta = colsMeta[ci]
+      const selected = ci >= selector.col && ci <= selector.col + selector.colCount - 1
+      this.drawHeaderCell({
+        col: cMeta,
+        row: { offset: 0, size: theme.colHeaderHeight },
+        text: numberToAlpha(ci),
         scrollX,
         scrollY: 0,
+        selected,
       })
     }
 
-    for (let j = row; j < row + rowCount; j += 1) {
-      const rMeta = rowsMeta[j]
-      this.drawHeaderCell({ offset: 0, size: theme.rowHeaderWidth }, rMeta, j + 1, {
+    // 绘制行头
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      const rMeta = rowsMeta[ri]
+      const selected = ri >= selector.row && ri <= selector.row + selector.rowCount - 1
+      this.drawHeaderCell({
+        col: { offset: 0, size: theme.rowHeaderWidth },
+        row: rMeta,
+        text: ri + 1,
         scrollX: 0,
         scrollY,
+        selected,
       })
     }
 
-    this.drawHeaderCell(
-      { offset: 0, size: theme.rowHeaderWidth },
-      { offset: 0, size: theme.colHeaderHeight },
-      ''
-    )
+    // 绘制 Corner
+    this.drawHeaderCell({
+      col: { offset: 0, size: theme.rowHeaderWidth },
+      row: { offset: 0, size: theme.colHeaderHeight },
+      text: '',
+      scrollX: 0,
+      scrollY: 0,
+      selected: false,
+    })
 
     ctx.save()
   }
 
-  drawHeaderCell(col, row, text, { scrollX, scrollY } = { scrollX: 0, scrollY: 0 }) {
+  drawHeaderCell({ col, row, text, scrollX, scrollY, selected }) {
     const { ctx, theme } = this
     const { fillStyle, strokeStyle, color } = theme.header
 
     // 填充颜色
-    ctx.fillStyle = fillStyle
+    ctx.fillStyle = selected ? theme.activeHeader.fillStyle : fillStyle
     ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 画边框
@@ -152,7 +167,7 @@ class Painter {
     ctx.strokeRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
     // 文字
-    ctx.fillStyle = color
+    ctx.fillStyle = selected ? theme.activeHeader.color : color
     ctx.fillText(text, col.offset - scrollX + col.size / 2, row.offset - scrollY + row.size / 2)
   }
 }
