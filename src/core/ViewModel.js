@@ -238,6 +238,14 @@ class ViewModel {
   }
 
   /**
+   * @description 获取选中单元格的坐标信息
+   */
+  getSelectedCellBBox() {
+    const { activeCol, activeRow } = this.getSelector()
+    return this.getCellsBBox({ col: activeCol, row: activeRow, colCount: 1, rowCount: 1 })
+  }
+
+  /**
    * @description 找到坐标left、top命中的表格单元格
    * @param {*} left
    * @param {*} top

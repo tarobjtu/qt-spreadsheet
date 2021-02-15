@@ -154,10 +154,21 @@ class Events extends EventEmitter {
 
   onMousedown(e) {
     this.startMousedown = true
-    const { offsetX, offsetY } = e
-    this.startOffsetX = offsetX
-    this.startOffsetY = offsetY
-    this.sheet.selectCellsByOffset(offsetX, offsetY)
+    const { offsetX, offsetY, shiftKey } = e
+
+    // shiftKey + click
+    if (shiftKey) {
+      if (this.startOffsetX === undefined) {
+        const { left, top } = this.viewModel.getSelectedCellBBox()
+        this.startOffsetX = left
+        this.startOffsetY = top
+      }
+      this.sheet.selectCellsByOffset(this.startOffsetX, this.startOffsetY, offsetX, offsetY)
+    } else {
+      this.startOffsetX = offsetX
+      this.startOffsetY = offsetY
+      this.sheet.selectCellsByOffset(offsetX, offsetY)
+    }
   }
 
   onMousemove(e) {
