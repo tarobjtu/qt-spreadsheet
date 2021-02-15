@@ -2,12 +2,11 @@ import _ from 'lodash'
 import './scrollbar.scss'
 
 class Scrollbar {
-  constructor({ sheet, container, theme, viewModel, canvas }) {
+  constructor({ sheet, container, theme, viewModel }) {
     this.sheet = sheet
     this.theme = theme
     this.viewModel = viewModel
     this.container = container
-    this.canvas = canvas
 
     this.initElements()
     this.bindEvent()
@@ -40,8 +39,8 @@ class Scrollbar {
     this.events = []
     // 滚轮事件
     const wheel = _.throttle(this.onWheel.bind(this), 50)
-    this.events.push([this.canvas, 'wheel', wheel])
-    this.canvas.addEventListener('wheel', wheel)
+    this.events.push([this.container, 'wheel', wheel])
+    this.container.addEventListener('wheel', wheel)
 
     // triggerX 拖拽事件
     const xMouseDown = this.onMouseDown.bind(this, 'X')

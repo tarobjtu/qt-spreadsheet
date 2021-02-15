@@ -5,9 +5,9 @@ import { deepClone } from '../utils/common'
  * @description 电子表格视图相关数据的计算函数
  */
 class ViewModel {
-  constructor({ sheetData, canvas, theme, history }) {
+  constructor({ sheetData, container, theme, history }) {
     this.sheetData = sheetData
-    this.canvas = canvas
+    this.container = container
     this.theme = theme
     this.history = history
 
@@ -140,8 +140,8 @@ class ViewModel {
    * @param {boolean} changed 数据是否发生变化，变化返回true
    */
   updateScroll(scrollX, scrollY) {
-    const { canvas } = this
-    const { width, height } = canvas.getBoundingClientRect()
+    const { container } = this
+    const { width, height } = container.getBoundingClientRect()
     // 判断边界
     const minScrollX = 0
     const minScrollY = 0
@@ -197,9 +197,9 @@ class ViewModel {
    * @description 找到视窗范围内可见的全部单元格
    */
   getViewportCRs() {
-    const { canvas, sheetData } = this
+    const { container, sheetData } = this
     const { scrollX, scrollY } = sheetData
-    const { width, height } = canvas.getBoundingClientRect()
+    const { width, height } = container.getBoundingClientRect()
 
     return this.getRectCRs({ left: scrollX, top: scrollY, width, height })
   }
