@@ -255,11 +255,11 @@ class Sheet extends EventEmitter {
    * @param {*} multiple 多选
    */
   selectorMove(direction, multiple) {
-    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    const { col, row, colCount, rowCount, activeCol, activeRow } = this.viewModel.getSelector()
     const maxCol = this.viewModel.getMaxColIndex()
     const maxRow = this.viewModel.getMaxRowIndex()
 
-    // 单选
+    // single selection
     if (multiple !== true) {
       if (direction === 'left') {
         this.selectCell(col - 1, row)
@@ -272,20 +272,40 @@ class Sheet extends EventEmitter {
       }
     }
 
-    // 多选
+    // multiply selection
     if (multiple === true) {
       if (direction === 'left') {
         if (col <= 0) return
-        this.selectCells({ col: col - 1, row, colCount: colCount + 1, rowCount })
+        // back operation
+        if (col === activeCol && colCount > 1) {
+          this.selectCells({ col, row, colCount: colCount - 1, rowCount })
+        } else {
+          this.selectCells({ col: col - 1, row, colCount: colCount + 1, rowCount })
+        }
       } else if (direction === 'right') {
         if (col + colCount - 1 >= maxCol) return
-        this.selectCells({ col, row, colCount: colCount + 1, rowCount })
+        // back operation
+        if (col < activeCol) {
+          this.selectCells({ col: col + 1, row, colCount: colCount - 1, rowCount })
+        } else {
+          this.selectCells({ col, row, colCount: colCount + 1, rowCount })
+        }
       } else if (direction === 'up') {
         if (row <= 0) return
-        this.selectCells({ col, row: row - 1, colCount, rowCount: rowCount + 1 })
+        // back operation
+        if (row === activeRow && rowCount > 1) {
+          this.selectCells({ col, row, colCount, rowCount: rowCount - 1 })
+        } else {
+          this.selectCells({ col, row: row - 1, colCount, rowCount: rowCount + 1 })
+        }
       } else if (direction === 'down') {
         if (row + rowCount - 1 >= maxRow) return
-        this.selectCells({ col, row, colCount, rowCount: rowCount + 1 })
+        // back operation
+        if (row < activeRow) {
+          this.selectCells({ col, row: row + 1, colCount, rowCount: rowCount - 1 })
+        } else {
+          this.selectCells({ col, row, colCount, rowCount: rowCount + 1 })
+        }
       }
     }
   }
