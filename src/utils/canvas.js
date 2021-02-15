@@ -57,6 +57,19 @@ export function directionToRect(rect, mousePosition) {
   return dir
 }
 
+export function mergeSelector(s1 = {}, s2 = {}) {
+  return {
+    col: Math.min(s1.col, s2.col),
+    row: Math.min(s1.row, s2.row),
+    colCount:
+      Math.max(s1.col + s1.colCount - 1, s2.col + s2.colCount - 1) - Math.min(s1.col, s2.col) + 1,
+    rowCount:
+      Math.max(s1.row + s1.rowCount - 1, s2.row + s2.rowCount - 1) - Math.min(s1.row, s2.row) + 1,
+    activeCol: s2.activeCol === undefined ? s1.activeCol : s2.activeCol,
+    activeRow: s2.activeRow === undefined ? s1.activeRow : s2.activeRow,
+  }
+}
+
 export default {
   font,
 }

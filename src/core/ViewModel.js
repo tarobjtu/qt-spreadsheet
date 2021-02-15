@@ -238,9 +238,17 @@ class ViewModel {
   }
 
   /**
-   * @description 获取选中单元格的坐标信息
+   * @description 获取选中区域的坐标信息
    */
-  getSelectedCellBBox() {
+  getSelectedCellsBBox() {
+    const { col, row, colCount, rowCount } = this.getSelector()
+    return this.getCellsBBox({ col, row, colCount, rowCount })
+  }
+
+  /**
+   * @description 获取选中区域激活的单元格坐标信息
+   */
+  getSelectedActiveCellBBox() {
     const { activeCol, activeRow } = this.getSelector()
     return this.getCellsBBox({ col: activeCol, row: activeRow, colCount: 1, rowCount: 1 })
   }

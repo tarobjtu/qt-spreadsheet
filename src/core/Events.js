@@ -159,7 +159,7 @@ class Events extends EventEmitter {
     // shiftKey + click
     if (shiftKey) {
       if (this.startOffsetX === undefined) {
-        const { left, top } = this.viewModel.getSelectedCellBBox()
+        const { left, top } = this.viewModel.getSelectedActiveCellBBox()
         this.startOffsetX = left
         this.startOffsetY = top
       }

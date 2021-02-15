@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { directionToRect } from '../utils/canvas'
+import { directionToRect, mergeSelector } from '../utils/canvas'
 import './selector.scss'
 
 class Selector {
@@ -20,18 +20,26 @@ class Selector {
 
   initElements() {
     const { container } = this
+    // 容器
     this.selectorEl = document.createElement('div')
     this.selectorEl.classList.add('qt-spreadsheet-selector')
     container.appendChild(this.selectorEl)
+    // 圈选激活的单元格
     this.activeCellEl = document.createElement('div')
     this.activeCellEl.classList.add('qt-spreadsheet-selector-active')
     this.selectorEl.appendChild(this.activeCellEl)
+    // 圈选区域
     this.sectionEl = document.createElement('div')
     this.sectionEl.classList.add('qt-spreadsheet-selector-section')
     this.selectorEl.appendChild(this.sectionEl)
+    // 批量编辑触发角头
     this.cornerEl = document.createElement('div')
     this.cornerEl.classList.add('qt-spreadsheet-selector-corner')
     this.sectionEl.appendChild(this.cornerEl)
+    // 批量编辑区域
+    this.batchEditEl = document.createElement('div')
+    this.batchEditEl.classList.add('qt-spreadsheet-selector-batch-edit-area')
+    this.selectorEl.appendChild(this.batchEditEl)
   }
 
   bindEvents() {
@@ -80,7 +88,7 @@ class Selector {
     if (this.mousemoving) {
       this.mousemoving = false
       const { target, offsetX, offsetY } = e
-      this.batchEditing(offsetX, offsetY, target)
+      this.batchEditing(offsetX, offsetY, target, 'finished')
     }
   }
 
@@ -98,30 +106,43 @@ class Selector {
    * @param {*} offsetY
    * @param {*} target
    */
-  batchEditing(offsetX, offsetY, target) {
+  batchEditing(offsetX, offsetY, target, status) {
     // 鼠标超出 canvas 区域
     if (!this.container.contains(target)) return
     const { scrollX, scrollY } = this.viewModel.getSheetData()
-    const area = this.getBatchEditingRect(offsetX + scrollX, offsetY + scrollY)
-    console.warn(area)
+    const { rect, direction } = this.getBatchEditingRect(offsetX + scrollX, offsetY + scrollY)
+    // 方向在选中区域内部的，不执行批量编辑
+    if (direction === 'inner') return
+
+    const { left, top, width, height } = this.viewModel.getCellsBBox(rect)
+    this.setOffset(this.batchEditEl, { left, top, width, height })
+    this.batchEditEl.style.display = 'block'
+    this.batchEditEl.setAttribute('data-direction', direction)
+
+    if (status === 'finished') {
+      this.batchEditEl.style.display = 'none'
+      const selector = this.viewModel.getSelector()
+      const mergedSelector = mergeSelector(selector, rect)
+      this.sheet.selectCells(mergedSelector)
+    }
   }
 
   getBatchEditingRect(offsetX, offsetY) {
     let rect
-    const { left, top, width, height } = this.viewModel.getSelectedCellBBox()
+    const { left, top, width, height } = this.viewModel.getSelectedCellsBBox()
     const direction = directionToRect({ left, top, width, height }, { offsetX, offsetY })
     if (direction === 'right') {
       rect = this.viewModel.getRectCRs({
         left: left + width + 1,
         top: top + 1,
         width: offsetX - left - width,
-        height: 0,
+        height: height - 2,
       })
     } else if (direction === 'bottom') {
       rect = this.viewModel.getRectCRs({
         left: left + 1,
         top: top + height + 1,
-        width: 0,
+        width: width - 2,
         height: offsetY - top - height,
       })
     } else if (direction === 'left') {
@@ -129,13 +150,13 @@ class Selector {
         left: offsetX,
         top: top + 1,
         width: left - offsetX - 1,
-        height: 0,
+        height: height - 2,
       })
     } else if (direction === 'up') {
       rect = this.viewModel.getRectCRs({
         left: left + 1,
         top: offsetY,
-        width: 0,
+        width: width - 2,
         height: top - offsetY - 1,
       })
     }

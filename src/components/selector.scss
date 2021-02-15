@@ -4,10 +4,6 @@
 }
 .qt-spreadsheet-selector-section {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
   background-color: rgba(100, 200, 255, 0.1);
   border: 1px solid #2a83ea;
   box-sizing: border-box;
@@ -30,4 +26,24 @@
   background-color: #2a83ea;
   pointer-events: all;
   cursor: crosshair;
+}
+.qt-spreadsheet-selector-batch-edit-area {
+  position: absolute;
+  box-sizing: border-box;
+  transition: 0.12s;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px dashed #2a83ea;
+
+  &[data-direction='bottom'] {
+    border-top: none;
+  }
+  &[data-direction='up'] {
+    border-bottom: none;
+  }
+  &[data-direction='left'] {
+    border-right: none;
+  }
+  &[data-direction='right'] {
+    border-left: none;
+  }
 }

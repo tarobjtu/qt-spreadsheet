@@ -326,6 +326,8 @@ class Sheet extends EventEmitter {
    * @param {*} row 选中的起始单元格行位置
    * @param {*} colCount 选中的列个数
    * @param {*} rowCount 选中的行个数
+   * @param {*} activeCol 激活的单元格列位置
+   * @param {*} activeRow 激活的单元格行位置
    */
   selectCells({ col, row, colCount, rowCount, activeCol, activeRow }) {
     this.viewModel.setSelector({ col, row, colCount, rowCount, activeCol, activeRow })
