@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { directionToRect, mergeSelector } from '../utils/canvas'
+import { deepClone } from '../utils/common'
 import './selector.scss'
 
 class Selector {
@@ -115,16 +116,61 @@ class Selector {
     if (direction === 'inner') return
 
     const { left, top, width, height } = this.viewModel.getCellsBBox(rect)
-    this.setOffset(this.batchEditEl, { left, top, width, height })
+    this.setOffset(this.batchEditEl, { left: left - scrollX, top: top - scrollY, width, height })
     this.batchEditEl.style.display = 'block'
     this.batchEditEl.setAttribute('data-direction', direction)
 
     if (status === 'finished') {
       this.batchEditEl.style.display = 'none'
+      const sourceRect = this.viewModel.getSelector()
+      this.batchEditingData(sourceRect, rect, direction)
+
+      // 更新选中区域
       const selector = this.viewModel.getSelector()
       const mergedSelector = mergeSelector(selector, rect)
       this.sheet.selectCells(mergedSelector)
     }
+  }
+
+  batchEditingData(sourceRect, targetRect, direction) {
+    const { col, row, colCount, rowCount } = targetRect
+    let sourceRowPointer // 遍历sourceRect的row指针
+    let sourceColPointer // 遍历sourceRect的col指针
+
+    if (direction === 'right' || direction === 'bottom') {
+      for (let ri = row; ri < row + rowCount; ri += 1) {
+        for (let ci = col; ci < col + colCount; ci += 1) {
+          let state = ''
+          if (ri === row && ci === col) state = 'start'
+          if (ri === row + rowCount - 1 && ci === col + colCount - 1) state = 'finished'
+          sourceRowPointer = sourceRect.row + ((ri - row) % sourceRect.rowCount)
+          sourceColPointer = sourceRect.col + ((ci - col) % sourceRect.colCount)
+          const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
+          this.viewModel.setCellData(ci, ri, deepClone(sourceData), state)
+        }
+      }
+    } else if (direction === 'left' || direction === 'up') {
+      for (let ri = row + rowCount - 1; ri >= row; ri -= 1) {
+        for (let ci = col + colCount - 1; ci >= col; ci -= 1) {
+          let state = ''
+          if (ri === row && ci === col) state = 'start'
+          if (ri === row + rowCount - 1 && ci === col + colCount - 1) state = 'finished'
+          sourceRowPointer =
+            sourceRect.row +
+            sourceRect.rowCount -
+            1 -
+            ((row + rowCount - 1 - ri) % sourceRect.rowCount)
+          sourceColPointer =
+            sourceRect.col +
+            sourceRect.colCount -
+            1 -
+            ((col + colCount - 1 - ci) % sourceRect.colCount)
+          const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
+          this.viewModel.setCellData(ci, ri, deepClone(sourceData), state)
+        }
+      }
+    }
+    this.sheet.draw()
   }
 
   getBatchEditingRect(offsetX, offsetY) {

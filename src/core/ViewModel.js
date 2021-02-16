@@ -358,6 +358,26 @@ class ViewModel {
   }
 
   /**
+   * @description 设置单元格信息
+   * @param {*} col
+   * @param {*} row
+   */
+  setCellData(col, row, cellData, state = '') {
+    // const { data } = this.sheetData
+    // state: start 开始阶段备份，避免污染保存在history中的sheetData数据
+    if (state === 'start') {
+      this.sheetData = update.$set(this.sheetData, ['data', row, col], cellData)
+    } else if (state === 'finished') {
+      // state: finished 结束阶段备份，存入history中
+      this.sheetData = update.$set(this.sheetData, ['data', row, col], cellData)
+      this.history.save(this.sheetData)
+    } else {
+      // state: others 普通模式修改数据，批量修改单元格数据下性能最优
+      this.sheetData = update.$set(this.sheetData, ['data', row, col], cellData)
+    }
+  }
+
+  /**
    * @description 获取单元格文本信息
    * @param {*} col
    * @param {*} row
@@ -375,13 +395,12 @@ class ViewModel {
    * @param {*} state 状态包括：input、finished（历史版本只保存最后的一次输入）
    */
   setCellText(col, row, value, state = 'input') {
-    const { sheetData } = this
-    this.sheetData = update.$set(sheetData, ['data', row, col, 'value'], value)
+    this.sheetData = update.$set(this.sheetData, ['data', row, col, 'value'], value)
     if (state === 'finished') {
       // 通过immutable函数创建一个新的sheetData对象，旧的对象存储到history中
       // 新对象的属性值发生变化，不会改变旧的值，immutable比深拷贝节省存储空间
       // 性能：super-market.json 数据量 10000行 * 21列，deepClone耗时125ms，_.cloneDeep耗时275ms，immutable拷贝耗时2.5ms
-      this.history.save(sheetData)
+      this.history.save(this.sheetData)
     }
   }
 
