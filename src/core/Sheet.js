@@ -111,6 +111,7 @@ class Sheet extends EventEmitter {
     const changed = this.viewModel.updateScroll(scrollX, scrollY)
     if (changed) {
       this.draw()
+      this.emit('scroll')
     }
   }
 

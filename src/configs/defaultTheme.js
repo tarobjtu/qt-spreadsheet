@@ -34,7 +34,7 @@ const defaultTheme = {
   },
   header: {
     fillStyle: '#fafafa',
-    strokeStyle: 'rgba(120,120,120,0.3)',
+    strokeStyle: '#c5c5c5',
     lineWidth: 1,
     textAlign: 'center',
     textBaseline: 'middle',

@@ -1,4 +1,6 @@
 .qt-spreadsheet-toolbar {
+  z-index: 1000;
+  position: relative;
   width: 100vw;
   height: 40px;
   line-height: 1.5;

@@ -57,6 +57,7 @@ class Selector {
     window.addEventListener('mouseup', mouseup, false)
     this.sheet.on('startSelectCell', this.onStartSelectCell.bind(this))
     this.sheet.on('endSelectCell', this.onEndSelectCell.bind(this))
+    this.sheet.on('scroll', this.position.bind(this))
   }
 
   onStartSelectCell() {
