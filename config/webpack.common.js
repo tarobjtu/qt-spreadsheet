@@ -36,8 +36,8 @@ module.exports = {
           noErrorOnMissing: true,
         },
         {
-          from: paths.assets + '/super-market.json',
-          to: 'assets',
+          from: paths.assets + '/data',
+          to: 'assets/data',
         },
         {
           from: paths.assets + '/icons',
