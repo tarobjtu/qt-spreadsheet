@@ -38,6 +38,7 @@ class Painter {
   }
 
   draw() {
+    this.clear()
     this.drawBody()
     this.drawHeader()
 
@@ -54,6 +55,11 @@ class Painter {
     // perf(() => {
     //   this.scrollbar.draw()
     // }, 'drawScrollbar')
+  }
+
+  clear() {
+    const { canvas, ctx } = this
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
   }
 
   drawBody() {

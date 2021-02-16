@@ -18,6 +18,10 @@ class History extends EventEmitter {
     this.emit('change')
   }
 
+  last() {
+    return this.stack[this.stack.length - 1]
+  }
+
   redo(callback) {
     if (!this.canRedo()) return
     this.position += 1

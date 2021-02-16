@@ -119,6 +119,8 @@ class Sheet extends EventEmitter {
     this.history.undo((sheetData) => {
       this.viewModel.setSheetData(sheetData)
       this.draw()
+      this.selector.position()
+      this.emit('undo')
     })
   }
 
@@ -127,6 +129,8 @@ class Sheet extends EventEmitter {
     this.history.redo((sheetData) => {
       this.viewModel.setSheetData(sheetData)
       this.draw()
+      this.selector.position()
+      this.emit('redo')
     })
   }
 

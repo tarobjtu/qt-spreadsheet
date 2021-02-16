@@ -102,12 +102,26 @@ class Selector {
   }
 
   /**
+   * @description 保存上一次selector的位置
+   */
+  saveLastSelectorStatus() {
+    const lastSheetData = this.viewModel.getLastHistory()
+    const lastSelector = lastSheetData.selector
+    const curSelector = this.viewModel.getSelector()
+    // selector不同时保存
+    if (!_.isEqual(lastSelector, curSelector)) {
+      this.viewModel.saveToHistory()
+    }
+  }
+
+  /**
    * @description 拖拽corner，批量编辑单元格数据
    * @param {*} offsetX
    * @param {*} offsetY
    * @param {*} target
+   * @param {*} state
    */
-  batchEditing(offsetX, offsetY, target, status) {
+  batchEditing(offsetX, offsetY, target, state) {
     // 鼠标超出 canvas 区域
     if (!this.container.contains(target)) return
     const { scrollX, scrollY } = this.viewModel.getSheetData()
@@ -120,7 +134,10 @@ class Selector {
     this.batchEditEl.style.display = 'block'
     this.batchEditEl.setAttribute('data-direction', direction)
 
-    if (status === 'finished') {
+    // mouseup
+    if (state === 'finished') {
+      // 保存 selector 状态
+      this.saveLastSelectorStatus()
       this.batchEditEl.style.display = 'none'
       const sourceRect = this.viewModel.getSelector()
       this.batchEditingData(sourceRect, rect, direction)
@@ -128,7 +145,10 @@ class Selector {
       // 更新选中区域
       const selector = this.viewModel.getSelector()
       const mergedSelector = mergeSelector(selector, rect)
-      this.sheet.selectCells(mergedSelector)
+      this.viewModel.setSelector(mergedSelector, true)
+      this.viewModel.saveToHistory()
+      this.position()
+      this.sheet.draw()
     }
   }
 
@@ -140,21 +160,15 @@ class Selector {
     if (direction === 'right' || direction === 'bottom') {
       for (let ri = row; ri < row + rowCount; ri += 1) {
         for (let ci = col; ci < col + colCount; ci += 1) {
-          let state = ''
-          if (ri === row && ci === col) state = 'start'
-          if (ri === row + rowCount - 1 && ci === col + colCount - 1) state = 'finished'
           sourceRowPointer = sourceRect.row + ((ri - row) % sourceRect.rowCount)
           sourceColPointer = sourceRect.col + ((ci - col) % sourceRect.colCount)
           const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
-          this.viewModel.setCellData(ci, ri, deepClone(sourceData), state)
+          this.viewModel.setCellData(ci, ri, deepClone(sourceData))
         }
       }
     } else if (direction === 'left' || direction === 'up') {
       for (let ri = row + rowCount - 1; ri >= row; ri -= 1) {
         for (let ci = col + colCount - 1; ci >= col; ci -= 1) {
-          let state = ''
-          if (ri === row && ci === col) state = 'start'
-          if (ri === row + rowCount - 1 && ci === col + colCount - 1) state = 'finished'
           sourceRowPointer =
             sourceRect.row +
             sourceRect.rowCount -
@@ -166,11 +180,10 @@ class Selector {
             1 -
             ((col + colCount - 1 - ci) % sourceRect.colCount)
           const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
-          this.viewModel.setCellData(ci, ri, deepClone(sourceData), state)
+          this.viewModel.setCellData(ci, ri, deepClone(sourceData))
         }
       }
     }
-    this.sheet.draw()
   }
 
   getBatchEditingRect(offsetX, offsetY) {

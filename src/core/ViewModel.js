@@ -40,13 +40,21 @@ class ViewModel {
     return this.sheetData
   }
 
+  saveToHistory() {
+    this.history.save(this.sheetData)
+  }
+
+  getLastHistory() {
+    return this.history.last()
+  }
+
   /**
    * @description 更新选中区域或单元格信息
    */
-  setSelector({ col, row, colCount, rowCount, type, activeCol, activeRow }) {
+  setSelector({ col, row, colCount, rowCount, type, activeCol, activeRow }, persistence) {
     const { colsMeta, rowsMeta, selector } = this.sheetData
 
-    this.sheetData.selector = {
+    const newSelector = {
       col: Math.max(Math.min(col, colsMeta.length - 1), 0),
       row: Math.max(Math.min(row, rowsMeta.length - 1), 0),
       colCount: colCount === undefined ? 1 : colCount,
@@ -60,6 +68,12 @@ class ViewModel {
         activeRow === undefined
           ? selector.activeRow
           : Math.max(Math.min(activeRow, rowsMeta.length - 1), 0),
+    }
+
+    if (persistence) {
+      this.sheetData = update.$set(this.sheetData, ['selector'], newSelector)
+    } else {
+      this.sheetData.selector = newSelector
     }
   }
 
