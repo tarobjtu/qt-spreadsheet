@@ -88,6 +88,10 @@ class Events extends EventEmitter {
           this.sheet.selectAllCells()
           e.preventDefault()
           break
+        case 83: // Command + S 保存
+          e.preventDefault()
+          this.sheet.save()
+          break
         case 67: // Command + C 复制
           // this.sheet.copy()
           e.preventDefault()

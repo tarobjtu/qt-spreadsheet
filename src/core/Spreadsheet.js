@@ -1,3 +1,4 @@
+import EventEmitter from 'eventemitter3'
 import Toolbar from '../components/Toolbar'
 import Sheet from './Sheet'
 import defaultConfig from '../configs/defaultConfig'
@@ -5,8 +6,9 @@ import defaultTheme from '../configs/defaultTheme'
 import { getSheetData } from '../utils/sheet'
 import './spreadsheet.scss'
 
-class Spreadsheet {
+class Spreadsheet extends EventEmitter {
   constructor({ root, options }) {
+    super()
     this.opts = { ...defaultConfig, ...options }
     this.theme = this.opts.theme || defaultTheme
 
@@ -40,6 +42,8 @@ class Spreadsheet {
 
     // 选中上次打开时选中的单元格，默认第一个单元格
     this.sheet.selectCell()
+
+    this.bindEvents()
   }
 
   destroy() {
@@ -47,13 +51,33 @@ class Spreadsheet {
     this.toolbar.destroy()
   }
 
+  bindEvents() {
+    this.sheet.on('save', this.onSave.bind(this))
+    this.sheet.on('delete', this.onDelete.bind(this))
+  }
+
+  onSave() {
+    const sheetData = this.sheet.getData()
+    this.emit('save', sheetData)
+  }
+
+  onDelete() {
+    this.emit('delete')
+  }
+
   loadData(data) {
-    this.sheetData = getSheetData({
-      colCount: data[0].length,
-      rowCount: data.length,
-      theme: this.theme,
-      data,
-    })
+    // 加载电子表格格式数据
+    if (data?.vender === 'qt-spreadsheet') {
+      this.sheetData = data
+    } else {
+      // 加载二维数组格式数据
+      this.sheetData = getSheetData({
+        colCount: data[0].length,
+        rowCount: data.length,
+        theme: this.theme,
+        data,
+      })
+    }
     this.sheet.loadData(this.sheetData)
   }
 }

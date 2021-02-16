@@ -1,5 +1,25 @@
 export default [
   {
+    key: 'save',
+    name: '保存',
+    icon: 'assets/icons/save.png',
+  },
+  {
+    key: 'delete',
+    name: '删除缓存',
+    icon: 'assets/icons/delete.png',
+  },
+  {
+    key: 'copy',
+    name: '复制',
+    icon: 'assets/icons/copy.png',
+  },
+  {
+    key: 'cut',
+    name: '剪贴',
+    icon: 'assets/icons/cut.png',
+  },
+  {
     key: 'undo',
     name: '撤销',
     icon: 'assets/icons/undo.png',
@@ -8,6 +28,11 @@ export default [
     key: 'redo',
     name: '重做',
     icon: 'assets/icons/redo.png',
+  },
+  {
+    key: 'style-brash',
+    name: '格式刷',
+    icon: 'assets/icons/style-brash.png',
   },
   {
     key: 'divider',
@@ -49,5 +74,28 @@ export default [
     key: 'merge-cell',
     name: '合并单元格',
     icon: 'assets/icons/merge-cell.png',
+  },
+  {
+    key: 'divider',
+  },
+  {
+    key: 'line-chart',
+    name: '折线图',
+    icon: 'assets/icons/line-chart.png',
+  },
+  {
+    key: 'bar-chart',
+    name: '柱状图',
+    icon: 'assets/icons/bar-chart.png',
+  },
+  {
+    key: 'stacked-bar-chart',
+    name: '堆积柱状图',
+    icon: 'assets/icons/stacked-bar-chart.png',
+  },
+  {
+    key: 'pie-chart',
+    name: '饼图',
+    icon: 'assets/icons/pie-chart.png',
   },
 ]

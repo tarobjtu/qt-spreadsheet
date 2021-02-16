@@ -41,7 +41,7 @@ class Toolbar {
       if (item.key !== 'divider') {
         li.classList.add('qt-spreadsheet-toolbar-item')
         li.setAttribute('data-item-key', item.key)
-        li.setAttribute('alt', item.name)
+        li.setAttribute('title', item.name)
         li.style.backgroundImage = `url('${item.icon}')`
         this.itemEls[item.key] = li
       } else {
@@ -98,6 +98,14 @@ class Toolbar {
       const action = 'set' + _.upperFirst(_.camelCase(itemKey))
       if (this[action]) this[action](itemKey)
     }
+  }
+
+  setSave() {
+    this.sheet.save()
+  }
+
+  setDelete() {
+    this.sheet.delete()
   }
 
   setUndo() {

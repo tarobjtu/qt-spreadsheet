@@ -96,6 +96,18 @@ class Sheet extends EventEmitter {
     window.addEventListener('resize', resize)
   }
 
+  save() {
+    this.emit('save')
+  }
+
+  delete() {
+    this.emit('delete')
+  }
+
+  getData() {
+    return this.viewModel.getSheetData()
+  }
+
   loadData(data) {
     this.viewModel.updateData(data)
     this.draw()

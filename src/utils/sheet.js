@@ -52,6 +52,9 @@ function defaultData(rowCount, colCount) {
 
 export function getSheetData({ rowCount, colCount, theme, data }) {
   return {
+    name: '未命名文件',
+    vender: 'qt-spreadsheet',
+    version: '0.0.1',
     mode: 'edit',
     scrollX: 0, // 表格视窗相对文档起始点的横轴位置
     scrollY: 0, // 表格视窗相对文档起始点的纵轴位置
