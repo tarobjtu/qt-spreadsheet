@@ -48,6 +48,13 @@ class Editor {
     this.textareaEl.addEventListener('input', input)
     this.textareaEl.addEventListener('keydown', keydown, false)
     this.textareaEl.addEventListener('change', change, false)
+    this.sheet.on('scroll', this.position.bind(this))
+  }
+
+  position() {
+    const { left, top, width, height } = this.viewModel.getSelectedActiveCellBBox()
+    const { scrollX, scrollY } = this.viewModel.getSheetData()
+    this.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
   }
 
   onChange() {
