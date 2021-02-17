@@ -71,6 +71,11 @@ export default [
     key: 'divider',
   },
   {
+    key: 'align-center',
+    name: '水平居中',
+    icon: 'assets/icons/align-center.png',
+  },
+  {
     key: 'merge-cell',
     name: '合并单元格',
     icon: 'assets/icons/merge-cell.png',

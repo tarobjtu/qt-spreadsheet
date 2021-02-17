@@ -82,8 +82,7 @@ class Painter {
   drawCell(col, row, data) {
     const { ctx, viewModel, theme } = this
     const { scrollX, scrollY } = viewModel.sheetData
-    const { cellPadding } = theme
-    const { strokeStyle, color, fillStyle, textAlign } = theme.default
+    const { strokeStyle, fillStyle } = theme.default
 
     // 绘制边框
     ctx.strokeStyle = data.style?.border?.color || strokeStyle
@@ -100,15 +99,28 @@ class Painter {
     ctx.fillStyle = data.style?.backgroundColor || fillStyle
     ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
 
-    // 绘制文字
-    ctx.fillStyle = data.style?.color || color
+    this.drawText(col, row, data)
+  }
+
+  drawText(col, row, data) {
+    const { ctx, viewModel, theme } = this
+    const { scrollX, scrollY } = viewModel.sheetData
+    const { cellPadding } = theme
+    const { color, textAlign } = theme.default
+    const { value, style } = data
+    const texts = (value + '').split('\n')
+
+    ctx.fillStyle = style?.color || color
     ctx.textAlign = textAlign
-    ctx.font = font(theme.default, data.style)
-    ctx.fillText(
-      data.value,
-      col.offset - scrollX + cellPadding.left,
-      row.offset - scrollY + row.size / 2
-    )
+    ctx.font = font(theme.default, style)
+
+    texts.forEach((text) => {
+      ctx.fillText(
+        text,
+        col.offset - scrollX + cellPadding.left,
+        row.offset - scrollY + row.size / 2
+      )
+    })
   }
 
   drawHeader() {

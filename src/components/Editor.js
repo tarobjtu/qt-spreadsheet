@@ -69,15 +69,26 @@ class Editor {
   }
 
   onKeydown(e) {
+    const { target, altKey } = e
     const keyCode = e.keyCode || e.which
     // 禁止enter、tab以外的keydown冒泡到全局keydown事件中（Events.js中）
     if (keyCode !== 13 && keyCode !== 9) e.stopPropagation()
     // Alt + 回车键
-    if (keyCode === 13 && e.altKey) {
+    if (keyCode === 13 && altKey) {
       e.stopPropagation()
-      this.sheet.appendCellText('\n')
+      this.insertText(target, '\n')
     }
     if (keyCode === 13 && !e.altKey) e.preventDefault()
+  }
+
+  insertText(target, inputText) {
+    const { selectionEnd, value } = target
+    const text = value.slice(0, selectionEnd) + inputText + value.slice(selectionEnd)
+    // eslint-disable-next-line no-param-reassign
+    target.value = text
+    // 光标后移一位
+    target.setSelectionRange(selectionEnd + 1, selectionEnd + 1)
+    this.sheet.setCellText(text)
   }
 
   setOffset({ left, top, width, height }) {

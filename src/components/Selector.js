@@ -148,7 +148,6 @@ class Selector {
       const mergedSelector = mergeSelector(selector, rect)
       this.viewModel.setSelector(mergedSelector, true)
       this.viewModel.saveToHistory()
-      this.position()
       this.sheet.draw()
     }
   }
