@@ -57,7 +57,7 @@ class Events extends EventEmitter {
   onKeydown(e) {
     if (!this.canvasActive) return
     const keyCode = e.keyCode || e.which
-    const { shiftKey, ctrlKey, metaKey } = e
+    const { shiftKey, ctrlKey, metaKey, altKey } = e
 
     // Windows的Ctrl、Mac的Command辅助键与功能键同时按下的情况
     if (ctrlKey || metaKey) {
@@ -81,8 +81,11 @@ class Events extends EventEmitter {
           e.preventDefault()
           break
         case 73: // Command + I 斜体
-          this.sheet.setCellsStyle({ italic: 'italic' })
-          e.preventDefault()
+          // Command + Alt + I 是Chrome的Dev Tools快捷键，避免冲突
+          if (!altKey) {
+            this.sheet.setCellsStyle({ italic: 'italic' })
+            e.preventDefault()
+          }
           break
         case 65: // Command + A 全选
           this.sheet.selectAllCells()
