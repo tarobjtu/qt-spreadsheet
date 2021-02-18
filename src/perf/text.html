@@ -24,7 +24,7 @@
 
       const cellWidth = 150
       const cellHeight = 30
-      const lineHeight = 1.2
+      const lineHeight = 1.4
       const paddingLeft = 5
       const paddingRight = 5
       const paddingTop = 4
@@ -131,6 +131,35 @@
         drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize, wordWrap })
       }
 
+      // 水平居中 + 垂直居中 + 自动换行 + 文本中含换行符
+      {
+        const text = `我是导演，
+我还缺一个男主演，一个女主演。还有123男配角和abc女配角。`
+        const offsetX = 250
+        const offsetY = 510
+        const textAlign = 'left'
+        const textBaseline = 'middle'
+        const wordWrap = true
+
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(offsetX, offsetY, cellWidth, cellHeight)
+        drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize, wordWrap })
+      }
+
+      // 水平居中 + 垂直居中 + 文本中含换行符
+      {
+        const text = `我是导演，
+我还缺一个男主演，一个女主演。还有123男配角和abc女配角。`
+        const offsetX = 250
+        const offsetY = 600
+        const textAlign = 'left'
+        const textBaseline = 'middle'
+
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(offsetX, offsetY, cellWidth, cellHeight)
+        drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize })
+      }
+
       function drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize, wordWrap }) {
         ctx.save()
         ctx.fillStyle = '#666'
@@ -138,34 +167,38 @@
         ctx.textAlign = textAlign
         ctx.textBaseline = textBaseline
 
-        const words = text.split('')
-        const lines = [] // 保存每行字符串
-        const lineEnds = [] // 保存每行结束的位置
-        const cellInnerWidth = cellWidth - paddingLeft - paddingRight
-        let lineBegin = 0
-        let wordsLengh = 0
         let x
         let y
+        let lines = [] // 保存每行字符串
+        const texts = (text + '').split('\n')
+        const cellInnerWidth = cellWidth - paddingLeft - paddingRight
 
         if (wordWrap) {
-          words.forEach((word, index) => {
-            const w = ctx.measureText(word)
-            wordsLengh += w.width
-            if (wordsLengh > cellInnerWidth) {
-              lineEnds.push(index - 1)
-              wordsLengh = w.width
+          texts.forEach((t) => {
+            const words = t.split('')
+            const lineEnds = [] // 保存每行结束的位置
+            let lineBegin = 0
+            let wordsLengh = 0
+
+            words.forEach((word, index) => {
+              const { width } = ctx.measureText(word)
+              wordsLengh += width
+              if (wordsLengh > cellInnerWidth) {
+                lineEnds.push(index - 1)
+                wordsLengh = width
+              }
+            })
+            // 最后一行宽度不够cellInnerWidth
+            if (lineEnds[lineEnds.length - 1] !== words.length - 1) {
+              lineEnds.push(words.length - 1)
             }
-          })
-          // 最后一行宽度不够cellInnerWidth
-          if (lineEnds[lineEnds.length - 1] !== words.length - 1) {
-            lineEnds.push(words.length - 1)
-          }
-          lineEnds.forEach((lineEnd) => {
-            lines.push(text.slice(lineBegin, lineEnd + 1))
-            lineBegin = lineEnd + 1
+            lineEnds.forEach((lineEnd) => {
+              lines.push(t.slice(lineBegin, lineEnd + 1))
+              lineBegin = lineEnd + 1
+            })
           })
         } else {
-          lines.push(text)
+          lines = texts
         }
 
         if (textAlign === 'left') {
