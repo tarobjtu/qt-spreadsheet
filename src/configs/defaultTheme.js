@@ -4,10 +4,10 @@ const defaultTheme = {
   colWidth: 120,
   rowHeight: 24,
   cellPadding: {
-    left: 5,
-    right: 5,
-    top: 4,
-    bottom: 4,
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   default: {
     fillStyle: '#ffffff',
@@ -16,6 +16,8 @@ const defaultTheme = {
     lineWidth: 1,
     textAlign: 'left',
     textBaseline: 'middle',
+    wordWrap: false,
+    lineHeight: 1.4,
     fontSize: 12,
     color: '#262626',
     fontFamily: 'Arial, sans-serif, "Microsoft YaHei"',

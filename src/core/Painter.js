@@ -43,7 +43,7 @@ class Painter {
     this.drawHeader()
 
     perf()
-    // 测试渲染性能
+    // // 测试渲染性能
     // perf(() => {
     //   this.drawBody()
     // }, 'drawBody')
@@ -51,10 +51,6 @@ class Painter {
     // perf(() => {
     //   this.drawHeader()
     // }, 'drawHeader')
-
-    // perf(() => {
-    //   this.scrollbar.draw()
-    // }, 'drawScrollbar')
   }
 
   clear() {
@@ -103,24 +99,81 @@ class Painter {
   }
 
   drawText(col, row, data) {
-    const { ctx, viewModel, theme } = this
+    const { ctx, theme, viewModel } = this
     const { scrollX, scrollY } = viewModel.sheetData
-    const { cellPadding } = theme
-    const { color, textAlign } = theme.default
     const { value, style } = data
-    const texts = (value + '').split('\n')
+    const offsetX = col.offset
+    const offsetY = row.offset
+    const cellWidth = col.size
+    const cellHeight = row.size
+    const { paddingLeft, paddingRight, paddingTop, paddingBottom } = theme.cellPadding
+    const fontSize = style.fontSize || theme.default.fontSize
+    const textAlign = style.textAlign || theme.default.textAlign
+    const textBaseline = style.textBaseline || theme.default.textBaseline
+    const wordWrap = style.wordWrap || theme.default.wordWrap
+    const color = style.color || theme.default.color
+    const { lineHeight } = theme.default
 
-    ctx.fillStyle = style?.color || color
-    ctx.textAlign = textAlign
+    ctx.save()
+    ctx.fillStyle = color
     ctx.font = font(theme.default, style)
+    ctx.textAlign = textAlign
+    ctx.textBaseline = textBaseline
 
-    texts.forEach((text) => {
-      ctx.fillText(
-        text,
-        col.offset - scrollX + cellPadding.left,
-        row.offset - scrollY + row.size / 2
-      )
+    let x
+    let y
+    let lines = [] // 保存每行字符串
+    const texts = (value + '').split('\n')
+    const cellInnerWidth = cellWidth - paddingLeft - paddingRight
+
+    if (wordWrap) {
+      texts.forEach((t) => {
+        const words = t.split('')
+        const lineEnds = [] // 保存每行结束的位置
+        let lineBegin = 0
+        let wordsLengh = 0
+
+        words.forEach((word, index) => {
+          const { width } = ctx.measureText(word)
+          wordsLengh += width
+          if (wordsLengh > cellInnerWidth) {
+            lineEnds.push(index - 1)
+            wordsLengh = width
+          }
+        })
+        // 最后一行宽度不够cellInnerWidth
+        if (lineEnds[lineEnds.length - 1] !== words.length - 1) {
+          lineEnds.push(words.length - 1)
+        }
+        lineEnds.forEach((lineEnd) => {
+          lines.push(t.slice(lineBegin, lineEnd + 1))
+          lineBegin = lineEnd + 1
+        })
+      })
+    } else {
+      lines = texts
+    }
+
+    if (textAlign === 'left') {
+      x = offsetX + paddingLeft
+    } else if (textAlign === 'center') {
+      x = offsetX + cellWidth / 2
+    } else if (textAlign === 'right') {
+      x = offsetX + cellWidth - paddingRight
+    }
+    if (textBaseline === 'top') {
+      y = offsetY + paddingTop
+    } else if (textBaseline === 'middle') {
+      y = offsetY + cellHeight / 2 - ((lines.length - 1) * fontSize * lineHeight) / 2
+    } else if (textBaseline === 'bottom') {
+      y = offsetY + cellHeight - paddingBottom - (lines.length - 1) * fontSize * lineHeight
+    }
+
+    lines.forEach((line) => {
+      ctx.fillText(line, x - scrollX, y - scrollY)
+      y += fontSize * lineHeight
     })
+    ctx.restore()
   }
 
   drawHeader() {
