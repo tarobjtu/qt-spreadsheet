@@ -76,6 +76,17 @@ export default [
     icon: 'assets/icons/align-center.png',
   },
   {
+    key: 'align-vertical-bottom',
+    name: '底部对齐',
+    icon: 'assets/icons/align-vertical-bottom.png',
+  },
+  {
+    key: 'word-wrap',
+    name: '换行',
+    icon: 'assets/icons/word-wrap.png',
+  },
+
+  {
     key: 'merge-cell',
     name: '合并单元格',
     icon: 'assets/icons/merge-cell.png',

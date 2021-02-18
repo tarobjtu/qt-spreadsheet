@@ -75,7 +75,7 @@ class Painter {
     }
   }
 
-  drawCell(col, row, data) {
+  drawCell(cMeta, rMeta, data) {
     const { ctx, viewModel, theme } = this
     const { scrollX, scrollY } = viewModel.sheetData
     const { strokeStyle, fillStyle } = theme.default
@@ -83,29 +83,29 @@ class Painter {
     // 绘制边框
     ctx.strokeStyle = data.style?.border?.color || strokeStyle
     ctx.beginPath()
-    ctx.moveTo(col.offset - scrollX, row.offset - scrollY)
-    ctx.lineTo(col.offset + col.size - scrollX, row.offset - scrollY)
-    ctx.lineTo(col.offset + col.size - scrollX, row.offset + row.size - scrollY)
-    ctx.lineTo(col.offset - scrollX, row.offset + row.size - scrollY)
-    ctx.lineTo(col.offset - scrollX, row.offset - scrollY)
+    ctx.moveTo(cMeta.offset - scrollX, rMeta.offset - scrollY)
+    ctx.lineTo(cMeta.offset + cMeta.size - scrollX, rMeta.offset - scrollY)
+    ctx.lineTo(cMeta.offset + cMeta.size - scrollX, rMeta.offset + rMeta.size - scrollY)
+    ctx.lineTo(cMeta.offset - scrollX, rMeta.offset + rMeta.size - scrollY)
+    ctx.lineTo(cMeta.offset - scrollX, rMeta.offset - scrollY)
     ctx.closePath()
     ctx.stroke()
 
     // 填充背景色
     ctx.fillStyle = data.style?.backgroundColor || fillStyle
-    ctx.fillRect(col.offset - scrollX, row.offset - scrollY, col.size, row.size)
+    ctx.fillRect(cMeta.offset - scrollX, rMeta.offset - scrollY, cMeta.size, rMeta.size)
 
-    this.drawText(col, row, data)
+    this.drawText(cMeta, rMeta, data)
   }
 
-  drawText(col, row, data) {
+  drawText(cMeta, rMeta, data) {
     const { ctx, theme, viewModel } = this
     const { scrollX, scrollY } = viewModel.sheetData
     const { value, style } = data
-    const offsetX = col.offset
-    const offsetY = row.offset
-    const cellWidth = col.size
-    const cellHeight = row.size
+    const offsetX = cMeta.offset
+    const offsetY = rMeta.offset
+    const cellWidth = cMeta.size
+    const cellHeight = rMeta.size
     const { paddingLeft, paddingRight, paddingTop, paddingBottom } = theme.cellPadding
     const fontSize = style.fontSize || theme.default.fontSize
     const textAlign = style.textAlign || theme.default.textAlign
@@ -174,6 +174,96 @@ class Painter {
       y += fontSize * lineHeight
     })
     ctx.restore()
+  }
+
+  getTextBBox(col, row) {
+    const { ctx, theme, viewModel } = this
+    const { scrollX, scrollY, colsMeta, rowsMeta } = viewModel.sheetData
+    const data = viewModel.getCellData(col, row)
+    const cMeta = colsMeta[col]
+    const rMeta = rowsMeta[row]
+
+    const { value, style } = data
+    const offsetX = cMeta.offset
+    const offsetY = rMeta.offset
+    const cellWidth = cMeta.size
+    const cellHeight = rMeta.size
+    const { paddingLeft, paddingRight } = theme.cellPadding
+    const borderWidth = 2
+    const fontSize = style.fontSize || theme.default.fontSize
+    const textAlign = style.textAlign || theme.default.textAlign
+    const textBaseline = style.textBaseline || theme.default.textBaseline
+    const wordWrap = style.wordWrap || theme.default.wordWrap
+    const color = style.color || theme.default.color
+    const { lineHeight } = theme.default
+
+    ctx.save()
+    ctx.fillStyle = color
+    ctx.font = font(theme.default, style)
+    ctx.textAlign = textAlign
+    ctx.textBaseline = textBaseline
+
+    let x
+    let lines = [] // 保存每行字符串
+    const texts = (value + '').split('\n')
+    const cellInnerWidth = cellWidth - paddingLeft - paddingRight
+
+    if (wordWrap) {
+      texts.forEach((t) => {
+        const words = t.split('')
+        const lineEnds = [] // 保存每行结束的位置
+        let lineBegin = 0
+        let wordsLengh = 0
+
+        words.forEach((word, index) => {
+          const { width } = ctx.measureText(word)
+          wordsLengh += width
+          if (wordsLengh > cellInnerWidth) {
+            lineEnds.push(index - 1)
+            wordsLengh = width
+          }
+        })
+        // 最后一行宽度不够cellInnerWidth
+        if (lineEnds[lineEnds.length - 1] !== words.length - 1) {
+          lineEnds.push(words.length - 1)
+        }
+        lineEnds.forEach((lineEnd) => {
+          lines.push(t.slice(lineBegin, lineEnd + 1))
+          lineBegin = lineEnd + 1
+        })
+      })
+    } else {
+      lines = texts
+    }
+
+    let maxWidth = 0
+
+    lines.forEach((line) => {
+      const { width } = ctx.measureText(line)
+      maxWidth = Math.max(maxWidth, width)
+    })
+
+    if (textAlign === 'left') {
+      x = offsetX
+    } else if (textAlign === 'center') {
+      x = offsetX + cellWidth / 2 - maxWidth / 2
+    } else if (textAlign === 'right') {
+      x = offsetX + cellWidth - maxWidth
+    }
+
+    ctx.restore()
+
+    const magicNumber = 10 // 避免用户在Editor输入时频繁换行
+
+    return {
+      left: x - scrollX,
+      top: offsetY - scrollY,
+      width: Math.max(
+        maxWidth + paddingLeft + paddingRight + borderWidth * 2 + magicNumber,
+        cellWidth
+      ),
+      height: Math.max(lines.length * fontSize * lineHeight, cellHeight),
+    }
   }
 
   drawHeader() {

@@ -166,22 +166,15 @@ class Sheet extends EventEmitter {
    * @param {*} clearText 清空单元格现有数据
    */
   showEditor({ colIndex, rowIndex, cellType, clearText } = {}) {
-    const { scrollX, scrollY } = this.viewModel.sheetData
     const selector = this.viewModel.getSelector()
     const col = colIndex === undefined ? selector.col : colIndex
     const row = rowIndex === undefined ? selector.row : rowIndex
     const type = cellType === undefined ? selector.type : cellType
 
     if (type === 'cell') {
-      const { left, top, width, height } = this.viewModel.getCellsBBox({
-        col,
-        row,
-        colCount: 1,
-        rowCount: 1,
-      })
       const cellData = clearText === true ? '' : this.viewModel.getCellText(col, row)
-      this.editor.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
-      this.editor.setValue(cellData, col, row).show().focus()
+      this.editor.setValue(cellData, col, row)
+      this.editor.position().show().focus()
       this.selector.hide()
     }
   }

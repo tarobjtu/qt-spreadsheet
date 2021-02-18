@@ -5,15 +5,7 @@ import './toolbar.scss'
 /**
  * @description 工具栏中需要更新状态的图标，用户选中一个带样式的带元格后，需要更新工具栏中的样式状态
  */
-const stylesOfUpdateState = [
-  'bold',
-  'italic',
-  'underline',
-  'fontSize',
-  'fontFamily',
-  'verticalAlign',
-  'horizontalAlign',
-]
+const stylesOfUpdateState = ['bold', 'italic', 'underline', 'wordWrap']
 class Toolbar {
   constructor({ container, sheet }) {
     this.sheet = sheet
@@ -39,14 +31,15 @@ class Toolbar {
     configs.forEach((item) => {
       const li = document.createElement('li')
       if (item.key !== 'divider') {
+        const itemKey = _.camelCase(item.key)
         li.classList.add('qt-spreadsheet-toolbar-item')
         if (item.disable) {
           li.classList.add('disable')
         }
-        li.setAttribute('data-item-key', item.key)
+        li.setAttribute('data-item-key', itemKey)
         li.setAttribute('title', item.name)
         li.style.backgroundImage = `url('${item.icon}')`
-        this.itemEls[item.key] = li
+        this.itemEls[itemKey] = li
       } else {
         li.classList.add('qt-spreadsheet-toolbar-divider')
       }
@@ -98,7 +91,7 @@ class Toolbar {
     const { target } = e
     const itemKey = target.getAttribute('data-item-key')
     if (itemKey) {
-      const action = 'set' + _.upperFirst(_.camelCase(itemKey))
+      const action = 'set' + _.upperFirst(itemKey)
       if (this[action]) this[action](itemKey)
     }
   }
@@ -127,6 +120,11 @@ class Toolbar {
   setItalic() {
     const { sheet } = this
     sheet.toggleCellsStyle('italic')
+  }
+
+  setWordWrap() {
+    const { sheet } = this
+    sheet.toggleCellsStyle('wordWrap')
   }
 
   setFontColor() {

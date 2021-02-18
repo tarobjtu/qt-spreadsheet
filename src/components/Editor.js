@@ -16,6 +16,7 @@ class Editor {
     this.container = container
     this.viewModel = viewModel
     this.sheet = sheet
+    this.painter = sheet.painter
 
     this.initElements()
     this.bindEvent()
@@ -52,9 +53,10 @@ class Editor {
   }
 
   position() {
-    const { left, top, width, height } = this.viewModel.getSelectedActiveCellBBox()
-    const { scrollX, scrollY } = this.viewModel.getSheetData()
-    this.setOffset({ left: left - scrollX, top: top - scrollY, width, height })
+    const { activeCol, activeRow } = this.viewModel.getSelector()
+    const { top, left, width, height } = this.painter.getTextBBox(activeCol, activeRow)
+    this.setOffset({ top, left, width, height })
+    return this
   }
 
   onChange() {
@@ -66,6 +68,7 @@ class Editor {
     if (!this.visible) return
     this.curEditingCell = this.viewModel.getSelector()
     this.sheet.setCellText(this.textareaEl.value)
+    this.position()
   }
 
   onKeydown(e) {
