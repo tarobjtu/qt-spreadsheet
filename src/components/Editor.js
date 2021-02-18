@@ -88,7 +88,8 @@ class Editor {
     target.value = text
     // 光标后移一位
     target.setSelectionRange(selectionEnd + 1, selectionEnd + 1)
-    this.sheet.setCellText(text)
+    const { col, row } = this.viewModel.getSelector()
+    this.sheet.setCellText(text, col, row, 'finished')
   }
 
   setOffset({ left, top, width, height }) {
