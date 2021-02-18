@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Text Perf</title>
+    <style>
+      #root {
+        margin: 50px auto;
+        width: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      const root = document.getElementById('root')
+      const canvas = document.createElement('canvas')
+      root.appendChild(canvas)
+      canvas.width = 500
+      canvas.height = 800
+      const ctx = canvas.getContext('2d')
+
+      const cellWidth = 150
+      const cellHeight = 30
+      const lineHeight = 1.2
+      const paddingLeft = 5
+      const paddingRight = 5
+      const paddingTop = 4
+      const paddingBottom = 4
+      const fontSize = 14
+
+      const FONT_SIZE_MAP = [
+        { pt: 7.5, px: 10 },
+        { pt: 8, px: 11 },
+        { pt: 9, px: 12 },
+        { pt: 10, px: 13 },
+        { pt: 10.5, px: 14 },
+        { pt: 11, px: 15 },
+        { pt: 12, px: 16 },
+        { pt: 14, px: 18.7 },
+        { pt: 15, px: 20 },
+        { pt: 16, px: 21.3 },
+        { pt: 18, px: 24 },
+        { pt: 22, px: 29.3 },
+        { pt: 24, px: 32 },
+        { pt: 26, px: 34.7 },
+        { pt: 36, px: 48 },
+        { pt: 42, px: 56 },
+      ]
+
+      // 左对齐 + 上对齐
+      {
+        ctx.save()
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(50, 20, cellWidth, cellHeight)
+        ctx.fillStyle = '#666'
+        ctx.font = `${fontSize}px "Microsoft Yahei"`
+        ctx.textAlign = 'left'
+        ctx.textBaseline = 'top'
+        const x = 50 + paddingLeft
+        const y = 20 + paddingTop
+        ctx.fillText('我是导演', x, y)
+        ctx.restore()
+      }
+
+      // 居中对齐 + 垂直居中
+      {
+        ctx.save()
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(50, 80, cellWidth, cellHeight)
+        ctx.fillStyle = '#666'
+        ctx.font = `${fontSize}px "Microsoft Yahei"`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        const x = 50 + cellWidth / 2
+        const y = 80 + cellHeight / 2
+        ctx.fillText('我是导演', x, y)
+        ctx.restore()
+      }
+
+      // 右对齐 + 下对齐
+      {
+        ctx.save()
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(50, 140, cellWidth, cellHeight)
+        ctx.fillStyle = '#666'
+        ctx.font = `${fontSize}px "Microsoft Yahei"`
+        ctx.textAlign = 'right'
+        ctx.textBaseline = 'bottom'
+        const x = 50 + cellWidth - paddingRight
+        const y = 140 + cellHeight - paddingBottom
+        ctx.fillText('我是导演', x, y)
+        ctx.restore()
+      }
+
+      // 水平居中 + 垂直居中 + 自动换行
+      {
+        const text = '我是导演，我还缺一个男主演，一个女主演。还有123男配角和abc女配角。'
+        const offsetX = 50
+        const offsetY = 260
+        const textAlign = 'center'
+        const textBaseline = 'middle'
+
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(50, 260, cellWidth, cellHeight)
+        drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize })
+      }
+
+      // 左对齐 + 上对齐 + 自动换行
+      {
+        const text = '我是导演，我还缺一个男主演，一个女主演。还有123男配角和abc女配角。'
+        const offsetX = 50
+        const offsetY = 320
+        const textAlign = 'left'
+        const textBaseline = 'top'
+
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(50, 320, cellWidth, cellHeight)
+        drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize })
+      }
+
+      // 右对齐 + 下对齐 + 自动换行
+      {
+        const text = '我是导演，我还缺一个男主演，一个女主演。还有123男配角和abc女配角。'
+        const offsetX = 50
+        const offsetY = 480
+        const textAlign = 'right'
+        const textBaseline = 'bottom'
+
+        ctx.strokeStyle = '#b2b2b2'
+        ctx.strokeRect(offsetX, offsetY, cellWidth, cellHeight)
+        drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize })
+      }
+
+      function drawText({ text, offsetX, offsetY, textAlign, textBaseline, fontSize }) {
+        const words = text.split('')
+        const lines = [] // 保存每行字符串
+        const lineEnds = [] // 保存每行结束的位置
+        const cellInnerWidth = cellWidth - paddingLeft - paddingRight
+        let lineBegin = 0
+        let wordsLengh = 0
+        let x
+        let y
+
+        ctx.save()
+        ctx.fillStyle = '#666'
+        ctx.font = `${fontSize}px "Microsoft Yahei"`
+        ctx.textAlign = textAlign
+        ctx.textBaseline = textBaseline
+
+        words.forEach((word, index) => {
+          const w = ctx.measureText(word)
+          wordsLengh += w.width
+          if (wordsLengh > cellInnerWidth) {
+            lineEnds.push(index - 1)
+            wordsLengh = w.width
+          }
+        })
+        // 最后一行宽度不够cellInnerWidth
+        if (lineEnds[lineEnds.length - 1] !== words.length - 1) {
+          lineEnds.push(words.length - 1)
+        }
+        lineEnds.forEach((lineEnd) => {
+          lines.push(text.slice(lineBegin, lineEnd + 1))
+          lineBegin = lineEnd + 1
+        })
+
+        if (textAlign === 'left') {
+          x = offsetX + paddingLeft
+        } else if (textAlign === 'center') {
+          x = offsetX + cellWidth / 2
+        } else if (textAlign === 'right') {
+          x = offsetX + cellWidth - paddingRight
+        }
+        if (textBaseline === 'top') {
+          y = offsetY + paddingTop
+        } else if (textBaseline === 'middle') {
+          y = offsetY + cellHeight / 2 - ((lines.length - 1) * fontSize * lineHeight) / 2
+        } else if (textBaseline === 'bottom') {
+          y = offsetY + cellHeight - paddingBottom - (lines.length - 1) * fontSize * lineHeight
+        }
+
+        lines.forEach((line) => {
+          ctx.fillText(line, x, y)
+          y += fontSize * lineHeight
+        })
+        ctx.restore()
+      }
+    </script>
+  </body>
+</html>
