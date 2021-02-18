@@ -40,6 +40,9 @@ class Toolbar {
       const li = document.createElement('li')
       if (item.key !== 'divider') {
         li.classList.add('qt-spreadsheet-toolbar-item')
+        if (item.disable) {
+          li.classList.add('disable')
+        }
         li.setAttribute('data-item-key', item.key)
         li.setAttribute('title', item.name)
         li.style.backgroundImage = `url('${item.icon}')`
@@ -128,12 +131,12 @@ class Toolbar {
 
   setFontColor() {
     const { sheet } = this
-    sheet.setCellsStyle({ color: '#d81e06' })
+    sheet.setCellsStyle({ color: '#ffffff' })
   }
 
   setBackgroundColor() {
     const { sheet } = this
-    sheet.setCellsStyle({ backgroundColor: '#c1f5fe' })
+    sheet.setCellsStyle({ backgroundColor: '#0cb1a3' })
   }
 
   setBorderAll() {

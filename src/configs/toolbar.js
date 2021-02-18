@@ -79,6 +79,7 @@ export default [
     key: 'merge-cell',
     name: '合并单元格',
     icon: 'assets/icons/merge-cell.png',
+    disable: true,
   },
   {
     key: 'divider',
@@ -87,20 +88,24 @@ export default [
     key: 'line-chart',
     name: '折线图',
     icon: 'assets/icons/line-chart.png',
+    disable: true,
   },
   {
     key: 'bar-chart',
     name: '柱状图',
     icon: 'assets/icons/bar-chart.png',
+    disable: true,
   },
   {
     key: 'stacked-bar-chart',
     name: '堆积柱状图',
     icon: 'assets/icons/stacked-bar-chart.png',
+    disable: true,
   },
   {
     key: 'pie-chart',
     name: '饼图',
     icon: 'assets/icons/pie-chart.png',
+    disable: true,
   },
 ]
