@@ -8,6 +8,7 @@ import Scrollbar from '../components/Scrollbar'
 import Selector from '../components/Selector'
 import Editor from '../components/Editor'
 import defaultTheme from '../configs/defaultTheme'
+import { perf } from '../utils/common'
 
 class Sheet extends EventEmitter {
   constructor({ data, container, options }) {
@@ -230,21 +231,61 @@ class Sheet extends EventEmitter {
   }
 
   /**
+   * @description 设置选中单元格的样式，出于性能考量，批量更新样式时，仅在第一个调用immutable方法
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   * @param {*} style
+   */
+  setCellsStyleOnlyUpdateAtStart(style) {
+    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    for (let i = col; i < col + colCount; i += 1) {
+      for (let j = row; j < row + rowCount; j += 1) {
+        const start = i === col && j === row
+        const finished = i === col + colCount - 1 && j === row + rowCount - 1
+        this.viewModel.setCellStyle(i, j, style, start, finished)
+      }
+    }
+
+    this.draw()
+  }
+
+  /**
+   * @description 设置选中单元格的样式，批量更新样式时，每次更新都调用immutable方法
+   * @param {*} colIndex
+   * @param {*} rowIndex
+   * @param {*} style
+   */
+  setCellsStyleAnyState(style) {
+    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    for (let i = col; i < col + colCount; i += 1) {
+      for (let j = row; j < row + rowCount; j += 1) {
+        const start = i === col && j === row
+        const finished = i === col + colCount - 1 && j === row + rowCount - 1
+        this.viewModel.setCellStyleUpdateAnyState(i, j, style, start, finished)
+      }
+    }
+
+    this.draw()
+  }
+
+  /**
    * @description 设置选中单元格的样式
    * @param {*} colIndex
    * @param {*} rowIndex
    * @param {*} style
    */
   setCellsStyle(style) {
-    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
-    for (let i = col; i < col + colCount; i += 1) {
-      for (let j = row; j < row + rowCount; j += 1) {
-        const finished = i === col + colCount - 1 && j === row + rowCount - 1 ? 'finished' : ''
-        this.viewModel.setCellStyle(i, j, style, finished)
-      }
-    }
+    this.setCellsStyleOnlyUpdateAtStart(style)
 
-    this.draw()
+    perf()
+    // perf(() => {
+    //   this.setCellsStyleOnlyUpdateAtStart(style)
+    // }, 'setCellsStyleOnlyUpdateAtStart')
+
+    // 500个单元格更新时，性能差异在30倍，性能差异呈类指数增长
+    // perf(() => {
+    //   this.setCellsStyleAnyState(style)
+    // }, 'setCellsStyleAnyState')
   }
 
   toggleCellsStyle(key) {

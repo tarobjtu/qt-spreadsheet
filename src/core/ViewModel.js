@@ -447,12 +447,45 @@ class ViewModel {
    * @param {*} style
    * @param {*} state 批量更新单元格样式时，历史版本只保存最后的一次输入，比如圈选多个单元格后设置样式
    */
-  setCellStyle(col, row, style = {}, state) {
-    this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], {
+  setCellStyle(col, row, style = {}, start = false, finished = false) {
+    const latestStyle = {
       ...this.getCellStyle(col, row),
       ...style,
-    })
-    if (state === 'finished') {
+    }
+    if (start) {
+      this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], latestStyle)
+    } else {
+      const { data } = this.sheetData
+      if (data[row][col]) {
+        data[row][col].style = latestStyle
+      }
+    }
+
+    if (finished) {
+      this.history.save(this.sheetData)
+    }
+  }
+
+  /**
+   * @description 设置单元格样式
+   * @param {*} col
+   * @param {*} row
+   * @param {*} style
+   * @param {*} state 批量更新单元格样式时，历史版本只保存最后的一次输入，比如圈选多个单元格后设置样式
+   */
+  setCellStyleUpdateAnyState(col, row, style = {}, start = false, finished = false) {
+    const latestStyle = {
+      ...this.getCellStyle(col, row),
+      ...style,
+    }
+
+    if (start) {
+      this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], latestStyle)
+    } else {
+      this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], latestStyle)
+    }
+
+    if (finished) {
       this.history.save(this.sheetData)
     }
   }
