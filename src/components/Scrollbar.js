@@ -7,6 +7,7 @@ class Scrollbar {
     this.theme = theme
     this.viewModel = viewModel
     this.container = container
+    this.wheelTiming = 0
 
     this.initElements()
     this.bindEvent()
@@ -38,7 +39,7 @@ class Scrollbar {
   bindEvent() {
     this.events = []
     // 滚轮事件
-    const wheel = throttle(this.onWheel.bind(this), 50)
+    const wheel = this.onWheel.bind(this)
     this.events.push([this.container, 'wheel', wheel])
     this.container.addEventListener('wheel', wheel)
 
@@ -104,7 +105,16 @@ class Scrollbar {
 
   onWheel(event) {
     event.preventDefault()
+    if (this.wheelFlag) return
+    this.wheelFlag = true
     const { deltaX, deltaY } = event
+    setTimeout(() => {
+      this.wheelFlag = false
+      this.wheel({ deltaX, deltaY })
+    }, 50)
+  }
+
+  wheel({ deltaX, deltaY }) {
     const { scrollX, scrollY } = this.viewModel.sheetData
     // console.warn({ deltaX, deltaY })
     this.sheet.scroll(scrollX + Math.round(deltaX), scrollY + Math.round(deltaY))
