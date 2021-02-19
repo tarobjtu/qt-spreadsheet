@@ -107,17 +107,14 @@ class Scrollbar {
     event.preventDefault()
     if (this.wheelFlag) return
     this.wheelFlag = true
-    const { deltaX, deltaY } = event
+
     setTimeout(() => {
       this.wheelFlag = false
-      this.wheel({ deltaX, deltaY })
+      const { deltaX, deltaY } = event
+      const { scrollX, scrollY } = this.viewModel.sheetData
+      // console.warn({ deltaX, deltaY })
+      this.sheet.scroll(scrollX + Math.round(deltaX), scrollY + Math.round(deltaY))
     }, 50)
-  }
-
-  wheel({ deltaX, deltaY }) {
-    const { scrollX, scrollY } = this.viewModel.sheetData
-    // console.warn({ deltaX, deltaY })
-    this.sheet.scroll(scrollX + Math.round(deltaX), scrollY + Math.round(deltaY))
   }
 
   draw() {
