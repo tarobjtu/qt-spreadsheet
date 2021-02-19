@@ -1,4 +1,5 @@
-import _ from 'lodash'
+import throttle from 'lodash/throttle'
+import isEqual from 'lodash/isEqual'
 import { directionToRect, mergeSelector } from '../utils/canvas'
 import { deepClone } from '../utils/common'
 import './selector.scss'
@@ -46,7 +47,7 @@ class Selector {
   bindEvents() {
     this.events = []
     const mousedown = this.onMousedown.bind(this)
-    const mousemove = _.throttle(this.onMousemove.bind(this), 100)
+    const mousemove = throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
     this.events.push([this.cornerEl, 'mousedown', mousedown])
     this.events.push([window, 'mousemove', mousemove])
@@ -110,7 +111,7 @@ class Selector {
     const lastSelector = lastSheetData.selector
     const curSelector = this.viewModel.getSelector()
     // selector不同时保存
-    if (!_.isEqual(lastSelector, curSelector)) {
+    if (!isEqual(lastSelector, curSelector)) {
       this.viewModel.saveToHistory()
     }
   }

@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import isFunction from 'lodash/isFunction'
 import EventEmitter from 'eventemitter3'
 
 /**
@@ -26,7 +26,7 @@ class History extends EventEmitter {
     if (!this.canRedo()) return
     this.position += 1
     const item = this.stack[this.position]
-    if (_.isFunction(callback)) {
+    if (isFunction(callback)) {
       callback(item)
     }
     this.emit('change')
@@ -36,7 +36,7 @@ class History extends EventEmitter {
     if (!this.canUndo()) return
     this.position -= 1
     const item = this.stack[this.position]
-    if (_.isFunction(callback)) {
+    if (isFunction(callback)) {
       callback(item)
     }
     this.emit('change')

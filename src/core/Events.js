@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3'
-import _ from 'lodash'
+import throttle from 'lodash/throttle'
 
 /**
  * @description 电子表格通用事件注册与处理
@@ -33,7 +33,7 @@ class Events extends EventEmitter {
 
     // 鼠标事件
     const mousedown = this.onMousedown.bind(this)
-    const mousemove = _.throttle(this.onMousemove.bind(this), 100)
+    const mousemove = throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
     const click = this.onClick.bind(this)
     this.events.push([canvas, 'mousedown', mousedown])

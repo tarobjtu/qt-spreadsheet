@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import throttle from 'lodash/throttle'
 import './editor.scss'
 
 const stylesOfUpdateState = {
@@ -40,7 +40,7 @@ class Editor {
 
   bindEvent() {
     this.events = []
-    const input = _.throttle(this.onInput.bind(this), 300)
+    const input = throttle(this.onInput.bind(this), 300)
     const keydown = this.onKeydown.bind(this)
     const change = this.onChange.bind(this)
     this.events.push([this.textareaEl, 'input', input])

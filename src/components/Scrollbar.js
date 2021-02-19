@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import throttle from 'lodash/throttle'
 import './scrollbar.scss'
 
 class Scrollbar {
@@ -38,14 +38,14 @@ class Scrollbar {
   bindEvent() {
     this.events = []
     // 滚轮事件
-    const wheel = _.throttle(this.onWheel.bind(this), 50)
+    const wheel = throttle(this.onWheel.bind(this), 50)
     this.events.push([this.container, 'wheel', wheel])
     this.container.addEventListener('wheel', wheel)
 
     // triggerX 拖拽事件
     const xMouseDown = this.onMouseDown.bind(this, 'X')
     const yMouseDown = this.onMouseDown.bind(this, 'Y')
-    const mouseMove = _.throttle(this.onMouseMove.bind(this), 50)
+    const mouseMove = throttle(this.onMouseMove.bind(this), 50)
     const mouseUp = this.onMouseUp.bind(this)
     this.events.push([this.triggerX, 'mousedown', xMouseDown])
     this.events.push([this.triggerY, 'mousedown', yMouseDown])

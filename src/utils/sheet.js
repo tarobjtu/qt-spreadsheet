@@ -1,4 +1,5 @@
-import _ from 'lodash'
+import isArray from 'lodash/isArray'
+import isObject from 'lodash/isObject'
 
 function defaultCRMeta({ size, count, headerOffset }) {
   const crMeta = []
@@ -12,18 +13,18 @@ function defaultCRMeta({ size, count, headerOffset }) {
 }
 
 function defaultCells(data) {
-  if (!_.isArray(data)) {
+  if (!isArray(data)) {
     console.error('sheet的数据格式不是数组')
     return []
   }
 
   data.forEach((row, ri) => {
-    if (!_.isArray(row)) {
+    if (!isArray(row)) {
       console.error('sheet的第', ri, '行数据格式不是数组')
       return
     }
     row.forEach((item, ci, arr) => {
-      if (!_.isObject(item)) {
+      if (!isObject(item)) {
         // eslint-disable-next-line no-param-reassign
         arr[ci] = {
           style: {},

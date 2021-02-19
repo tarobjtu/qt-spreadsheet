@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3'
-import _ from 'lodash'
+import throttle from 'lodash/throttle'
 import History from './History'
 import ViewModel from './ViewModel'
 import Painter from './Painter'
@@ -92,7 +92,7 @@ class Sheet extends EventEmitter {
   bindEvent() {
     // 缓存事件列表，对象销毁时使用
     this.events = {}
-    const resize = _.throttle(this.resize.bind(this), 300)
+    const resize = throttle(this.resize.bind(this), 300)
     this.events.resize = resize
 
     window.addEventListener('resize', resize)

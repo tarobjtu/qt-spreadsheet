@@ -1,4 +1,5 @@
-import _ from 'lodash'
+import camelCase from 'lodash/camelCase'
+import upperFirst from 'lodash/upperFirst'
 import configs from '../configs/toolbar'
 import './toolbar.scss'
 
@@ -31,7 +32,7 @@ class Toolbar {
     configs.forEach((item) => {
       const li = document.createElement('li')
       if (item.key !== 'divider') {
-        const itemKey = _.camelCase(item.key)
+        const itemKey = camelCase(item.key)
         li.classList.add('qt-spreadsheet-toolbar-item')
         if (item.disable) {
           li.classList.add('disable')
@@ -91,7 +92,7 @@ class Toolbar {
     const { target } = e
     const itemKey = target.getAttribute('data-item-key')
     if (itemKey) {
-      const action = 'set' + _.upperFirst(itemKey)
+      const action = 'set' + upperFirst(itemKey)
       if (this[action]) this[action](itemKey)
     }
   }
