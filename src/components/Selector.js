@@ -38,10 +38,10 @@ class Selector {
     this.cornerEl = document.createElement('div')
     this.cornerEl.classList.add('qt-spreadsheet-selector-corner')
     this.sectionEl.appendChild(this.cornerEl)
-    // 批量编辑区域
-    this.batchEditEl = document.createElement('div')
-    this.batchEditEl.classList.add('qt-spreadsheet-selector-batch-edit-area')
-    this.selectorEl.appendChild(this.batchEditEl)
+    // 自动填充区域
+    this.autofillEl = document.createElement('div')
+    this.autofillEl.classList.add('qt-spreadsheet-selector-autofill')
+    this.selectorEl.appendChild(this.autofillEl)
   }
 
   bindEvents() {
@@ -79,7 +79,7 @@ class Selector {
     if (!this.cornerActive) return
     this.mousemoving = true
     const { target, offsetX, offsetY } = e
-    this.batchEditing(offsetX, offsetY, target)
+    this.autofill(offsetX, offsetY, target)
   }
 
   onMouseup(e) {
@@ -91,7 +91,7 @@ class Selector {
     if (this.mousemoving) {
       this.mousemoving = false
       const { target, offsetX, offsetY } = e
-      this.batchEditing(offsetX, offsetY, target, 'finished')
+      this.autofill(offsetX, offsetY, target, 'finished')
     }
   }
 
@@ -117,32 +117,32 @@ class Selector {
   }
 
   /**
-   * @description 拖拽corner，批量编辑单元格数据
+   * @description 拖拽corner，自动填充单元格数据
    * @param {*} offsetX
    * @param {*} offsetY
    * @param {*} target
    * @param {*} state
    */
-  batchEditing(offsetX, offsetY, target, state) {
+  autofill(offsetX, offsetY, target, state) {
     // 鼠标超出 canvas 区域
     if (!this.container.contains(target)) return
     const { scrollX, scrollY } = this.viewModel.getSheetData()
-    const { rect, direction } = this.getBatchEditingRect(offsetX + scrollX, offsetY + scrollY)
-    // 方向在选中区域内部的，不执行批量编辑
+    const { rect, direction } = this.getAutofillRect(offsetX + scrollX, offsetY + scrollY)
+    // 方向在选中区域内部的，不执行自动填充
     if (direction === 'inner') return
 
     const { left, top, width, height } = this.viewModel.getCellsBBox(rect)
-    this.setOffset(this.batchEditEl, { left: left - scrollX, top: top - scrollY, width, height })
-    this.batchEditEl.style.display = 'block'
-    this.batchEditEl.setAttribute('data-direction', direction)
+    this.setOffset(this.autofillEl, { left: left - scrollX, top: top - scrollY, width, height })
+    this.autofillEl.style.display = 'block'
+    this.autofillEl.setAttribute('data-direction', direction)
 
     // mouseup
     if (state === 'finished') {
       // 保存 selector 状态
       this.saveLastSelectorStatus()
-      this.batchEditEl.style.display = 'none'
+      this.autofillEl.style.display = 'none'
       const sourceRect = this.viewModel.getSelector()
-      this.batchEditingData(sourceRect, rect, direction)
+      this.autofillData(sourceRect, rect, direction)
 
       // 更新选中区域
       const selector = this.viewModel.getSelector()
@@ -153,7 +153,7 @@ class Selector {
     }
   }
 
-  batchEditingData(sourceRect, targetRect, direction) {
+  autofillData(sourceRect, targetRect, direction) {
     const { col, row, colCount, rowCount } = targetRect
     let sourceRowPointer // 遍历sourceRect的row指针
     let sourceColPointer // 遍历sourceRect的col指针
@@ -189,7 +189,7 @@ class Selector {
     }
   }
 
-  getBatchEditingRect(offsetX, offsetY) {
+  getAutofillRect(offsetX, offsetY) {
     let rect
     const { left, top, width, height } = this.viewModel.getSelectedCellsBBox()
     const direction = directionToRect({ left, top, width, height }, { offsetX, offsetY })
