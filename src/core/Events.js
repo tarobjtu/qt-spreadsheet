@@ -100,11 +100,11 @@ class Events extends EventEmitter {
           e.preventDefault()
           break
         case 86: // Command + V 黏贴
-          // this.sheet.paste()
+          this.sheet.paste()
           e.preventDefault()
           break
         case 88: // Command + X 剪贴
-          // this.sheet.cut()
+          this.sheet.cut()
           e.preventDefault()
           break
         default:

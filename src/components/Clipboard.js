@@ -6,6 +6,7 @@ class Clipboard {
     this.container = container
     this.viewModel = viewModel
     this.selections = {}
+    this.state = 'pasted'
 
     this.initElements()
   }
@@ -29,12 +30,22 @@ class Clipboard {
 
   copy(selections) {
     this.selections = selections
+    this.state = 'copy'
     return this
   }
 
   cut(selections) {
     this.selections = selections
+    this.state = 'cut'
     return this
+  }
+
+  getState() {
+    return this.state
+  }
+
+  getClipboardData() {
+    return this.selections
   }
 
   position() {

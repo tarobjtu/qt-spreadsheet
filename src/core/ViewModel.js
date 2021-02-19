@@ -491,6 +491,11 @@ class ViewModel {
     })
     this.history.save(this.sheetData)
   }
+
+  paste(selections, state) {
+    const { data } = this.sheetData
+    console.warn({ selections, state, data })
+  }
 }
 
 export default ViewModel
