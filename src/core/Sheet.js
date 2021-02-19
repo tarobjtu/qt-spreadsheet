@@ -102,6 +102,11 @@ class Sheet extends EventEmitter {
     this.emit('save')
   }
 
+  copy() {
+    this.selector.setClipBoardPosition()
+    this.selector.showClipBoard()
+  }
+
   delete() {
     this.emit('delete')
   }

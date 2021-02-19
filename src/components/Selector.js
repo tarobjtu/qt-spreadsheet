@@ -40,8 +40,14 @@ class Selector {
     this.sectionEl.appendChild(this.cornerEl)
     // 自动填充区域
     this.autofillEl = document.createElement('div')
-    this.autofillEl.classList.add('qt-spreadsheet-selector-autofill')
+    this.autofillEl.classList.add('qt-spreadsheet-selector-autofill-area')
     this.selectorEl.appendChild(this.autofillEl)
+    // 剪切板选择区域
+    this.clipboardStyleEl = document.createElement('style')
+    this.selectorEl.appendChild(this.clipboardStyleEl)
+    this.clipboardEl = document.createElement('div')
+    this.clipboardEl.classList.add('qt-spreadsheet-selector-clipboard-area')
+    this.selectorEl.appendChild(this.clipboardEl)
   }
 
   bindEvents() {
@@ -49,13 +55,15 @@ class Selector {
     const mousedown = this.onMousedown.bind(this)
     const mousemove = throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
+    // 自动填充的拖拽事件
     this.events.push([this.cornerEl, 'mousedown', mousedown])
     this.events.push([window, 'mousemove', mousemove])
     this.events.push([window, 'mouseup', mouseup])
-
     this.cornerEl.addEventListener('mousedown', mousedown, false)
     window.addEventListener('mousemove', mousemove, false)
     window.addEventListener('mouseup', mouseup, false)
+
+    // 自定义事件
     this.sheet.on('startSelectCell', this.onStartSelectCell.bind(this))
     this.sheet.on('endSelectCell', this.onEndSelectCell.bind(this))
     this.sheet.on('scroll', this.position.bind(this))
@@ -238,17 +246,52 @@ class Selector {
     return this
   }
 
+  setClipBoardPosition() {
+    const { scrollX, scrollY } = this.viewModel.sheetData
+    const { left, top, width, height } = this.viewModel.getSelectedCellsBBox()
+    this.setClipboardOffset({ left: left - scrollX, top: top - scrollY, width, height })
+    return this
+  }
+
+  showClipBoard() {
+    this.clipboardEl.style.display = 'block'
+    return this
+  }
+
+  hideClipBoard() {
+    this.clipboardEl.style.display = 'none'
+    return this
+  }
+
+  setClipboardOffset({ left, top, width, height }) {
+    const { clipboardEl, clipboardStyleEl } = this
+    /* eslint-disable */
+    const animationStyle = `@keyframes border-dance {
+      0% {
+        background-position: 0px 0px, ${width}px ${height - 2}px, 0px ${width - 2}px, ${
+      width - 2
+    }px 0px;
+      }
+      100% {
+        background-position: ${width}px 0px, 0px ${height - 2}px, 0px 0px, ${width - 2}px ${
+      width - 2
+    }px;
+      }
+    }
+    /* eslint-enable */
+    `
+    // 剪切板选择器border动画，demo见/playground/border-animation.html
+    clipboardStyleEl.innerHTML = animationStyle
+    clipboardEl.style.left = left + 'px'
+    clipboardEl.style.top = top + 'px'
+    clipboardEl.style.width = width + 'px'
+    clipboardEl.style.height = height + 'px'
+  }
+
   position() {
     const { scrollX, scrollY, selector } = this.viewModel.sheetData
-    const { col, row, colCount, rowCount, activeCol, activeRow } = selector
-
     // 设置选中区域位置信息
-    const sectionBBox = this.viewModel.getCellsBBox({
-      col,
-      row,
-      colCount,
-      rowCount,
-    })
+    const sectionBBox = this.viewModel.getSelectedCellsBBox()
     this.setOffset(this.sectionEl, {
       left: sectionBBox.left - scrollX,
       top: sectionBBox.top - scrollY,
@@ -256,14 +299,7 @@ class Selector {
       height: sectionBBox.height,
     })
 
-    // 设置选中区域的活跃单元格位置信息
-    const activeCellBBox = this.viewModel.getCellsBBox({
-      col: activeCol,
-      row: activeRow,
-      colCount: 1,
-      rowCount: 1,
-    })
-
+    const activeCellBBox = this.viewModel.getSelectedActiveCellBBox()
     this.setOffset(this.activeCellEl, {
       left: activeCellBBox.left - scrollX,
       top: activeCellBBox.top - scrollY,

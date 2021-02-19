@@ -7,14 +7,14 @@
   background-color: rgba(100, 200, 255, 0.1);
   border: 1px solid #2a83ea;
   box-sizing: border-box;
-  transition: 0.12s;
+  transition: 0.15s;
 }
 .qt-spreadsheet-selector-active {
   position: absolute;
   box-sizing: border-box;
   background-color: rgba(255, 255, 255, 0.1);
   border: 2px solid #2a83ea;
-  transition: 0.12s;
+  transition: 0.15s;
 }
 .qt-spreadsheet-selector-corner {
   position: absolute;
@@ -27,10 +27,11 @@
   pointer-events: all;
   cursor: crosshair;
 }
-.qt-spreadsheet-selector-autofill {
+.qt-spreadsheet-selector-autofill-area {
   position: absolute;
+  display: none;
   box-sizing: border-box;
-  transition: 0.12s;
+  transition: 0.15s;
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px dashed #2a83ea;
 
@@ -46,4 +47,17 @@
   &[data-direction='right'] {
     border-left: none;
   }
+}
+
+.qt-spreadsheet-selector-clipboard-area {
+  position: absolute;
+  display: none;
+  box-sizing: border-box;
+  background: linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+    linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+    linear-gradient(0deg, #2a83ea 50%, transparent 50%),
+    linear-gradient(0deg, #2a83ea 50%, transparent 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 8px 2px, 8px 2px, 2px 8px, 2px 8px;
+  animation: border-dance 10s infinite linear;
 }

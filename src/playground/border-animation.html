@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Border Animation</title>
+    <style>
+      .qt-spreadsheet-selector-clipboard-area {
+        position: absolute;
+        box-sizing: border-box;
+        height: 200px;
+        width: 300px;
+        top: 100px;
+        left: 200px;
+        background: linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+          linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+          linear-gradient(0deg, #2a83ea 50%, transparent 50%),
+          linear-gradient(0deg, #2a83ea 50%, transparent 50%);
+        background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+        background-size: 8px 2px, 8px 2px, 2px 8px, 2px 8px;
+        animation: border-dance 10s infinite linear;
+      }
+
+      @keyframes border-dance {
+        0% {
+          background-position: 0px 0px, 300px 198px, 0px 298px, 298px 0px;
+        }
+        100% {
+          background-position: 300px 0px, 0px 198px, 0px 0px, 298px 298px;
+        }
+      }
+      .qt-spreadsheet-selector-clipboard-area-2 {
+        position: absolute;
+        box-sizing: border-box;
+        height: 300px;
+        width: 500px;
+        top: 500px;
+        left: 200px;
+        background: linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+          linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+          linear-gradient(0deg, #2a83ea 50%, transparent 50%),
+          linear-gradient(0deg, #2a83ea 50%, transparent 50%);
+        background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+        background-size: 8px 2px, 8px 2px, 2px 8px, 2px 8px;
+        animation: border-dance-2 10s infinite linear;
+      }
+
+      @keyframes border-dance-2 {
+        0% {
+          background-position: 0px 0px, 500px 298px, 0px 498px, 498px 0px;
+        }
+        100% {
+          background-position: 500px 0px, 0px 298px, 0px 0px, 498px 498px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="qt-spreadsheet-selector-clipboard-area"></div>
+    <div class="qt-spreadsheet-selector-clipboard-area-2"></div>
+  </body>
+</html>

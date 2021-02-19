@@ -96,7 +96,7 @@ class Events extends EventEmitter {
           this.sheet.save()
           break
         case 67: // Command + C 复制
-          // this.sheet.copy()
+          this.sheet.copy()
           e.preventDefault()
           break
         case 86: // Command + V 黏贴
