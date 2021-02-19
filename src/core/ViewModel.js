@@ -1,5 +1,5 @@
 import update from '../utils/immutability-helper-y'
-import { deepClone } from '../utils/common'
+import { deepClone, perf } from '../utils/common'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -376,18 +376,28 @@ class ViewModel {
    * @param {*} col
    * @param {*} row
    */
-  setCellData(col, row, cellData, state = '') {
+  setCellData(col, row, cellData) {
+    this.sheetData = update.$set(this.sheetData, ['data', row, col], cellData)
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 设置单元格信息
+   * @param {*} col
+   * @param {*} row
+   */
+  setCellDataBatched(col, row, cellData, start = false, finished = false) {
     // const { data } = this.sheetData
     // state: start 开始阶段备份，避免污染保存在history中的sheetData数据
-    if (state === 'start') {
-      this.sheetData = update.$set(this.sheetData, ['data', row, col], cellData)
-    } else if (state === 'finished') {
-      // state: finished 结束阶段备份，存入history中
-      this.sheetData = update.$set(this.sheetData, ['data', row, col], cellData)
+    if (start) {
+      this.sheetData = deepClone(this.sheetData)
+    }
+
+    const { data } = this.sheetData
+    data[row][col] = cellData
+
+    if (finished) {
       this.history.save(this.sheetData)
-    } else {
-      // state: others 普通模式修改数据，批量修改单元格数据下性能最优
-      this.sheetData = update.$set(this.sheetData, ['data', row, col], cellData)
     }
   }
 
@@ -447,17 +457,18 @@ class ViewModel {
    * @param {*} style
    * @param {*} state 批量更新单元格样式时，历史版本只保存最后的一次输入，比如圈选多个单元格后设置样式
    */
-  setCellStyle(col, row, style = {}, start = false, finished = false) {
-    const latestStyle = {
-      ...this.getCellStyle(col, row),
-      ...style,
-    }
+  setCellStyleBatched(col, row, style = {}, start = false, finished = false) {
     if (start) {
-      this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], latestStyle)
-    } else {
-      const { data } = this.sheetData
-      if (data[row][col]) {
-        data[row][col].style = latestStyle
+      perf(() => {
+        this.sheetData = deepClone(this.sheetData)
+      }, 'deepClone')
+    }
+
+    const { data } = this.sheetData
+    if (data[row][col]) {
+      data[row][col].style = {
+        ...this.getCellStyle(col, row),
+        ...style,
       }
     }
 
@@ -473,21 +484,12 @@ class ViewModel {
    * @param {*} style
    * @param {*} state 批量更新单元格样式时，历史版本只保存最后的一次输入，比如圈选多个单元格后设置样式
    */
-  setCellStyleUpdateAnyState(col, row, style = {}, start = false, finished = false) {
-    const latestStyle = {
+  setCellStyle(col, row, style = {}) {
+    this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], {
       ...this.getCellStyle(col, row),
       ...style,
-    }
-
-    if (start) {
-      this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], latestStyle)
-    } else {
-      this.sheetData = update.$set(this.sheetData, ['data', row, col, 'style'], latestStyle)
-    }
-
-    if (finished) {
-      this.history.save(this.sheetData)
-    }
+    })
+    this.history.save(this.sheetData)
   }
 }
 

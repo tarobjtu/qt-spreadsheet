@@ -160,15 +160,17 @@ class Selector {
     if (direction === 'right' || direction === 'bottom') {
       for (let ri = row; ri < row + rowCount; ri += 1) {
         for (let ci = col; ci < col + colCount; ci += 1) {
+          const start = ri === row && ci === col
           sourceRowPointer = sourceRect.row + ((ri - row) % sourceRect.rowCount)
           sourceColPointer = sourceRect.col + ((ci - col) % sourceRect.colCount)
           const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
-          this.viewModel.setCellData(ci, ri, deepClone(sourceData))
+          this.viewModel.setCellDataBatched(ci, ri, deepClone(sourceData), start)
         }
       }
     } else if (direction === 'left' || direction === 'up') {
       for (let ri = row + rowCount - 1; ri >= row; ri -= 1) {
         for (let ci = col + colCount - 1; ci >= col; ci -= 1) {
+          const start = ri === row + rowCount - 1 && ci === col + colCount - 1
           sourceRowPointer =
             sourceRect.row +
             sourceRect.rowCount -
@@ -180,7 +182,7 @@ class Selector {
             1 -
             ((col + colCount - 1 - ci) % sourceRect.colCount)
           const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
-          this.viewModel.setCellData(ci, ri, deepClone(sourceData))
+          this.viewModel.setCellDataBatched(ci, ri, deepClone(sourceData), start)
         }
       }
     }
