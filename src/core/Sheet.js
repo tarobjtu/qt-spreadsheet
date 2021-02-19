@@ -7,6 +7,7 @@ import Events from './Events'
 import Scrollbar from '../components/Scrollbar'
 import Selector from '../components/Selector'
 import Editor from '../components/Editor'
+import Clipboard from '../components/Clipboard'
 import defaultTheme from '../configs/defaultTheme'
 import { perf } from '../utils/common'
 
@@ -81,6 +82,12 @@ class Sheet extends EventEmitter {
       container,
       viewModel: this.viewModel,
     })
+    // 初始化剪贴板
+    this.clipboard = new Clipboard({
+      sheet: this,
+      container,
+      viewModel: this.viewModel,
+    })
   }
 
   draw() {
@@ -103,8 +110,9 @@ class Sheet extends EventEmitter {
   }
 
   copy() {
-    this.selector.setClipBoardPosition()
-    this.selector.showClipBoard()
+    const selections = this.viewModel.getSelector()
+    this.clipboard.position().show()
+    this.clipboard.copy(selections)
   }
 
   delete() {
@@ -172,10 +180,10 @@ class Sheet extends EventEmitter {
    * @param {*} clearText 清空单元格现有数据
    */
   showEditor({ colIndex, rowIndex, cellType, clearText } = {}) {
-    const selector = this.viewModel.getSelector()
-    const col = colIndex === undefined ? selector.col : colIndex
-    const row = rowIndex === undefined ? selector.row : rowIndex
-    const type = cellType === undefined ? selector.type : cellType
+    const selections = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selections.col : colIndex
+    const row = rowIndex === undefined ? selections.row : rowIndex
+    const type = cellType === undefined ? selections.type : cellType
 
     if (type === 'cell') {
       const cellData = clearText === true ? '' : this.viewModel.getCellText(col, row)
@@ -193,9 +201,9 @@ class Sheet extends EventEmitter {
    * @param {*} state 状态包括：input、finished（历史版本只保存最后的一次输入）
    */
   setCellText(value, colIndex, rowIndex, state = 'input') {
-    const selector = this.viewModel.getSelector()
-    const col = colIndex === undefined ? selector.col : colIndex
-    const row = rowIndex === undefined ? selector.row : rowIndex
+    const selections = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selections.col : colIndex
+    const row = rowIndex === undefined ? selections.row : rowIndex
     this.viewModel.setCellText(col, row, value, state)
     this.draw()
   }
@@ -207,9 +215,9 @@ class Sheet extends EventEmitter {
    * @param {*} rowIndex
    */
   appendCellText(value, colIndex, rowIndex) {
-    const selector = this.viewModel.getSelector()
-    const col = colIndex === undefined ? selector.col : colIndex
-    const row = rowIndex === undefined ? selector.row : rowIndex
+    const selections = this.viewModel.getSelector()
+    const col = colIndex === undefined ? selections.col : colIndex
+    const row = rowIndex === undefined ? selections.row : rowIndex
     this.viewModel.appendCellText(col, row, value)
     this.draw()
   }

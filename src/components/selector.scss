@@ -48,16 +48,3 @@
     border-left: none;
   }
 }
-
-.qt-spreadsheet-selector-clipboard-area {
-  position: absolute;
-  display: none;
-  box-sizing: border-box;
-  background: linear-gradient(120deg, #2a83ea 50%, transparent 50%),
-    linear-gradient(120deg, #2a83ea 50%, transparent 50%),
-    linear-gradient(0deg, #2a83ea 50%, transparent 50%),
-    linear-gradient(0deg, #2a83ea 50%, transparent 50%);
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-  background-size: 8px 2px, 8px 2px, 2px 8px, 2px 8px;
-  animation: border-dance 10s infinite linear;
-}

@@ -1,0 +1,13 @@
+.qt-spreadsheet-clipboard {
+  position: absolute;
+  pointer-events: none;
+  display: none;
+  box-sizing: border-box;
+  background: linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+    linear-gradient(120deg, #2a83ea 50%, transparent 50%),
+    linear-gradient(0deg, #2a83ea 50%, transparent 50%),
+    linear-gradient(0deg, #2a83ea 50%, transparent 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 8px 2px, 8px 2px, 2px 8px, 2px 8px;
+  animation: border-dance 20s infinite linear;
+}
