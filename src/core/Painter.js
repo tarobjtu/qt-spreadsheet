@@ -254,14 +254,15 @@ class Painter {
     ctx.restore()
 
     const magicNumber = 10 // 避免用户在Editor输入时频繁换行
+    const editorWidth = Math.max(
+      maxWidth + paddingLeft + paddingRight + borderWidth * 2 + magicNumber,
+      cellWidth
+    )
 
     return {
       left: x - scrollX,
       top: offsetY - scrollY,
-      width: Math.max(
-        maxWidth + paddingLeft + paddingRight + borderWidth * 2 + magicNumber,
-        cellWidth
-      ),
+      width: wordWrap ? cellWidth : editorWidth,
       height: Math.max(lines.length * fontSize * lineHeight, cellHeight),
     }
   }

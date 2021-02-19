@@ -127,6 +127,36 @@ class Toolbar {
     sheet.toggleCellsStyle('wordWrap')
   }
 
+  setAlignCenter() {
+    const { sheet } = this
+    sheet.setCellsStyle({ textAlign: 'center' })
+  }
+
+  setAlignLeft() {
+    const { sheet } = this
+    sheet.setCellsStyle({ textAlign: 'left' })
+  }
+
+  setAlignRight() {
+    const { sheet } = this
+    sheet.setCellsStyle({ textAlign: 'right' })
+  }
+
+  setAlignVerticalBottom() {
+    const { sheet } = this
+    sheet.setCellsStyle({ textBaseline: 'bottom' })
+  }
+
+  setAlignVerticalMiddle() {
+    const { sheet } = this
+    sheet.setCellsStyle({ textBaseline: 'middle' })
+  }
+
+  setAlignVerticalTop() {
+    const { sheet } = this
+    sheet.setCellsStyle({ textBaseline: 'top' })
+  }
+
   setFontColor() {
     const { sheet } = this
     sheet.setCellsStyle({ color: '#ffffff' })

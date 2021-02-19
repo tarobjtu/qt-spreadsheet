@@ -71,9 +71,29 @@ export default [
     key: 'divider',
   },
   {
+    key: 'align-left',
+    name: '左对齐',
+    icon: 'assets/icons/align-left.png',
+  },
+  {
     key: 'align-center',
     name: '水平居中',
     icon: 'assets/icons/align-center.png',
+  },
+  {
+    key: 'align-right',
+    name: '水平居中',
+    icon: 'assets/icons/align-right.png',
+  },
+  {
+    key: 'align-vertical-top',
+    name: '顶部对齐',
+    icon: 'assets/icons/align-vertical-top.png',
+  },
+  {
+    key: 'align-vertical-middle',
+    name: '垂直居中',
+    icon: 'assets/icons/align-vertical-middle.png',
   },
   {
     key: 'align-vertical-bottom',
