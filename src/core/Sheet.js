@@ -121,17 +121,21 @@ class Sheet extends EventEmitter {
     const clips = this.viewModel.getSelector()
     this.clipboard.position().show()
     this.clipboard.cut(clips)
+
     this.emit('cut', clips)
   }
 
   paste() {
+    if (!this.clipboard.canPaste()) return
+
     const state = this.clipboard.getState()
     const selections = this.clipboard.getClipboardData()
-    if (state === 'copy' || state === 'cut') {
-      this.viewModel.paste(selections, state)
-      this.clipboard.hide()
-      this.draw()
+    this.viewModel.paste(selections, state)
+    if (state === 'cut') {
+      this.clipboard.cantPaste()
     }
+    this.clipboard.hide()
+    this.draw()
   }
 
   delete() {

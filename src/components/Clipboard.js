@@ -6,7 +6,7 @@ class Clipboard {
     this.container = container
     this.viewModel = viewModel
     this.clips = {}
-    this.state = 'pasted'
+    this.state = ''
 
     this.initElements()
   }
@@ -38,6 +38,14 @@ class Clipboard {
     this.clips = clips
     this.state = 'cut'
     return this
+  }
+
+  canPaste() {
+    return this.state === 'copy' || this.state === 'cut'
+  }
+
+  cantPaste() {
+    this.state = ''
   }
 
   getState() {

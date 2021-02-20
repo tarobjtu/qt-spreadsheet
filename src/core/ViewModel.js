@@ -1,5 +1,6 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
+import { EMPTY_CELL } from '../utils/constant'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -382,9 +383,12 @@ class ViewModel {
   }
 
   /**
-   * @description 设置单元格信息
+   * @description 批量设置单元格信息（优化存储性能）
    * @param {*} col
    * @param {*} row
+   * @param {*} cellData
+   * @param {*} start
+   * @param {*} finished
    */
   setCellDataBatched(col, row, cellData, start = false, finished = false) {
     // const { data } = this.sheetData
@@ -492,9 +496,36 @@ class ViewModel {
     this.history.save(this.sheetData)
   }
 
-  paste(selections, state) {
+  paste(clips, state) {
+    const { activeCol, activeRow } = this.getSelector()
+    const { col, row, colCount, rowCount } = clips
+
+    this.sheetData = deepClone(this.sheetData)
+
     const { data } = this.sheetData
-    console.warn({ selections, state, data })
+
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      for (let ci = col; ci < col + colCount; ci += 1) {
+        const colPointer = ci - col
+        const rowPointer = ri - row
+        const tempData = deepClone(data[ri][ci])
+
+        if (state === 'cut') {
+          // 不删除cut与paste重叠区域的单元格
+          if (
+            ci < activeCol ||
+            ci > activeCol + colCount - 1 ||
+            ri < activeRow ||
+            ri > activeRow + rowCount - 1
+          ) {
+            data[ri][ci] = EMPTY_CELL
+          }
+        }
+        data[activeRow + rowPointer][activeCol + colPointer] = tempData
+      }
+    }
+
+    this.history.save(this.sheetData)
   }
 }
 

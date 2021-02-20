@@ -55,7 +55,7 @@ class Events extends EventEmitter {
   }
 
   onKeydown(e) {
-    if (!this.canvasActive) return
+    // if (!this.canvasActive) return
     const keyCode = e.keyCode || e.which
     const { shiftKey, ctrlKey, metaKey, altKey } = e
 
