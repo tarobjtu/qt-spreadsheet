@@ -69,7 +69,7 @@ class Contextmenu {
     this.events.push([document, 'click', clickOther])
     this.container.addEventListener('contextmenu', contextmenu, false)
     this.contextmenuEl.addEventListener('click', itemClick, false)
-    document.addEventListener('click', clickOther, false)
+    document.addEventListener('mousedown', clickOther, false)
   }
 
   clickOther(e) {
@@ -81,13 +81,11 @@ class Contextmenu {
   onContextmenu(e) {
     e.preventDefault()
     const { offsetX, offsetY } = e
-    console.warn({ offsetX, offsetY })
     const { scrollX, scrollY } = this.viewModel.sheetData
-    const selections = this.viewModel.getSelector()
-    const { row, col, type } = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
-    console.warn({ row, col, type })
-    this.filterItem(type)
+    const targetCell = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
+    this.filterItem(targetCell.type)
     this.position({ offsetX, offsetY }).show()
+    this.setTargetRange(targetCell)
   }
 
   onItemClick(e) {
@@ -102,6 +100,43 @@ class Contextmenu {
       console.warn(action)
       if (this[action]) this[action](itemKey)
       this.hide()
+    }
+  }
+
+  /**
+   * @description 如果鼠标右键菜单所在位置的单元格不在之前圈选或点选的单元格区域内，需要更新选中单元格
+   * @param {*} cell 数据右键菜单位置对应的单元格
+   */
+  setTargetRange(cell) {
+    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    if (cell.type === 'cell') {
+      // 不在区域中
+      if (
+        cell.col < col ||
+        cell.col > col + colCount - 1 ||
+        cell.row < row ||
+        cell.row > row + rowCount - 1
+      ) {
+        this.sheet.selectCell(cell.col, cell.row)
+      }
+    } else if (cell.type === 'colHeader') {
+      // 不在区域中
+      if (
+        cell.col < col ||
+        cell.col > col + colCount - 1 ||
+        rowCount !== this.viewModel.getRowsNumber()
+      ) {
+        this.sheet.selectCols(cell.col)
+      }
+    } else if (cell.type === 'rowHeader') {
+      // 不在区域中
+      if (
+        cell.row < row ||
+        cell.row > row + rowCount - 1 ||
+        colCount !== this.viewModel.getColsNumber()
+      ) {
+        this.sheet.selectRows(cell.row)
+      }
     }
   }
 

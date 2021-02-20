@@ -205,6 +205,22 @@ class ViewModel {
   }
 
   /**
+   * @description 获得电子表格列数
+   */
+  getColsNumber() {
+    const { colsMeta } = this.sheetData
+    return colsMeta.length
+  }
+
+  /**
+   * @description 获得电子表格行数
+   */
+  getRowsNumber() {
+    const { rowsMeta } = this.sheetData
+    return rowsMeta.length
+  }
+
+  /**
    * @description 找到视窗范围内可见的全部单元格
    */
   getViewportCRs() {

@@ -413,13 +413,13 @@ class Sheet extends EventEmitter {
   }
 
   selectRows(row, rowCount = 1) {
-    const maxCol = this.viewModel.getMaxColIndex()
-    this.selectCells({ col: 0, row, colCount: maxCol, rowCount, activeCol: 0, activeRow: row })
+    const colsNumber = this.viewModel.getColsNumber()
+    this.selectCells({ col: 0, row, colCount: colsNumber, rowCount, activeCol: 0, activeRow: row })
   }
 
   selectCols(col, colCount = 1) {
-    const maxRow = this.viewModel.getMaxRowIndex()
-    this.selectCells({ col, row: 0, colCount, rowCount: maxRow, activeCol: col, activeRow: 0 })
+    const rowsNumber = this.viewModel.getRowsNumber()
+    this.selectCells({ col, row: 0, colCount, rowCount: rowsNumber, activeCol: col, activeRow: 0 })
   }
 
   /**
