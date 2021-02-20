@@ -40,6 +40,16 @@ class Editor {
 
   bindEvent() {
     this.events = []
+
+    const compositionstart = this.onCompositionstart.bind(this)
+    const compositionupdate = this.onCompositionupdate.bind(this)
+    const compositionend = this.onCompositionend.bind(this)
+    this.events.push([this.textareaEl, 'compositionstart', compositionstart])
+    this.events.push([this.textareaEl, 'compositionend', compositionend])
+    this.textareaEl.addEventListener('compositionstart', compositionstart, false)
+    this.textareaEl.addEventListener('compositionupdate', compositionupdate, false)
+    this.textareaEl.addEventListener('compositionend', compositionend, false)
+
     const input = throttle(this.onInput.bind(this), 300)
     const keydown = this.onKeydown.bind(this)
     const change = this.onChange.bind(this)
@@ -50,6 +60,18 @@ class Editor {
     this.textareaEl.addEventListener('keydown', keydown, false)
     this.textareaEl.addEventListener('change', change, false)
     this.sheet.on('scroll', this.position.bind(this))
+  }
+
+  onCompositionstart(e) {
+    console.warn(`${e.type}: ${e.data}`, this.textareaEl.value)
+  }
+
+  onCompositionupdate(e) {
+    console.warn(`${e.type}: ${e.data}`, this.textareaEl.value)
+  }
+
+  onCompositionend(e) {
+    console.warn(`${e.type}: ${e.data}`, this.textareaEl.value)
   }
 
   position() {
@@ -64,8 +86,9 @@ class Editor {
     this.sheet.setCellText(this.textareaEl.value, col, row, 'finished')
   }
 
-  onInput() {
+  onInput(e) {
     if (!this.visible) return
+    console.warn('onInput', e, this.textareaEl.value)
     this.curEditingCell = this.viewModel.getSelector()
     this.sheet.setCellText(this.textareaEl.value)
     this.position()
@@ -81,7 +104,7 @@ class Editor {
       e.stopPropagation()
       this.insertText(target, '\n')
     }
-    if (keyCode === 13 && !e.altKey) e.preventDefault()
+    if (keyCode === 13 && !altKey) e.preventDefault()
   }
 
   insertText(target, inputText) {
@@ -130,6 +153,9 @@ class Editor {
   }
 
   focus() {
+    // const { selectionStart, selectionEnd } = this.textareaEl
+    // console.warn({ selectionStart, selectionEnd })
+    // this.textareaEl.setSelectionRange(selectionStart + 1, selectionEnd + 1)
     this.textareaEl.focus()
     return this
   }
