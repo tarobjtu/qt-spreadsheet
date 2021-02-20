@@ -160,8 +160,10 @@ class Events extends EventEmitter {
   }
 
   onMousedown(e) {
+    const { offsetX, offsetY, shiftKey, button } = e
+    if (button === 2) return
+
     this.startMousedown = true
-    const { offsetX, offsetY, shiftKey } = e
 
     // shiftKey + click
     if (shiftKey) {

@@ -63,8 +63,19 @@ class Contextmenu {
     this.events = []
     const contextmenu = this.onContextmenu.bind(this)
     const itemClick = this.onItemClick.bind(this)
+    const clickOther = this.clickOther.bind(this)
+    this.events.push([this.container, 'contextmenu', contextmenu])
+    this.events.push([this.contextmenuEl, 'click', itemClick])
+    this.events.push([document, 'click', clickOther])
     this.container.addEventListener('contextmenu', contextmenu, false)
     this.contextmenuEl.addEventListener('click', itemClick, false)
+    document.addEventListener('click', clickOther, false)
+  }
+
+  clickOther(e) {
+    if (!this.contextmenuEl.contains(e.target)) {
+      this.hide()
+    }
   }
 
   onContextmenu(e) {
@@ -74,15 +85,38 @@ class Contextmenu {
     const { scrollX, scrollY } = this.viewModel.sheetData
     const { row, col, type } = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
     console.warn({ row, col, type })
+    this.position({ offsetX, offsetY }).show()
   }
 
   onItemClick(e) {
-    const { target } = e
-    const itemKey = target.getAttribute('data-item-key')
+    let targetEl = e.target
+    let itemKey = targetEl.getAttribute('data-item-key')
+    while (itemKey === null && targetEl !== this.contextmenuEl) {
+      targetEl = targetEl.parentNode
+      itemKey = targetEl.getAttribute('data-item-key')
+    }
     if (itemKey) {
       const action = 'set' + upperFirst(itemKey)
+      console.warn(action)
       if (this[action]) this[action](itemKey)
+      this.hide()
     }
+  }
+
+  position({ offsetX, offsetY }) {
+    this.contextmenuEl.style.left = offsetX + 'px'
+    this.contextmenuEl.style.top = offsetY + 'px'
+    return this
+  }
+
+  show() {
+    this.contextmenuEl.style.display = 'block'
+    return this
+  }
+
+  hide() {
+    this.contextmenuEl.style.display = 'none'
+    return this
   }
 }
 
