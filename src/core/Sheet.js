@@ -405,14 +405,14 @@ class Sheet extends EventEmitter {
     this.selectCells({ col, row, colCount, rowCount, activeCol: col, activeRow: row })
   }
 
-  selectRow(row) {
+  selectRows(row, rowCount = 1) {
     const maxCol = this.viewModel.getMaxColIndex()
-    this.selectCells({ col: 0, row, colCount: maxCol, rowCount: 1, activeCol: 0, activeRow: row })
+    this.selectCells({ col: 0, row, colCount: maxCol, rowCount, activeCol: 0, activeRow: row })
   }
 
-  selectCol(col) {
+  selectCols(col, colCount = 1) {
     const maxRow = this.viewModel.getMaxRowIndex()
-    this.selectCells({ col, row: 0, colCount: 1, rowCount: maxRow, activeCol: col, activeRow: 0 })
+    this.selectCells({ col, row: 0, colCount, rowCount: maxRow, activeCol: col, activeRow: 0 })
   }
 
   /**
@@ -425,31 +425,26 @@ class Sheet extends EventEmitter {
   selectCellsByOffset(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
 
-    const { type } = this.viewModel.getCellByOffset(startOffsetX + scrollX, startOffsetY + scrollY)
+    const startCell = this.viewModel.getCellByOffset(startOffsetX + scrollX, startOffsetY + scrollY)
+    const startCellType = startCell.type
 
-    // 点击选择，行头、列头、角头没有圈选
-    if (
-      endOffsetX === undefined ||
-      endOffsetY === undefined ||
-      type === 'corner' ||
-      type === 'colHeader' ||
-      type === 'rowHeader'
-    ) {
+    // 点击选择
+    if (endOffsetX === undefined || endOffsetY === undefined) {
       const { col, row } = this.viewModel.getCellByOffset(
         startOffsetX + scrollX,
         startOffsetY + scrollY
       )
       // switch+case缩进的eslint判断有些问题
       /* eslint-disable */
-      switch (type) {
+      switch (startCellType) {
         case 'corner':
           this.selectAllCells()
           break
         case 'colHeader':
-          this.selectCol(col)
+          this.selectCols(col)
           break
         case 'rowHeader':
-          this.selectRow(row)
+          this.selectRows(row)
           break
         case 'cell':
           this.selectCell(col, row)
@@ -466,7 +461,25 @@ class Sheet extends EventEmitter {
         width: Math.abs(startOffsetX - endOffsetX),
         height: Math.abs(startOffsetY - endOffsetY),
       })
-      this.selectCells({ col, row, colCount, rowCount })
+
+      /* eslint-disable */
+      switch (startCellType) {
+        case 'corner':
+          this.selectAllCells()
+          break
+        case 'colHeader':
+          this.selectCols(col, colCount)
+          break
+        case 'rowHeader':
+          this.selectRows(row, rowCount)
+          break
+        case 'cell':
+          this.selectCells({ col, row, colCount, rowCount })
+          break
+        default:
+          break
+      }
+      /* eslint-enable */
     }
   }
 }

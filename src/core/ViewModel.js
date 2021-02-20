@@ -272,7 +272,7 @@ class ViewModel {
   getCellByOffset(left, top) {
     const { rowHeaderWidth, colHeaderHeight } = this.theme
 
-    // 左上角的角标
+    // 左上角的角头
     if (left < rowHeaderWidth && top < colHeaderHeight) {
       return { col: 0, row: 0, type: 'corner' }
     }
