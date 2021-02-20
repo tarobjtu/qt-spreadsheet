@@ -424,9 +424,18 @@ class Sheet extends EventEmitter {
    */
   selectCellsByOffset(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
-    // 点击选择
-    if (endOffsetX === undefined || endOffsetY === undefined) {
-      const { col, row, type } = this.viewModel.getCellByOffset(
+
+    const { type } = this.viewModel.getCellByOffset(startOffsetX + scrollX, startOffsetY + scrollY)
+
+    // 点击选择，行头、列头、角头没有圈选
+    if (
+      endOffsetX === undefined ||
+      endOffsetY === undefined ||
+      type === 'corner' ||
+      type === 'colHeader' ||
+      type === 'rowHeader'
+    ) {
+      const { col, row } = this.viewModel.getCellByOffset(
         startOffsetX + scrollX,
         startOffsetY + scrollY
       )

@@ -244,6 +244,7 @@ class Selector {
     const { scrollX, scrollY } = this.viewModel.sheetData
     // 设置选中区域位置信息
     const sectionBBox = this.viewModel.getSelectedCellsBBox()
+
     this.setOffset(this.sectionEl, {
       left: sectionBBox.left - scrollX,
       top: sectionBBox.top - scrollY,
