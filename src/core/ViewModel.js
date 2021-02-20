@@ -463,9 +463,11 @@ class ViewModel {
    */
   setCellStyleBatched(col, row, style = {}, start = false, finished = false) {
     if (start) {
-      perf(() => {
-        this.sheetData = deepClone(this.sheetData)
-      }, 'deepClone')
+      perf()
+      // perf(() => {
+      //   this.sheetData = deepClone(this.sheetData)
+      // }, 'deepClone')
+      this.sheetData = deepClone(this.sheetData)
     }
 
     const { data } = this.sheetData
@@ -497,6 +499,13 @@ class ViewModel {
   }
 
   paste(clips, state) {
+    this.pasteDeepClone(clips, state)
+    // perf(() => {
+    //   this.pasteDeepClone(clips, state)
+    // }, 'paste')
+  }
+
+  pasteDeepClone(clips, state) {
     const { activeCol, activeRow } = this.getSelector()
     const { col, row, colCount, rowCount } = clips
 

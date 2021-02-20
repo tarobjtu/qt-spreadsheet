@@ -277,9 +277,11 @@ class Sheet extends EventEmitter {
     if (colCount === 1 && rowCount === 1) {
       this.viewModel.setCellStyle(col, row, style)
     } else {
-      perf(() => {
-        this.setCellsStyleBatched(style)
-      }, 'setCellsStyleBatched')
+      // perf(() => {
+      //   this.setCellsStyleBatched(style)
+      // }, 'setCellsStyleBatched')
+      perf()
+      this.setCellsStyleBatched(style)
     }
     this.draw()
   }
