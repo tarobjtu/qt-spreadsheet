@@ -1,6 +1,7 @@
 import camelCase from 'lodash/camelCase'
 import upperFirst from 'lodash/upperFirst'
 import configs from '../configs/contextmenu'
+import { numberToAlpha } from '../utils/common'
 import './contextmenu.scss'
 
 class Contextmenu {
@@ -83,9 +84,9 @@ class Contextmenu {
     const { offsetX, offsetY } = e
     const { scrollX, scrollY } = this.viewModel.sheetData
     const targetCell = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
-    this.filterItem(targetCell.type)
     this.position({ offsetX, offsetY }).show()
     this.setTargetRange(targetCell)
+    this.filterItems(targetCell.type)
   }
 
   onItemClick(e) {
@@ -156,13 +157,24 @@ class Contextmenu {
     return this
   }
 
-  filterItem(type) {
+  filterItems(type) {
+    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
     Object.keys(this.itemEls).forEach((key) => {
       const itemConfig = configs.find((c) => camelCase(c.key) === key)
-      if (itemConfig.scope.find((s) => s === type)) {
-        this.itemEls[key].style.display = 'flex'
+      const { symbolType, scope, name } = itemConfig
+      const itemEl = this.itemEls[key]
+      if (scope.find((s) => s === type)) {
+        itemEl.style.display = 'flex'
+        if (symbolType === 'colHeader') {
+          itemEl.innerHTML = name.replace(
+            '$n',
+            `${numberToAlpha(col)} ~ ${numberToAlpha(col + colCount - 1)}`
+          )
+        } else if (symbolType === 'rowHeader') {
+          itemEl.innerHTML = name.replace('$n', `${row + 1} ~ ${row + rowCount}`)
+        }
       } else {
-        this.itemEls[key].style.display = 'none'
+        itemEl.style.display = 'none'
       }
     })
   }

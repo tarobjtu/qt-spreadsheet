@@ -50,26 +50,30 @@ export default [
   {
     key: 'delete-row',
     name: '删除第 $n 行',
+    symbolType: 'rowHeader', // $n 通配符的类型
     icon: 'assets/icons/delete.png',
     scope: ['rowHeader', 'cell'],
   },
   {
     key: 'delete-column',
     name: '删除第 $n 列',
+    symbolType: 'colHeader', // $n 通配符的类型
     icon: 'assets/icons/delete.png',
     scope: ['colHeader', 'cell'],
   },
   {
     key: 'hide-row',
     name: '隐藏第 $n 行',
+    symbolType: 'rowHeader', // $n 通配符的类型
     icon: '',
-    scope: ['rowHeader', 'cell'],
+    scope: ['rowHeader'],
   },
   {
-    key: 'hide-col',
+    key: 'hide-column',
     name: '隐藏第 $n 列',
+    symbolType: 'colHeader', // $n 通配符的类型
     icon: '',
-    scope: ['colHeader', 'cell'],
+    scope: ['colHeader'],
   },
   {
     key: 'divider',
