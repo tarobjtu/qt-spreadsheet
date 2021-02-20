@@ -83,8 +83,10 @@ class Contextmenu {
     const { offsetX, offsetY } = e
     console.warn({ offsetX, offsetY })
     const { scrollX, scrollY } = this.viewModel.sheetData
+    const selections = this.viewModel.getSelector()
     const { row, col, type } = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
     console.warn({ row, col, type })
+    this.filterItem(type)
     this.position({ offsetX, offsetY }).show()
   }
 
@@ -117,6 +119,17 @@ class Contextmenu {
   hide() {
     this.contextmenuEl.style.display = 'none'
     return this
+  }
+
+  filterItem(type) {
+    Object.keys(this.itemEls).forEach((key) => {
+      const itemConfig = configs.find((c) => camelCase(c.key) === key)
+      if (itemConfig.scope.find((s) => s === type)) {
+        this.itemEls[key].style.display = 'flex'
+      } else {
+        this.itemEls[key].style.display = 'none'
+      }
+    })
   }
 }
 
