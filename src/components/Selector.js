@@ -149,7 +149,7 @@ class Selector {
       // 更新选中区域
       const selections = this.viewModel.getSelector()
       const mergedSelector = mergeSelector(selections, rect)
-      this.viewModel.setSelector(mergedSelector, true)
+      this.viewModel.setSelector(mergedSelector)
       this.viewModel.saveToHistory()
       this.sheet.draw()
     }

@@ -52,7 +52,7 @@ class ViewModel {
   /**
    * @description 更新选中区域或单元格信息
    */
-  setSelector({ col, row, colCount, rowCount, type, activeCol, activeRow }, persistence) {
+  setSelector({ col, row, colCount, rowCount, type, activeCol, activeRow }) {
     const { colsMeta, rowsMeta, selector } = this.sheetData
 
     const newSelector = {
@@ -71,11 +71,7 @@ class ViewModel {
           : Math.max(Math.min(activeRow, rowsMeta.length - 1), 0),
     }
 
-    if (persistence) {
-      this.sheetData = update.$set(this.sheetData, ['selector'], newSelector)
-    } else {
-      this.sheetData.selector = newSelector
-    }
+    this.sheetData = update.$set(this.sheetData, ['selector'], newSelector)
   }
 
   /**
@@ -509,6 +505,9 @@ class ViewModel {
     const { activeCol, activeRow } = this.getSelector()
     const { col, row, colCount, rowCount } = clips
 
+    this.setSelector({ col: activeCol, row: activeRow, activeCol, activeRow, colCount, rowCount })
+    this.history.save(this.sheetData)
+
     this.sheetData = deepClone(this.sheetData)
 
     const { data } = this.sheetData
@@ -534,6 +533,7 @@ class ViewModel {
       }
     }
 
+    this.setSelector({ col: activeCol, row: activeRow, activeCol, activeRow, colCount, rowCount })
     this.history.save(this.sheetData)
   }
 }

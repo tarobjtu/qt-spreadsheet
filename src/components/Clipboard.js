@@ -44,7 +44,7 @@ class Clipboard {
     return this.state === 'copy' || this.state === 'cut'
   }
 
-  cantPaste() {
+  stopPaste() {
     this.state = ''
   }
 

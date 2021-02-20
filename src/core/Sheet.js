@@ -132,7 +132,7 @@ class Sheet extends EventEmitter {
     const selections = this.clipboard.getClipboardData()
     this.viewModel.paste(selections, state)
     if (state === 'cut') {
-      this.clipboard.cantPaste()
+      this.clipboard.stopPaste()
     }
     this.clipboard.hide()
     this.draw()
