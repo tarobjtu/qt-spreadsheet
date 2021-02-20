@@ -8,6 +8,7 @@ import Scrollbar from '../components/Scrollbar'
 import Selector from '../components/Selector'
 import Editor from '../components/Editor'
 import Clipboard from '../components/Clipboard'
+import Contextmenu from '../components/Contextmenu'
 import defaultTheme from '../configs/defaultTheme'
 import { perf } from '../utils/common'
 
@@ -84,6 +85,12 @@ class Sheet extends EventEmitter {
     })
     // 初始化剪贴板
     this.clipboard = new Clipboard({
+      sheet: this,
+      container,
+      viewModel: this.viewModel,
+    })
+    // 初始化右键菜单
+    this.contextmenu = new Contextmenu({
       sheet: this,
       container,
       viewModel: this.viewModel,
