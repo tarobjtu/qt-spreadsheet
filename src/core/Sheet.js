@@ -106,19 +106,22 @@ class Sheet extends EventEmitter {
   }
 
   save() {
-    this.emit('save')
+    const sheetData = this.getData()
+    this.emit('save', sheetData)
   }
 
   copy() {
-    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    const clips = this.viewModel.getSelector()
     this.clipboard.position().show()
-    this.clipboard.copy({ col, row, colCount, rowCount })
+    this.clipboard.copy(clips)
+    this.emit('copy', clips)
   }
 
   cut() {
-    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    const clips = this.viewModel.getSelector()
     this.clipboard.position().show()
-    this.clipboard.cut({ col, row, colCount, rowCount })
+    this.clipboard.cut(clips)
+    this.emit('cut', clips)
   }
 
   paste() {

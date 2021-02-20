@@ -5,7 +5,7 @@ class Clipboard {
     this.sheet = sheet
     this.container = container
     this.viewModel = viewModel
-    this.selections = {}
+    this.clips = {}
     this.state = 'pasted'
 
     this.initElements()
@@ -28,14 +28,14 @@ class Clipboard {
     container.appendChild(this.clipboardEl)
   }
 
-  copy(selections) {
-    this.selections = selections
+  copy(clips) {
+    this.clips = clips
     this.state = 'copy'
     return this
   }
 
-  cut(selections) {
-    this.selections = selections
+  cut(clips) {
+    this.clips = clips
     this.state = 'cut'
     return this
   }
@@ -45,7 +45,7 @@ class Clipboard {
   }
 
   getClipboardData() {
-    return this.selections
+    return this.clips
   }
 
   position() {

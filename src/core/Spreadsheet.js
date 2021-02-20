@@ -56,9 +56,8 @@ class Spreadsheet extends EventEmitter {
     this.sheet.on('delete', this.onDelete.bind(this))
   }
 
-  onSave() {
-    const sheetData = this.sheet.getData()
-    this.emit('save', sheetData)
+  onSave(savedData) {
+    this.emit('save', savedData)
   }
 
   onDelete() {
