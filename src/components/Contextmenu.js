@@ -78,9 +78,9 @@ class Contextmenu {
     const { offsetX, offsetY } = e
     const { scrollX, scrollY } = this.viewModel.sheetData
     const targetCell = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
-    this.position({ offsetX, offsetY }).show()
     this.setTargetRange(targetCell)
     this.filterItems(targetCell.type)
+    this.show().position({ offsetX, offsetY })
   }
 
   onItemClick(e) {
@@ -162,8 +162,22 @@ class Contextmenu {
   }
 
   position({ offsetX, offsetY }) {
-    this.contextmenuEl.style.left = offsetX + 'px'
-    this.contextmenuEl.style.top = offsetY + 'px'
+    let left = offsetX
+    let top = offsetY
+
+    const canvasWidth = this.container.offsetWidth
+    const canvasHeight = this.container.offsetHeight
+    const menuWidth = this.contextmenuEl.offsetWidth
+    const menuHeight = this.contextmenuEl.offsetHeight
+    console.warn({ offsetX, offsetY }, { canvasWidth, canvasHeight }, { menuWidth, menuHeight })
+    if (offsetX + menuWidth > canvasWidth) {
+      left = offsetX - menuWidth
+    }
+    if (offsetY + menuHeight > canvasHeight) {
+      top = offsetY - menuHeight - 20
+    }
+    this.contextmenuEl.style.left = left + 'px'
+    this.contextmenuEl.style.top = top + 'px'
     return this
   }
 
