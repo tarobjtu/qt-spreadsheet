@@ -130,6 +130,15 @@ class Contextmenu {
     this.sheet.insertRows(row, rowCount)
   }
 
+  /**
+   * @description 向下插入n行
+   */
+  setInsertDown() {
+    const { row, rowCount } = this.viewModel.getSelector()
+    // const rowsData = deepClone(this.viewModel.getSelectedCellsData())
+    this.sheet.insertRows(row + rowCount, rowCount)
+  }
+
   position({ offsetX, offsetY }) {
     this.contextmenuEl.style.left = offsetX + 'px'
     this.contextmenuEl.style.top = offsetY + 'px'

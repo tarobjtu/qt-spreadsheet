@@ -557,21 +557,36 @@ class ViewModel {
     this.history.save(this.sheetData)
   }
 
-  insertRows(row, rowCount, rowsData) {
+  /**
+   * @description 插入行
+   * @param {*} position 插入位置
+   * @param {*} rowCount 插入行数
+   * @param {*} insertData 插入的数据
+   */
+  insertRows(position, rowCount, insertData) {
     this.sheetData = deepClone(this.sheetData)
 
     const { rowsMeta, data } = this.sheetData
     const colCount = this.getColsNumber()
 
     // copy rowsMeta
-    const copyMeta = rowsMeta.slice(row, row + rowCount)
-    insertToMeta(rowsMeta, copyMeta, row)
+    const copyMeta = rowsMeta.slice(position, position + rowCount)
+    insertToMeta(rowsMeta, copyMeta, position)
     // copy data
-    if (rowsData === undefined) {
-      data.splice(row, 0, ...emptyData(rowCount, colCount))
+    if (insertData === undefined) {
+      data.splice(position, 0, ...emptyData(rowCount, colCount))
     } else {
-      data.splice(row, 0, ...deepClone(rowsData))
+      data.splice(position, 0, ...deepClone(insertData))
     }
+
+    this.setSelector({
+      col: 0,
+      row: position,
+      activeCol: 0,
+      activeRow: position,
+      colCount,
+      rowCount,
+    })
 
     this.history.save(this.sheetData)
   }
