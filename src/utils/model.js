@@ -1,5 +1,6 @@
 import isArray from 'lodash/isArray'
 import isObject from 'lodash/isObject'
+import { deepClone } from './common'
 
 function defaultCRMeta({ size, count, headerOffset }) {
   const crMeta = []
@@ -87,7 +88,30 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
   }
 }
 
+/**
+ * @description 将源meta插入到目标meta中
+ * @param {*} targetMeta 目标meta
+ * @param {*} sourceMeta 源meta
+ * @param {*} position 插入的位置
+ */
+export function insertToMeta(targetMeta, sourceMeta, position) {
+  targetMeta.splice(position, 0, ...deepClone(sourceMeta))
+  // 重新计算offset
+
+  const nextMetaPosition = position + sourceMeta.length
+  const { offset, size } = targetMeta[nextMetaPosition - 1]
+  let nextMetaOffset = offset + size
+  for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
+    const nextMeta = targetMeta[i]
+    nextMeta.offset = nextMetaOffset
+    nextMetaOffset += nextMeta.size
+  }
+
+  return targetMeta
+}
+
 export default {
   getSheetData,
   emptyData,
+  insertToMeta,
 }

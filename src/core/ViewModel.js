@@ -1,7 +1,7 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
 import { EMPTY_CELL } from '../utils/constant'
-import { emptyData } from '../utils/model'
+import { emptyData, insertToMeta } from '../utils/model'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -553,21 +553,27 @@ class ViewModel {
     }
 
     this.setSelector({ col: activeCol, row: activeRow, activeCol, activeRow, colCount, rowCount })
+
     this.history.save(this.sheetData)
   }
 
   insertRows(row, rowCount, rowsData) {
+    this.sheetData = deepClone(this.sheetData)
+
     const { rowsMeta, data } = this.sheetData
     const colCount = this.getColsNumber()
+
     // copy rowsMeta
     const copyMeta = rowsMeta.slice(row, row + rowCount)
-    rowsMeta.splice(row, 0, ...deepClone(copyMeta))
+    insertToMeta(rowsMeta, copyMeta, row)
     // copy data
     if (rowsData === undefined) {
       data.splice(row, 0, ...emptyData(rowCount, colCount))
     } else {
-      data.splice(row, 0, ...rowsData)
+      data.splice(row, 0, ...deepClone(rowsData))
     }
+
+    this.history.save(this.sheetData)
   }
 }
 
