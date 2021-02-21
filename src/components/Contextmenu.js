@@ -73,12 +73,6 @@ class Contextmenu {
     document.addEventListener('mousedown', clickOther, false)
   }
 
-  clickOther(e) {
-    if (!this.contextmenuEl.contains(e.target)) {
-      this.hide()
-    }
-  }
-
   onContextmenu(e) {
     e.preventDefault()
     const { offsetX, offsetY } = e
@@ -100,8 +94,75 @@ class Contextmenu {
       const action = 'set' + upperFirst(itemKey)
       console.warn(action)
       if (this[action]) this[action](itemKey)
+      // 点击动画
+      targetEl.classList.add('clicked')
+      setTimeout(() => {
+        targetEl.classList.remove('clicked')
+        this.hide()
+      }, 150)
+    }
+  }
+
+  clickOther(e) {
+    if (!this.contextmenuEl.contains(e.target)) {
       this.hide()
     }
+  }
+
+  setCut() {
+    this.sheet.cut()
+  }
+
+  setCopy() {
+    this.sheet.copy()
+  }
+
+  setPaste() {
+    this.sheet.paste()
+  }
+
+  position({ offsetX, offsetY }) {
+    this.contextmenuEl.style.left = offsetX + 'px'
+    this.contextmenuEl.style.top = offsetY + 'px'
+    return this
+  }
+
+  show() {
+    this.contextmenuEl.style.display = 'block'
+    return this
+  }
+
+  hide() {
+    this.contextmenuEl.style.display = 'none'
+    return this
+  }
+
+  filterItems(type) {
+    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
+    Object.keys(this.itemEls).forEach((key) => {
+      const itemConfig = configs.find((c) => camelCase(c.key) === key)
+      const { symbolType, scope, name } = itemConfig
+      const itemEl = this.itemEls[key]
+      if (scope.find((s) => s === type)) {
+        itemEl.style.display = 'flex'
+        if (symbolType === 'colHeader') {
+          itemEl.innerHTML = name
+            .replace(
+              '$m',
+              colCount === 1
+                ? numberToAlpha(col)
+                : `${numberToAlpha(col)} ~ ${numberToAlpha(col + colCount - 1)}`
+            )
+            .replace('$n', colCount)
+        } else if (symbolType === 'rowHeader') {
+          itemEl.innerHTML = name
+            .replace('$m', rowCount === 1 ? row + 1 : `${row + 1} ~ ${row + rowCount}`)
+            .replace('$n', rowCount)
+        }
+      } else {
+        itemEl.style.display = 'none'
+      }
+    })
   }
 
   /**
@@ -139,44 +200,6 @@ class Contextmenu {
         this.sheet.selectRows(cell.row)
       }
     }
-  }
-
-  position({ offsetX, offsetY }) {
-    this.contextmenuEl.style.left = offsetX + 'px'
-    this.contextmenuEl.style.top = offsetY + 'px'
-    return this
-  }
-
-  show() {
-    this.contextmenuEl.style.display = 'block'
-    return this
-  }
-
-  hide() {
-    this.contextmenuEl.style.display = 'none'
-    return this
-  }
-
-  filterItems(type) {
-    const { col, row, colCount, rowCount } = this.viewModel.getSelector()
-    Object.keys(this.itemEls).forEach((key) => {
-      const itemConfig = configs.find((c) => camelCase(c.key) === key)
-      const { symbolType, scope, name } = itemConfig
-      const itemEl = this.itemEls[key]
-      if (scope.find((s) => s === type)) {
-        itemEl.style.display = 'flex'
-        if (symbolType === 'colHeader') {
-          itemEl.innerHTML = name.replace(
-            '$n',
-            `${numberToAlpha(col)} ~ ${numberToAlpha(col + colCount - 1)}`
-          )
-        } else if (symbolType === 'rowHeader') {
-          itemEl.innerHTML = name.replace('$n', `${row + 1} ~ ${row + rowCount}`)
-        }
-      } else {
-        itemEl.style.display = 'none'
-      }
-    })
   }
 }
 

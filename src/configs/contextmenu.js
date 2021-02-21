@@ -25,53 +25,57 @@ export default [
   },
   {
     key: 'insert-up',
-    name: '向上插入 1 行',
+    name: '向上插入 $n 行',
+    symbolType: 'rowHeader', // $m 通配符的类型
     icon: '',
     scope: ['rowHeader', 'cell'],
   },
   {
     key: 'insert-down',
-    name: '向下插入 1 行',
+    name: '向下插入 $n 行',
+    symbolType: 'rowHeader', // $m 通配符的类型
     icon: '',
     scope: ['rowHeader', 'cell'],
   },
   {
     key: 'insert-left',
-    name: '向左插入 1 列',
+    name: '向左插入 $n 列',
+    symbolType: 'colHeader', // $m 通配符的类型
     icon: '',
     scope: ['colHeader', 'cell'],
   },
   {
     key: 'insert-right',
-    name: '向右插入 1 列',
+    name: '向右插入 $n 列',
+    symbolType: 'colHeader', // $m 通配符的类型
     icon: '',
     scope: ['colHeader', 'cell'],
   },
   {
     key: 'delete-row',
-    name: '删除第 $n 行',
-    symbolType: 'rowHeader', // $n 通配符的类型
+    name: '删除第 $m 行',
+    symbolType: 'rowHeader', // $m 通配符的类型
     icon: 'assets/icons/delete.png',
     scope: ['rowHeader', 'cell'],
   },
   {
     key: 'delete-column',
-    name: '删除第 $n 列',
-    symbolType: 'colHeader', // $n 通配符的类型
+    name: '删除第 $m 列',
+    symbolType: 'colHeader', // $m 通配符的类型
     icon: 'assets/icons/delete.png',
     scope: ['colHeader', 'cell'],
   },
   {
     key: 'hide-row',
-    name: '隐藏第 $n 行',
-    symbolType: 'rowHeader', // $n 通配符的类型
+    name: '隐藏第 $m 行',
+    symbolType: 'rowHeader', // $m 通配符的类型
     icon: '',
     scope: ['rowHeader'],
   },
   {
     key: 'hide-column',
-    name: '隐藏第 $n 列',
-    symbolType: 'colHeader', // $n 通配符的类型
+    name: '隐藏第 $m 列',
+    symbolType: 'colHeader', // $m 通配符的类型
     icon: '',
     scope: ['colHeader'],
   },
@@ -79,14 +83,14 @@ export default [
     key: 'divider',
   },
   {
-    key: 'clear-content',
-    name: '清除内容',
+    key: 'clear',
+    name: '清除全部',
     icon: '',
     scope: ['colHeader', 'rowHeader', 'cell'],
   },
   {
-    key: 'clear-content',
-    name: '清除内容',
+    key: 'clear-style',
+    name: '清除样式',
     icon: '',
     scope: ['colHeader', 'rowHeader', 'cell'],
   },

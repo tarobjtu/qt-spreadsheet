@@ -21,9 +21,18 @@
   cursor: pointer;
   width: 210px;
   overflow: visible;
+  transition: 0.25s background-color;
 
   &:hover {
-    background-color: #f9f9f9;
+    background-color: #f2f2f2;
+  }
+  &.clicked {
+    background-color: rgba(100, 200, 255, 0.3);
+  }
+  &.disable {
+    color: #ccc;
+    background-color: #fff;
+    cursor: not-allowed;
   }
 }
 // .qt-spreadsheet-contextmenu-icon {
