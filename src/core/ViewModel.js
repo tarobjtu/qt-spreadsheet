@@ -1,6 +1,7 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
 import { EMPTY_CELL } from '../utils/constant'
+import { emptyData } from '../utils/model'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -94,15 +95,17 @@ class ViewModel {
    * @description 获取选中的单元格（数据）
    */
   getSelectedCellsData() {
-    const cellsData = []
+    const result = []
     const { data, selector } = this.sheetData
     const { col, row, colCount, rowCount } = selector
     for (let ri = row; ri < row + rowCount; ri += 1) {
+      const rowData = []
       for (let ci = col; ci < col + colCount; ci += 1) {
-        cellsData.push(data[ri][ci])
+        rowData.push(data[ri][ci])
       }
+      result.push(rowData)
     }
-    return cellsData
+    return result
   }
 
   /**
@@ -551,6 +554,20 @@ class ViewModel {
 
     this.setSelector({ col: activeCol, row: activeRow, activeCol, activeRow, colCount, rowCount })
     this.history.save(this.sheetData)
+  }
+
+  insertRows(row, rowCount, rowsData) {
+    const { rowsMeta, data } = this.sheetData
+    const colCount = this.getColsNumber()
+    // copy rowsMeta
+    const copyMeta = rowsMeta.slice(row, row + rowCount)
+    rowsMeta.splice(row, 0, ...deepClone(copyMeta))
+    // copy data
+    if (rowsData === undefined) {
+      data.splice(row, 0, ...emptyData(rowCount, colCount))
+    } else {
+      data.splice(row, 0, ...rowsData)
+    }
   }
 }
 
