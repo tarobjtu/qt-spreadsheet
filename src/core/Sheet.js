@@ -98,6 +98,7 @@ class Sheet extends EventEmitter {
       container,
       theme,
       viewModel: this.viewModel,
+      canvas: this.painter.getCanvas(),
     })
   }
 

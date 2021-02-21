@@ -1,24 +1,26 @@
 .qt-spreadsheet-row-resizer {
   position: absolute;
-  top: 45px;
+  box-sizing: border-box;
   left: 0px;
   display: block;
-  height: 3px;
+  height: 4px;
   cursor: row-resize;
+  border-top: 2px solid #fafafa;
 
   &:hover {
-    background: #ccc;
+    background-color: #ccc;
   }
 }
 .qt-spreadsheet-col-resizer {
   position: absolute;
+  box-sizing: border-box;
   top: 0px;
-  left: 156px;
   display: block;
-  width: 3px;
+  width: 4px;
   cursor: col-resize;
+  border-left: 2px solid #fafafa;
 
   &:hover {
-    background: #ccc;
+    background-color: #ccc;
   }
 }

@@ -2,8 +2,9 @@ import throttle from 'lodash/throttle'
 import './resizer.scss'
 
 class Resizer {
-  constructor({ container, viewModel, sheet, theme }) {
+  constructor({ container, viewModel, sheet, theme, canvas }) {
     this.container = container
+    this.canvas = canvas
     this.viewModel = viewModel
     this.sheet = sheet
     this.theme = theme
@@ -40,24 +41,47 @@ class Resizer {
 
   bindEvent() {
     this.events = []
+    const resizerPosition = this.resizerPosition.bind(this)
     const startResize = this.startResize.bind(this)
     const moveResize = throttle(this.moveResize.bind(this), 50)
     const endResize = this.endResize.bind(this)
+    this.events.push([window, 'mousemove', resizerPosition])
     this.events.push([this.rowResizerEl, 'mousedown', startResize])
     this.events.push([this.colResizerEl, 'mousedown', startResize])
-    this.events.push([document, 'mousemove', moveResize])
-    this.events.push([document, 'mouseup', endResize])
+    this.events.push([window, 'mousemove', moveResize])
+    this.events.push([window, 'mouseup', endResize])
+    window.addEventListener('mousemove', resizerPosition, false)
     this.rowResizerEl.addEventListener('mousedown', startResize, false)
     this.colResizerEl.addEventListener('mousedown', startResize, false)
-    document.addEventListener('mousemove', moveResize, false)
-    document.addEventListener('mouseup', endResize, false)
+    window.addEventListener('mousemove', moveResize, false)
+    window.addEventListener('mouseup', endResize, false)
+  }
+
+  resizerPosition(e) {
+    const { target, offsetX, offsetY } = e
+    if (this.canvas.contains(target)) {
+      const { col, row, type } = this.viewModel.getCellByOffset(offsetX, offsetY)
+      const { left, top, width, height } = this.viewModel.getCellsBBox({
+        col,
+        row,
+        colCount: 1,
+        rowCount: 1,
+      })
+      if (type === 'rowHeader') {
+        this.rowResizerEl.style.top = top + height - 4 + 'px'
+      } else if (type === 'colHeader') {
+        this.colResizerEl.style.left = left + width - 4 + 'px'
+      }
+      console.warn({ col, row, type }, { left, top, width, height })
+    }
   }
 
   startResize(e) {
     this.resizing = true
     // 避免触发DOM元素的拖拽
     document.body.style.userSelect = 'none'
-    console.warn(e.target.getAttribute('data-direction'))
+    this.direction = e.target.getAttribute('data-direction')
+    console.warn(e)
   }
 
   moveResize(e) {
@@ -70,34 +94,6 @@ class Resizer {
     this.resizing = false
     document.body.style.userSelect = 'auto'
     console.warn(e)
-  }
-
-  position() {
-    const { activeCol, activeRow } = this.viewModel.getSelector()
-    const { top, left, width, height } = this.painter.getTextBBox(activeCol, activeRow)
-    this.setOffset({ top, left, width, height })
-    return this
-  }
-
-  setOffset({ left, top, width, height }) {
-    this.editorEl.style.left = left + 'px'
-    this.editorEl.style.top = top + 'px'
-    this.editorEl.style.width = width + 'px'
-    this.editorEl.style.height = height + 'px'
-    return this
-  }
-
-  show() {
-    this.setStyle()
-    this.editorEl.style.display = 'block'
-    this.visible = true
-    return this
-  }
-
-  hide() {
-    this.editorEl.style.display = 'none'
-    this.visible = false
-    return this
   }
 }
 
