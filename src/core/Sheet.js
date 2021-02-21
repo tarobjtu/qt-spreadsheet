@@ -174,6 +174,12 @@ class Sheet extends EventEmitter {
     this.emit('insertRows')
   }
 
+  insertCols(col, colCount, colsData) {
+    this.viewModel.insertCols(col, colCount, colsData)
+    this.draw()
+    this.emit('insertCols')
+  }
+
   scroll(scrollX, scrollY) {
     const changed = this.viewModel.updateScroll(scrollX, scrollY)
     if (changed) {

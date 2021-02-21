@@ -139,6 +139,18 @@ class Contextmenu {
     this.sheet.insertRows(row + rowCount, rowCount)
   }
 
+  setInsertLeft() {
+    const { col, colCount } = this.viewModel.getSelector()
+    // const colsData = deepClone(this.viewModel.getSelectedCellsData())
+    this.sheet.insertCols(col, colCount)
+  }
+
+  setInsertRight() {
+    const { col, colCount } = this.viewModel.getSelector()
+    // const colsData = deepClone(this.viewModel.getSelectedCellsData())
+    this.sheet.insertCols(col + colCount, colCount)
+  }
+
   position({ offsetX, offsetY }) {
     this.contextmenuEl.style.left = offsetX + 'px'
     this.contextmenuEl.style.top = offsetY + 'px'

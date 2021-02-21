@@ -2,6 +2,8 @@ import isArray from 'lodash/isArray'
 import isObject from 'lodash/isObject'
 import { deepClone } from './common'
 
+export const EMPTY_CELL = { style: {}, value: '' }
+
 function defaultCRMeta({ size, count, headerOffset }) {
   const crMeta = []
   for (let i = 0; i < count; i += 1) {
@@ -48,10 +50,7 @@ export function emptyData(rowCount, colCount) {
   for (let i = 0; i < rowCount; i += 1) {
     data.push([])
     for (let j = 0; j < colCount; j += 1) {
-      data[i].push({
-        style: {},
-        value: '',
-      })
+      data[i].push(EMPTY_CELL)
     }
   }
   return data

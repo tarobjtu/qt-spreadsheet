@@ -1,7 +1,6 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
-import { EMPTY_CELL } from '../utils/constant'
-import { emptyData, insertToMeta } from '../utils/model'
+import { EMPTY_CELL, emptyData, insertToMeta } from '../utils/model'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -584,6 +583,45 @@ class ViewModel {
       row: position,
       activeCol: 0,
       activeRow: position,
+      colCount,
+      rowCount,
+    })
+
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 插入列
+   * @param {*} position 插入位置
+   * @param {*} colCount 插入列数
+   * @param {*} insertData 插入的数据
+   */
+  insertCols(position, colCount, insertData) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { colsMeta, data } = this.sheetData
+    const rowCount = this.getRowsNumber()
+
+    // copy colsMeta
+    const copyMeta = colsMeta.slice(position, position + colCount)
+    insertToMeta(colsMeta, copyMeta, position)
+    // copy data
+    if (insertData === undefined) {
+      const emptyCols = emptyData(1, colCount)[0]
+      for (let ri = 0; ri < rowCount; ri += 1) {
+        data[ri].splice(position, 0, ...emptyCols)
+      }
+    } else {
+      for (let ri = 0; ri < rowCount; ri += 1) {
+        data[ri].splice(position, 0, ...insertData[ri])
+      }
+    }
+
+    this.setSelector({
+      col: position,
+      row: 0,
+      activeCol: position,
+      activeRow: 0,
       colCount,
       rowCount,
     })
