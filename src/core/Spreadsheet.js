@@ -3,7 +3,7 @@ import Toolbar from '../components/Toolbar'
 import Sheet from './Sheet'
 import defaultConfig from '../configs/defaultConfig'
 import defaultTheme from '../configs/defaultTheme'
-import { getSheetData } from '../utils/sheet'
+import { getSheetData } from '../utils/model'
 import './spreadsheet.scss'
 
 class Spreadsheet extends EventEmitter {

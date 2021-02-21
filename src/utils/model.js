@@ -37,7 +37,12 @@ function defaultCells(data) {
   return data
 }
 
-function defaultData(rowCount, colCount) {
+/**
+ * @description 生成空单元格数据
+ * @param {*} rowCount
+ * @param {*} colCount
+ */
+export function emptyData(rowCount, colCount) {
   const data = []
   for (let i = 0; i < rowCount; i += 1) {
     data.push([])
@@ -78,10 +83,11 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
       count: colCount,
       headerOffset: theme.rowHeaderWidth,
     }),
-    data: data === undefined ? defaultData(rowCount, colCount) : defaultCells(data),
+    data: data === undefined ? emptyData(rowCount, colCount) : defaultCells(data),
   }
 }
 
 export default {
   getSheetData,
+  emptyData,
 }
