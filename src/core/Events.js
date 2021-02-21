@@ -25,28 +25,27 @@ class Events extends EventEmitter {
   bindEvents() {
     const { canvas } = this
     this.events = []
-
-    // 键盘事件
+    
+    const resize = throttle(this.resize.bind(this), 100)ß
+    const click = this.onClick.bind(this)
     const keydown = this.onKeydown.bind(this)
-    this.events.push([document, 'keydown', keydown])
-    document.addEventListener('keydown', keydown, false)
-
-    // 鼠标事件
     const mousedown = this.onMousedown.bind(this)
     const mousemove = throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
-    const click = this.onClick.bind(this)
-    const resize = throttle(this.resize.bind(this), 100)
+    
     this.events.push([window, 'resize', resize])
+    this.events.push([window, 'click', click])
+    this.events.push([document, 'keydown', keydown])
     this.events.push([canvas, 'mousedown', mousedown])
     this.events.push([window, 'mousemove', mousemove])
     this.events.push([window, 'mouseup', mouseup])
-    this.events.push([window, 'click', click])
+    
+    window.addEventListener('resize', resize)
+    window.addEventListener('click', click, false)
+    document.addEventListener('keydown', keydown, false)
     canvas.addEventListener('mousedown', mousedown, false)
     window.addEventListener('mousemove', mousemove, false)
     window.addEventListener('mouseup', mouseup, false)
-    window.addEventListener('click', click, false)
-    window.addEventListener('resize', resize)
   }
 
   resize() {
