@@ -139,7 +139,7 @@ class Events extends EventEmitter {
           e.preventDefault()
           break
         case 8: // backspace
-          this.sheet.clearSelectedCellsText()
+          this.sheet.clearSelectedCellsData()
           e.preventDefault()
           break
         case 27: // esc

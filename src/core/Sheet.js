@@ -299,14 +299,11 @@ class Sheet extends EventEmitter {
   }
 
   /**
-   * @description 清除选中单元格的值
+   * @description 清除选中单元格
    */
-  clearSelectedCellsText() {
-    const cells = this.viewModel.getSelectedCells()
-    cells.forEach(({ col, row }) => {
-      this.viewModel.setCellText(col, row, '')
-    })
-    this.draw()
+  clearSelectedCellsData() {
+    const { col, colCount, row, rowCount } = this.viewModel.getSelector()
+    this.clearCellsData({ col, colCount, row, rowCount })
   }
 
   /**
