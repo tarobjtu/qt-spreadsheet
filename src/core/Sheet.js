@@ -6,6 +6,7 @@ import Painter from './Painter'
 import Events from './Events'
 import Scrollbar from '../components/Scrollbar'
 import Selector from '../components/Selector'
+import Resizer from '../components/Resizer'
 import Editor from '../components/Editor'
 import Clipboard from '../components/Clipboard'
 import Contextmenu from '../components/Contextmenu'
@@ -93,6 +94,13 @@ class Sheet extends EventEmitter {
     this.contextmenu = new Contextmenu({
       sheet: this,
       container,
+      viewModel: this.viewModel,
+    })
+    // 初始化行高、列宽尺寸调整类
+    this.resizer = new Resizer({
+      sheet: this,
+      container,
+      theme,
       viewModel: this.viewModel,
     })
   }

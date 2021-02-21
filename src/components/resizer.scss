@@ -1,0 +1,24 @@
+.qt-spreadsheet-row-resizer {
+  position: absolute;
+  top: 45px;
+  left: 0px;
+  display: block;
+  height: 3px;
+  cursor: row-resize;
+
+  &:hover {
+    background: #ccc;
+  }
+}
+.qt-spreadsheet-col-resizer {
+  position: absolute;
+  top: 0px;
+  left: 156px;
+  display: block;
+  width: 3px;
+  cursor: col-resize;
+
+  &:hover {
+    background: #ccc;
+  }
+}
