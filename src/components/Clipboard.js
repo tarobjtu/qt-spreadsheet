@@ -97,6 +97,8 @@ class Clipboard {
     `
     // 剪切板选择器border动画，demo见/playground/border-animation.html
     styleEl.innerHTML = animationStyle
+    // 剪切框越大，动画越快，需要动态调整动画时间
+    clipboardEl.style.animationDuration = Math.min(250, Math.round(0.06 * (width + height))) + 's'
     clipboardEl.style.left = left + 'px'
     clipboardEl.style.top = top + 'px'
     clipboardEl.style.width = width + 'px'
