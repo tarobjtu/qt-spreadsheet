@@ -1,5 +1,4 @@
 import EventEmitter from 'eventemitter3'
-import throttle from 'lodash/throttle'
 import History from './History'
 import ViewModel from './ViewModel'
 import Painter from './Painter'
@@ -23,7 +22,6 @@ class Sheet extends EventEmitter {
 
     this.initComponents()
     this.draw()
-    this.bindEvent()
 
     // 在开发环境快速查看电子表格核心数据，调试便利
     if (process.env.NODE_ENV === 'development') {
@@ -35,8 +33,6 @@ class Sheet extends EventEmitter {
   }
 
   destroy() {
-    const { resize } = this.events
-    window.removeEventListener('resize', resize)
     this.scrollbar.destroy()
     this.editor.destroy()
     this.events.destroy()
@@ -109,15 +105,6 @@ class Sheet extends EventEmitter {
     this.painter.draw()
     this.selector.position()
     this.scrollbar.draw()
-  }
-
-  bindEvent() {
-    // 缓存事件列表，对象销毁时使用
-    this.events = {}
-    const resize = throttle(this.resize.bind(this), 300)
-    this.events.resize = resize
-
-    window.addEventListener('resize', resize)
   }
 
   save() {

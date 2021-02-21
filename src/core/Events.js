@@ -36,6 +36,8 @@ class Events extends EventEmitter {
     const mousemove = throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
     const click = this.onClick.bind(this)
+    const resize = throttle(this.resize.bind(this), 100)
+    this.events.push([window, 'resize', resize])
     this.events.push([canvas, 'mousedown', mousedown])
     this.events.push([window, 'mousemove', mousemove])
     this.events.push([window, 'mouseup', mouseup])
@@ -44,6 +46,11 @@ class Events extends EventEmitter {
     window.addEventListener('mousemove', mousemove, false)
     window.addEventListener('mouseup', mouseup, false)
     window.addEventListener('click', click, false)
+    window.addEventListener('resize', resize)
+  }
+
+  resize() {
+    this.sheet.resize()
   }
 
   onClick(e) {
