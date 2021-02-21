@@ -396,6 +396,19 @@ class ViewModel {
     this.history.save(this.sheetData)
   }
 
+  clearCellsData({ col, colCount, row, rowCount }) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { data } = this.sheetData
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      for (let ci = col; ci < col + colCount; ci += 1) {
+        data[ri][ci] = EMPTY_CELL
+      }
+    }
+
+    this.history.save(this.sheetData)
+  }
+
   /**
    * @description 批量设置单元格信息（优化存储性能）
    * @param {*} col
@@ -495,6 +508,19 @@ class ViewModel {
     if (finished) {
       this.history.save(this.sheetData)
     }
+  }
+
+  clearStyle({ col, colCount, row, rowCount }) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { data } = this.sheetData
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      for (let ci = col; ci < col + colCount; ci += 1) {
+        data[ri][ci].style = {}
+      }
+    }
+
+    this.history.save(this.sheetData)
   }
 
   /**

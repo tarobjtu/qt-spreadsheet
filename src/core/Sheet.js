@@ -321,6 +321,16 @@ class Sheet extends EventEmitter {
     this.draw()
   }
 
+  clearStyle({ col, colCount, row, rowCount }) {
+    this.viewModel.clearStyle({ col, colCount, row, rowCount })
+    this.draw()
+  }
+
+  clearCellsData({ col, colCount, row, rowCount }) {
+    this.viewModel.clearCellsData({ col, colCount, row, rowCount })
+    this.draw()
+  }
+
   setCellsStyleBatched(style) {
     const { col, row, colCount, rowCount } = this.viewModel.getSelector()
     for (let i = col; i < col + colCount; i += 1) {

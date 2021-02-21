@@ -83,7 +83,7 @@ export default [
     key: 'divider',
   },
   {
-    key: 'clear',
+    key: 'clear-all',
     name: '清除全部',
     icon: '',
     scope: ['colHeader', 'rowHeader', 'cell'],

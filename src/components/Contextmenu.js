@@ -161,6 +161,16 @@ class Contextmenu {
     this.sheet.deleteCols(col, colCount)
   }
 
+  onClearStyle() {
+    const { col, colCount, row, rowCount } = this.viewModel.getSelector()
+    this.sheet.clearStyle({ col, colCount, row, rowCount })
+  }
+
+  onClearAll() {
+    const { col, colCount, row, rowCount } = this.viewModel.getSelector()
+    this.sheet.clearCellsData({ col, colCount, row, rowCount })
+  }
+
   position({ offsetX, offsetY }) {
     let left = offsetX
     let top = offsetY
@@ -169,11 +179,11 @@ class Contextmenu {
     const canvasHeight = this.container.offsetHeight
     const menuWidth = this.contextmenuEl.offsetWidth
     const menuHeight = this.contextmenuEl.offsetHeight
-    console.warn({ offsetX, offsetY }, { canvasWidth, canvasHeight }, { menuWidth, menuHeight })
-    if (offsetX + menuWidth > canvasWidth) {
+    // console.warn({ offsetX, offsetY }, { canvasWidth, canvasHeight }, { menuWidth, menuHeight })
+    if (left + menuWidth > canvasWidth) {
       left = offsetX - menuWidth
     }
-    if (offsetY + menuHeight > canvasHeight) {
+    if (top + menuHeight > canvasHeight) {
       top = offsetY - menuHeight - 20
     }
     this.contextmenuEl.style.left = left + 'px'
