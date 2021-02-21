@@ -91,7 +91,7 @@ class Contextmenu {
       itemKey = targetEl.getAttribute('data-item-key')
     }
     if (itemKey) {
-      const action = 'set' + upperFirst(itemKey)
+      const action = 'on' + upperFirst(itemKey)
       console.warn(action)
       if (this[action]) this[action](itemKey)
       // 点击动画
@@ -109,22 +109,22 @@ class Contextmenu {
     }
   }
 
-  setCut() {
+  onCut() {
     this.sheet.cut()
   }
 
-  setCopy() {
+  onCopy() {
     this.sheet.copy()
   }
 
-  setPaste() {
+  onPaste() {
     this.sheet.paste()
   }
 
   /**
    * @description 向上插入n行
    */
-  setInsertUp() {
+  onInsertUp() {
     const { row, rowCount } = this.viewModel.getSelector()
     // const rowsData = deepClone(this.viewModel.getSelectedCellsData())
     this.sheet.insertRows(row, rowCount)
@@ -133,19 +133,19 @@ class Contextmenu {
   /**
    * @description 向下插入n行
    */
-  setInsertDown() {
+  onInsertDown() {
     const { row, rowCount } = this.viewModel.getSelector()
     // const rowsData = deepClone(this.viewModel.getSelectedCellsData())
     this.sheet.insertRows(row + rowCount, rowCount)
   }
 
-  setInsertLeft() {
+  onInsertLeft() {
     const { col, colCount } = this.viewModel.getSelector()
     // const colsData = deepClone(this.viewModel.getSelectedCellsData())
     this.sheet.insertCols(col, colCount)
   }
 
-  setInsertRight() {
+  onInsertRight() {
     const { col, colCount } = this.viewModel.getSelector()
     // const colsData = deepClone(this.viewModel.getSelectedCellsData())
     this.sheet.insertCols(col + colCount, colCount)
