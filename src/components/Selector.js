@@ -73,6 +73,7 @@ class Selector {
 
   onMousedown(e) {
     this.cornerActive = true
+    document.body.style.userSelect = 'none'
     e.stopPropagation() // 禁止冒泡到canvas上
     this.cornerDisable()
   }
@@ -87,6 +88,7 @@ class Selector {
   onMouseup(e) {
     if (!this.cornerActive) return
     this.cornerActive = false
+    document.body.style.userSelect = 'auto'
     this.cornerEnable()
 
     // 鼠标移动才有效

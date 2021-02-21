@@ -61,6 +61,7 @@ class Scrollbar {
 
   onMouseDown(direction, e) {
     this.dragStart = true
+    document.body.style.userSelect = 'none'
     this.direction = direction
     this.startPosition = this.direction === 'X' ? e.clientX : e.clientY
   }
@@ -73,6 +74,7 @@ class Scrollbar {
   onMouseUp(e) {
     if (!this.dragStart) return
     this.dragStart = false
+    document.body.style.userSelect = 'auto'
     this.moveTrigger(e.clientX, e.clientY)
   }
 
