@@ -95,11 +95,34 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
  */
 export function insertToMeta(targetMeta, sourceMeta, position) {
   targetMeta.splice(position, 0, ...deepClone(sourceMeta))
-  // 重新计算offset
 
+  // 重新计算offset
   const nextMetaPosition = position + sourceMeta.length
   const { offset, size } = targetMeta[nextMetaPosition - 1]
   let nextMetaOffset = offset + size
+  for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
+    const nextMeta = targetMeta[i]
+    nextMeta.offset = nextMetaOffset
+    nextMetaOffset += nextMeta.size
+  }
+
+  return targetMeta
+}
+
+/**
+ * @description 删除一些meta
+ * @param {*} targetMeta
+ * @param {*} position 起始的位置
+ * @param {*} rowCount 删除行数
+ */
+export function deleteMeta(targetMeta, position, rowCount) {
+  const { offset } = targetMeta[position]
+  let nextMetaOffset = offset
+
+  targetMeta.splice(position, rowCount)
+
+  // 重新计算offset
+  const nextMetaPosition = position
   for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
     const nextMeta = targetMeta[i]
     nextMeta.offset = nextMetaOffset
@@ -113,4 +136,5 @@ export default {
   getSheetData,
   emptyData,
   insertToMeta,
+  deleteMeta,
 }

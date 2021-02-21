@@ -151,6 +151,16 @@ class Contextmenu {
     this.sheet.insertCols(col + colCount, colCount)
   }
 
+  onDeleteRow() {
+    const { row, rowCount } = this.viewModel.getSelector()
+    this.sheet.deleteRows(row, rowCount)
+  }
+
+  onDeleteColumn() {
+    const { col, colCount } = this.viewModel.getSelector()
+    this.sheet.deleteCols(col, colCount)
+  }
+
   position({ offsetX, offsetY }) {
     this.contextmenuEl.style.left = offsetX + 'px'
     this.contextmenuEl.style.top = offsetY + 'px'

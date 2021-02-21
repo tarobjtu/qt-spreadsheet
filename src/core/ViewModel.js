@@ -1,6 +1,6 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
-import { EMPTY_CELL, emptyData, insertToMeta } from '../utils/model'
+import { EMPTY_CELL, emptyData, insertToMeta, deleteMeta } from '../utils/model'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -625,6 +625,43 @@ class ViewModel {
       colCount,
       rowCount,
     })
+
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 删除行
+   * @param {*} startRow 删除位置
+   * @param {*} rowCount 删除行数
+   */
+  deleteRows(startRow, rowCount) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { rowsMeta, data } = this.sheetData
+    // delete rowsMeta
+    deleteMeta(rowsMeta, startRow, rowCount)
+    // delete data
+    data.splice(startRow, rowCount)
+
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 删除列
+   * @param {*} startCol 删除位置
+   * @param {*} colCount 删除列数
+   */
+  deleteCols(startCol, colCount) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { colsMeta, data } = this.sheetData
+    const rowCount = this.getRowsNumber()
+    // delete colsMeta
+    deleteMeta(colsMeta, startCol, colCount)
+    // delete data
+    for (let ri = 0; ri < rowCount; ri += 1) {
+      data[ri].splice(startCol, colCount)
+    }
 
     this.history.save(this.sheetData)
   }

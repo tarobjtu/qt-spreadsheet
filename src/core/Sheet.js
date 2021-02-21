@@ -180,6 +180,18 @@ class Sheet extends EventEmitter {
     this.emit('insertCols')
   }
 
+  deleteRows(row, rowCount) {
+    this.viewModel.deleteRows(row, rowCount)
+    this.draw()
+    this.emit('deleteRows')
+  }
+
+  deleteCols(col, colCount) {
+    this.viewModel.deleteCols(col, colCount)
+    this.draw()
+    this.emit('deleteCols')
+  }
+
   scroll(scrollX, scrollY) {
     const changed = this.viewModel.updateScroll(scrollX, scrollY)
     if (changed) {
