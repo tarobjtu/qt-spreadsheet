@@ -128,7 +128,6 @@ class Sheet extends EventEmitter {
     const clips = this.viewModel.getSelector()
     this.clipboard.position().show()
     this.clipboard.cut(clips)
-
     this.emit('cut', clips)
   }
 
@@ -143,6 +142,11 @@ class Sheet extends EventEmitter {
     }
     this.clipboard.hide()
     this.draw()
+  }
+
+  escape() {
+    // 隐藏剪切板框
+    this.clipboard.hide()
   }
 
   delete() {

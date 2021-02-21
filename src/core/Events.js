@@ -142,6 +142,10 @@ class Events extends EventEmitter {
           this.sheet.clearSelectedCellsText()
           e.preventDefault()
           break
+        case 27: // esc
+          this.sheet.escape()
+          e.preventDefault()
+          break
         default:
           break
       }
