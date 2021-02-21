@@ -25,21 +25,21 @@ class Events extends EventEmitter {
   bindEvents() {
     const { canvas } = this
     this.events = []
-    
-    const resize = throttle(this.resize.bind(this), 100)ß
+
+    const resize = throttle(this.resize.bind(this), 100)
     const click = this.onClick.bind(this)
     const keydown = this.onKeydown.bind(this)
     const mousedown = this.onMousedown.bind(this)
     const mousemove = throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
-    
+
     this.events.push([window, 'resize', resize])
     this.events.push([window, 'click', click])
     this.events.push([document, 'keydown', keydown])
     this.events.push([canvas, 'mousedown', mousedown])
     this.events.push([window, 'mousemove', mousemove])
     this.events.push([window, 'mouseup', mouseup])
-    
+
     window.addEventListener('resize', resize)
     window.addEventListener('click', click, false)
     document.addEventListener('keydown', keydown, false)
