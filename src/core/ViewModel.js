@@ -284,19 +284,21 @@ class ViewModel {
 
   /**
    * @description 找到坐标left、top命中的表格单元格
-   * @param {*} left
-   * @param {*} top
+   * @param {*} left (相对canvas左上角的位置，+crollX)
+   * @param {*} top (相对canvas左上角的位置，+crollY)
    */
   getCellByOffset(left, top) {
-    const { rowHeaderWidth, colHeaderHeight } = this.theme
+    const { theme, sheetData } = this
+    const { rowHeaderWidth, colHeaderHeight } = theme
+    const { scrollX, scrollY } = sheetData
 
     // 左上角的角头
-    if (left < rowHeaderWidth && top < colHeaderHeight) {
+    if (left - scrollX < rowHeaderWidth && top - scrollY < colHeaderHeight) {
       return { col: 0, row: 0, type: 'corner' }
     }
 
     // 左边的行头
-    if (left < rowHeaderWidth && top >= colHeaderHeight) {
+    if (left - scrollX < rowHeaderWidth && top - scrollY >= colHeaderHeight) {
       return {
         row: this.getRowByOffset(top),
         col: 0,
@@ -305,7 +307,7 @@ class ViewModel {
     }
 
     // 顶部的列头
-    if (left >= rowHeaderWidth && top < colHeaderHeight) {
+    if (left - scrollX >= rowHeaderWidth && top - scrollY < colHeaderHeight) {
       return {
         row: 0,
         col: this.getColByOffset(left),
