@@ -88,6 +88,26 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
 }
 
 /**
+ * @description 重新计算offset
+ * @param {*} targetMeta
+ * @param {*} startPosition
+ * @param {*} startOffset
+ */
+function reCalcOffset(targetMeta, startPosition, startOffset) {
+  const nextMetaPosition = startPosition
+  let nextMetaOffset = startOffset
+
+  for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
+    const nextMeta = targetMeta[i]
+    // 跳过隐藏的行列
+    if (!nextMeta.hidden) {
+      nextMeta.offset = nextMetaOffset
+      nextMetaOffset += nextMeta.size
+    }
+  }
+}
+
+/**
  * @description 将源meta插入到目标meta中
  * @param {*} targetMeta 目标meta
  * @param {*} sourceMeta 源meta
@@ -97,14 +117,11 @@ export function insertMeta(targetMeta, sourceMeta, position) {
   targetMeta.splice(position, 0, ...deepClone(sourceMeta))
 
   // 重新计算offset
-  const nextMetaPosition = position + sourceMeta.length
-  const { offset, size } = targetMeta[nextMetaPosition - 1]
-  let nextMetaOffset = offset + size
-  for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
-    const nextMeta = targetMeta[i]
-    nextMeta.offset = nextMetaOffset
-    nextMetaOffset += nextMeta.size
-  }
+  const startPosition = position + sourceMeta.length
+  const { offset, size } = targetMeta[startPosition - 1]
+  const startOffset = offset + size
+
+  reCalcOffset(targetMeta, startPosition, startOffset)
 
   return targetMeta
 }
@@ -116,18 +133,27 @@ export function insertMeta(targetMeta, sourceMeta, position) {
  * @param {*} count 删除meta数量
  */
 export function deleteMeta(targetMeta, position, count) {
-  const { offset } = targetMeta[position]
-  let nextMetaOffset = offset
-
+  const startOffset = targetMeta[position].offset
   targetMeta.splice(position, count)
+  reCalcOffset(targetMeta, position, startOffset)
 
-  // 重新计算offset
-  const nextMetaPosition = position
-  for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
-    const nextMeta = targetMeta[i]
-    nextMeta.offset = nextMetaOffset
-    nextMetaOffset += nextMeta.size
+  return targetMeta
+}
+
+/**
+ * @description 隐藏一些行、列
+ * @param {*} targetMeta
+ * @param {*} position 起始的位置
+ * @param {*} count 隐藏meta数量
+ */
+export function hideMeta(targetMeta, position, count) {
+  for (let i = position; i < position + count; i += 1) {
+    const meta = targetMeta[i]
+    meta.hidden = true
   }
+
+  const startOffset = targetMeta[position].offset
+  reCalcOffset(targetMeta, position, startOffset)
 
   return targetMeta
 }
@@ -145,14 +171,8 @@ export function changeMetaSize(targetMeta, position, count, newSize) {
     meta.size = newSize
   }
 
-  // 重新计算offset
-  const nextMetaPosition = position
-  let nextMetaOffset = targetMeta[position].offset
-  for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
-    const nextMeta = targetMeta[i]
-    nextMeta.offset = nextMetaOffset
-    nextMetaOffset += nextMeta.size
-  }
+  const startOffset = targetMeta[position].offset
+  reCalcOffset(targetMeta, position, startOffset)
 
   return targetMeta
 }

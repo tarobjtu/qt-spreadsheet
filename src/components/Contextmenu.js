@@ -171,6 +171,16 @@ class Contextmenu {
     this.sheet.clearCellsData({ col, colCount, row, rowCount })
   }
 
+  onHideColumn() {
+    const { col, colCount } = this.viewModel.getSelector()
+    this.sheet.hideCols(col, colCount)
+  }
+
+  onHideRow() {
+    const { row, rowCount } = this.viewModel.getSelector()
+    this.sheet.hideRows(row, rowCount)
+  }
+
   position({ offsetX, offsetY }) {
     let left = offsetX
     let top = offsetY

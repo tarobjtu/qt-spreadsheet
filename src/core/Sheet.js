@@ -198,6 +198,18 @@ class Sheet extends EventEmitter {
     this.emit('deleteCols')
   }
 
+  hideRows(row, rowCount) {
+    this.viewModel.hideRows(row, rowCount)
+    this.draw()
+    this.emit('hideRows')
+  }
+
+  hideCols(col, colCount) {
+    this.viewModel.hideCols(col, colCount)
+    this.draw()
+    this.emit('hideCols')
+  }
+
   scroll(scrollX, scrollY) {
     const changed = this.viewModel.updateScroll(scrollX, scrollY)
     if (changed) {

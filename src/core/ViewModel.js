@@ -1,6 +1,13 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
-import { EMPTY_CELL, emptyData, insertMeta, deleteMeta, changeMetaSize } from '../utils/model'
+import {
+  EMPTY_CELL,
+  emptyData,
+  insertMeta,
+  deleteMeta,
+  changeMetaSize,
+  hideMeta,
+} from '../utils/model'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -716,17 +723,34 @@ class ViewModel {
     this.history.save(this.sheetData)
   }
 
-  colResize({ col, count, newSize }, start = false, finished = false) {
-    if (start) {
-      this.sheetData = deepClone(this.sheetData)
-    }
+  /**
+   * @description 隐藏行
+   * @param {*} startRow 隐藏的起始行
+   * @param {*} rowCount 行数
+   */
+  hideRows(startRow, rowCount) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { rowsMeta } = this.sheetData
+    // hide rowsMeta
+    hideMeta(rowsMeta, startRow, rowCount)
+
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 隐藏列
+   * @param {*} startCol 隐藏的起始列
+   * @param {*} colCount 列数
+   */
+  hideCols(startCol, colCount) {
+    this.sheetData = deepClone(this.sheetData)
 
     const { colsMeta } = this.sheetData
-    changeMetaSize(colsMeta, col, count, newSize)
+    // hide colsMeta
+    hideMeta(colsMeta, startCol, colCount)
 
-    if (finished) {
-      this.history.save(this.sheetData)
-    }
+    this.history.save(this.sheetData)
   }
 
   rowResize({ row, count, newSize }, start = false, finished = false) {
@@ -736,6 +760,19 @@ class ViewModel {
 
     const { rowsMeta } = this.sheetData
     changeMetaSize(rowsMeta, row, count, newSize)
+
+    if (finished) {
+      this.history.save(this.sheetData)
+    }
+  }
+
+  colResize({ col, count, newSize }, start = false, finished = false) {
+    if (start) {
+      this.sheetData = deepClone(this.sheetData)
+    }
+
+    const { colsMeta } = this.sheetData
+    changeMetaSize(colsMeta, col, count, newSize)
 
     if (finished) {
       this.history.save(this.sheetData)
