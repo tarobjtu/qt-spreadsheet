@@ -82,6 +82,28 @@ class ViewModel {
   }
 
   /**
+   * @description 返回有多少完整的行被选中
+   */
+  getSelectedWholeRows() {
+    const { row, rowCount, col, colCount } = this.getSelector()
+    if (col === 0 && colCount === this.getColsNumber()) {
+      return { row, rowCount }
+    }
+    return null
+  }
+
+  /**
+   * @description 返回有多少完整的列被选中
+   */
+  getSelectedWholeCols() {
+    const { row, rowCount, col, colCount } = this.getSelector()
+    if (row === 0 && rowCount === this.getRowsNumber()) {
+      return { col, colCount }
+    }
+    return null
+  }
+
+  /**
    * @description 获取选中的激活的单元格（数据）
    */
   getSelectedActiveCell() {

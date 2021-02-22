@@ -180,10 +180,40 @@ class Resizer {
     // cell resize
     if (this.direction === 'col') {
       const newSize = Math.max(MIN_SIZE, x - (left - scrollX))
-      this.sheet.colResize({ col, count: 1, newSize }, start, finished)
+      const wholeCols = this.viewModel.getSelectedWholeCols()
+      // 多列圈选的场景
+      if (
+        finished &&
+        wholeCols &&
+        col >= wholeCols.col &&
+        col < wholeCols.col + wholeCols.colCount
+      ) {
+        this.sheet.colResize(
+          { col: wholeCols.col, count: wholeCols.colCount, newSize },
+          start,
+          finished
+        )
+      } else {
+        this.sheet.colResize({ col, count: 1, newSize }, start, finished)
+      }
     } else if (this.direction === 'row') {
       const newSize = Math.max(MIN_SIZE, y - (top - scrollY))
-      this.sheet.rowResize({ row, count: 1, newSize }, start, finished)
+      const wholeRows = this.viewModel.getSelectedWholeRows()
+      // 多行圈选的场景
+      if (
+        finished &&
+        wholeRows &&
+        row >= wholeRows.row &&
+        row < wholeRows.row + wholeRows.rowCount
+      ) {
+        this.sheet.rowResize(
+          { row: wholeRows.row, count: wholeRows.rowCount, newSize },
+          start,
+          finished
+        )
+      } else {
+        this.sheet.rowResize({ row, count: 1, newSize }, start, finished)
+      }
     }
 
     // resizer reposition
