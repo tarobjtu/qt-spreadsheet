@@ -141,9 +141,10 @@ class Resizer {
   moveResize(e) {
     if (!this.resizing) return
     this.moveCount += 1
+    const { offsetLeft, offsetTop } = this.container
     this.resize({
-      x: e.clientX,
-      y: e.clientY,
+      x: e.clientX - offsetLeft,
+      y: e.clientY - offsetTop,
       start: this.moveCount === 1,
       finished: false,
     })
@@ -153,7 +154,13 @@ class Resizer {
     if (!this.resizing) return
     this.resizing = false
     this.moveCount = 0
-    this.resize({ x: e.clientX, y: e.clientY, start: false, finished: true })
+    const { offsetLeft, offsetTop } = this.container
+    this.resize({
+      x: e.clientX - offsetLeft,
+      y: e.clientY - offsetTop,
+      start: false,
+      finished: true,
+    })
 
     if (this.direction === 'col') {
       this.colMarkLineEl.style.display = 'none'

@@ -712,8 +712,8 @@ class ViewModel {
       this.sheetData = deepClone(this.sheetData)
     }
 
-    const { colsMeta } = this.sheetData
-    changeMetaSize(colsMeta, row, count, newSize)
+    const { rowsMeta } = this.sheetData
+    changeMetaSize(rowsMeta, row, count, newSize)
 
     if (finished) {
       this.history.save(this.sheetData)
