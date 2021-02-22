@@ -1,6 +1,6 @@
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
-import { EMPTY_CELL, emptyData, insertToMeta, deleteMeta } from '../utils/model'
+import { EMPTY_CELL, emptyData, insertMeta, deleteMeta, changeMetaSize } from '../utils/model'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -596,7 +596,7 @@ class ViewModel {
 
     // copy rowsMeta
     const copyMeta = rowsMeta.slice(position, position + rowCount)
-    insertToMeta(rowsMeta, copyMeta, position)
+    insertMeta(rowsMeta, copyMeta, position)
     // copy data
     if (insertData === undefined) {
       data.splice(position, 0, ...emptyData(rowCount, colCount))
@@ -630,7 +630,7 @@ class ViewModel {
 
     // copy colsMeta
     const copyMeta = colsMeta.slice(position, position + colCount)
-    insertToMeta(colsMeta, copyMeta, position)
+    insertMeta(colsMeta, copyMeta, position)
     // copy data
     if (insertData === undefined) {
       const emptyCols = emptyData(1, colCount)[0]
@@ -690,6 +690,32 @@ class ViewModel {
     }
 
     this.history.save(this.sheetData)
+  }
+
+  colResize({ col, count, newSize }, start = false, finished = false) {
+    if (start) {
+      this.sheetData = deepClone(this.sheetData)
+    }
+
+    const { colsMeta } = this.sheetData
+    changeMetaSize(colsMeta, col, count, newSize)
+
+    if (finished) {
+      this.history.save(this.sheetData)
+    }
+  }
+
+  rowResize({ row, count, newSize }, start = false, finished = false) {
+    if (start) {
+      this.sheetData = deepClone(this.sheetData)
+    }
+
+    const { colsMeta } = this.sheetData
+    changeMetaSize(colsMeta, row, count, newSize)
+
+    if (finished) {
+      this.history.save(this.sheetData)
+    }
   }
 }
 

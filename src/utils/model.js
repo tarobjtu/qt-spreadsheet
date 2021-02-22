@@ -93,7 +93,7 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
  * @param {*} sourceMeta 源meta
  * @param {*} position 插入的位置
  */
-export function insertToMeta(targetMeta, sourceMeta, position) {
+export function insertMeta(targetMeta, sourceMeta, position) {
   targetMeta.splice(position, 0, ...deepClone(sourceMeta))
 
   // 重新计算offset
@@ -113,13 +113,13 @@ export function insertToMeta(targetMeta, sourceMeta, position) {
  * @description 删除一些meta
  * @param {*} targetMeta
  * @param {*} position 起始的位置
- * @param {*} rowCount 删除行数
+ * @param {*} count 删除meta数量
  */
-export function deleteMeta(targetMeta, position, rowCount) {
+export function deleteMeta(targetMeta, position, count) {
   const { offset } = targetMeta[position]
   let nextMetaOffset = offset
 
-  targetMeta.splice(position, rowCount)
+  targetMeta.splice(position, count)
 
   // 重新计算offset
   const nextMetaPosition = position
@@ -132,9 +132,35 @@ export function deleteMeta(targetMeta, position, rowCount) {
   return targetMeta
 }
 
+/**
+ * @description 改变meta的尺寸
+ * @param {*} targetMeta
+ * @param {*} position 起始的meta
+ * @param {*} count 改变的meta数量
+ * @param {*} newSize 新的尺寸
+ */
+export function changeMetaSize(targetMeta, position, count, newSize) {
+  for (let i = position; i < position + count; i += 1) {
+    const meta = targetMeta[i]
+    meta.size = newSize
+  }
+
+  // 重新计算offset
+  const nextMetaPosition = position
+  let nextMetaOffset = targetMeta[position].offset
+  for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
+    const nextMeta = targetMeta[i]
+    nextMeta.offset = nextMetaOffset
+    nextMetaOffset += nextMeta.size
+  }
+
+  return targetMeta
+}
+
 export default {
   getSheetData,
   emptyData,
-  insertToMeta,
+  insertMeta,
   deleteMeta,
+  changeMetaSize,
 }

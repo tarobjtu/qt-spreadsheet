@@ -164,6 +164,16 @@ class Sheet extends EventEmitter {
     this.draw()
   }
 
+  colResize({ col, count, newSize }, start = false, finished = false) {
+    this.viewModel.colResize({ col, count, newSize }, start, finished)
+    this.draw()
+  }
+
+  rowResize({ row, count, newSize }, start = false, finished = false) {
+    this.viewModel.rowResize({ row, count, newSize }, start, finished)
+    this.draw()
+  }
+
   insertRows(row, rowCount, rowsData) {
     this.viewModel.insertRows(row, rowCount, rowsData)
     this.draw()

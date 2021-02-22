@@ -5,12 +5,8 @@
   display: block;
   height: 4px;
   cursor: row-resize;
-  border-top: 2px solid #fafafa;
-
-  &:hover {
-    background-color: #ccc;
-  }
 }
+
 .qt-spreadsheet-col-resizer {
   position: absolute;
   box-sizing: border-box;
@@ -18,9 +14,31 @@
   display: block;
   width: 4px;
   cursor: col-resize;
-  border-left: 2px solid #fafafa;
 
   &:hover {
-    background-color: #ccc;
+    .qt-spreadsheet-col-resizer-handler {
+      background-color: #ccc;
+    }
+  }
+
+  .qt-spreadsheet-col-resizer-handler {
+    box-sizing: border-box;
+    margin-left: 1px;
+    height: 100%;
+    width: 2px;
+
+    &.active {
+      background-color: #ccc;
+    }
+  }
+
+  .qt-spreadsheet-col-resizer-mark-line {
+    position: absolute;
+    display: none;
+    width: 1px;
+    height: 2000px;
+    top: 100%;
+    left: 2px;
+    background-color: #2a83ea;
   }
 }
