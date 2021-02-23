@@ -1,5 +1,4 @@
 import throttle from 'lodash/throttle'
-import isEqual from 'lodash/isEqual'
 import { directionToRect, mergeSelector } from '../utils/canvas'
 import { deepClone } from '../utils/common'
 import './selector.scss'
@@ -108,19 +107,6 @@ class Selector {
   }
 
   /**
-   * @description 保存上一次selector的位置
-   */
-  saveLastSelectorStatus() {
-    const lastSheetData = this.viewModel.getLastHistory()
-    const lastSelector = lastSheetData.selector
-    const curSelector = this.viewModel.getSelector()
-    // selector不同时保存
-    if (!isEqual(lastSelector, curSelector)) {
-      this.viewModel.saveToHistory()
-    }
-  }
-
-  /**
    * @description 拖拽corner，自动填充单元格数据
    * @param {*} offsetX
    * @param {*} offsetY
@@ -143,7 +129,7 @@ class Selector {
     // mouseup
     if (state === 'finished') {
       // 保存 selector 状态
-      this.saveLastSelectorStatus()
+      this.viewModel.saveLastSelectorStatus()
       this.autofillEl.style.display = 'none'
       const sourceRect = this.viewModel.getSelector()
       this.autofillData(sourceRect, rect, direction)
@@ -198,28 +184,28 @@ class Selector {
     const { left, top, width, height } = this.viewModel.getSelectedCellsBBox()
     const direction = directionToRect({ left, top, width, height }, { offsetX, offsetY })
     if (direction === 'right') {
-      rect = this.viewModel.getRectCRs({
+      rect = this.viewModel.getRectCellRange({
         left: left + width + 1,
         top: top + 1,
         width: offsetX - left - width,
         height: height - 2,
       })
     } else if (direction === 'bottom') {
-      rect = this.viewModel.getRectCRs({
+      rect = this.viewModel.getRectCellRange({
         left: left + 1,
         top: top + height + 1,
         width: width - 2,
         height: offsetY - top - height,
       })
     } else if (direction === 'left') {
-      rect = this.viewModel.getRectCRs({
+      rect = this.viewModel.getRectCellRange({
         left: offsetX,
         top: top + 1,
         width: left - offsetX - 1,
         height: height - 2,
       })
     } else if (direction === 'up') {
-      rect = this.viewModel.getRectCRs({
+      rect = this.viewModel.getRectCellRange({
         left: left + 1,
         top: offsetY,
         width: width - 2,

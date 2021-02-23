@@ -591,7 +591,7 @@ class Sheet extends EventEmitter {
       /* eslint-enable */
     } else {
       // 圈选
-      const { col, row, colCount, rowCount } = this.viewModel.getRectCRs({
+      const { col, row, colCount, rowCount } = this.viewModel.getRectCellRange({
         left: Math.min(startOffsetX, endOffsetX) + scrollX,
         top: Math.min(startOffsetY, endOffsetY) + scrollY,
         width: Math.abs(startOffsetX - endOffsetX),

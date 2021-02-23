@@ -70,6 +70,23 @@ export function mergeSelector(s1 = {}, s2 = {}) {
   }
 }
 
+/**
+ * @description 两个区域是否有重叠
+ * @param {*} r1
+ * @param {*} r2
+ */
+export function overlap(r1, r2) {
+  if (
+    r1.col + r1.colCount < r2.col ||
+    r1.col > r2.col + r2.colCount ||
+    r1.row + r1.rowCount < r2.row ||
+    r1.row > r2.row + r2.rowCount
+  ) {
+    return false
+  }
+  return true
+}
+
 export default {
   font,
 }

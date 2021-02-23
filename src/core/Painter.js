@@ -1,5 +1,6 @@
 import { assignStyle, perf, numberToAlpha } from '../utils/common'
-import { font } from '../utils/canvas'
+import { font, overlap } from '../utils/canvas'
+import { getRangeMeta } from '../utils/model'
 
 class Painter {
   constructor({ sheet, viewModel, theme, container, options }) {
@@ -60,19 +61,31 @@ class Painter {
 
   drawBody() {
     const { ctx, viewModel, theme } = this
-    const { colsMeta, rowsMeta } = viewModel.sheetData
-    const { col, row, colCount, rowCount } = viewModel.getViewportCRs()
+    const { colsMeta, rowsMeta, mergedCells } = viewModel.sheetData
+    const vpCellRange = viewModel.getViewportCellRange()
+    const { col, row, colCount, rowCount } = vpCellRange
 
     assignStyle(ctx, theme.default)
 
-    for (let i = col; i < col + colCount; i += 1) {
-      for (let j = row; j < row + rowCount; j += 1) {
-        const cMeta = colsMeta[i]
-        const rMeta = rowsMeta[j]
-        const data = viewModel.getCellData(i, j)
+    // normal cell
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      for (let ci = col; ci < col + colCount; ci += 1) {
+        const cMeta = colsMeta[ci]
+        const rMeta = rowsMeta[ri]
+        const data = viewModel.getCellData(ci, ri)
         this.drawCell(cMeta, rMeta, data)
       }
     }
+
+    // merged cell
+    mergedCells.forEach((mCellRange) => {
+      if (overlap(mCellRange, vpCellRange)) {
+        const cMeta = getRangeMeta(colsMeta, mCellRange.col, mCellRange.colCount)
+        const rMeta = getRangeMeta(rowsMeta, mCellRange.row, mCellRange.rowCount)
+        const data = viewModel.getCellData(mCellRange.col, mCellRange.row)
+        this.drawCell(cMeta, rMeta, data)
+      }
+    })
   }
 
   drawCell(cMeta, rMeta, data) {
@@ -326,7 +339,7 @@ class Painter {
     const { ctx, viewModel, theme } = this
     const { colsMeta, rowsMeta, scrollX, scrollY } = viewModel.sheetData
     const selector = viewModel.getSelector()
-    const { col, row, colCount, rowCount } = viewModel.getViewportCRs()
+    const { col, row, colCount, rowCount } = viewModel.getViewportCellRange()
 
     assignStyle(ctx, theme.header)
 

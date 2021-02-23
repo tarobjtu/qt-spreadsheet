@@ -64,6 +64,9 @@ export function getSheetData({ rowCount, colCount, theme, data }) {
     mode: 'edit',
     scrollX: 0, // 表格视窗相对文档起始点的横轴位置
     scrollY: 0, // 表格视窗相对文档起始点的纵轴位置
+    freezeX: 0, // 冻结行数
+    freezeY: 0, // 冻结列数
+    mergedCells: [], // 合并单元格信息
     selector: {
       col: 0,
       row: 0,
@@ -198,6 +201,17 @@ export function changeMetaSize(targetMeta, position, count, newSize) {
   reCalcOffset(targetMeta, position, startOffset)
 
   return targetMeta
+}
+
+export function getRangeMeta(meta, position, count) {
+  let size = 0
+  for (let i = position; i < position + count; i += 1) {
+    size += meta[i].size
+  }
+  return {
+    size,
+    offset: meta[position].offset,
+  }
 }
 
 export default {

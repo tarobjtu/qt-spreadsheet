@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual'
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
 import {
@@ -59,6 +60,19 @@ class ViewModel {
 
   getLastHistory() {
     return this.history.last()
+  }
+
+  /**
+   * @description 保存上一次selector的位置
+   */
+  saveLastSelectorStatus() {
+    const lastSheetData = this.getLastHistory()
+    const lastSelector = lastSheetData.selector
+    const curSelector = this.getSelector()
+    // selector不同时保存
+    if (!isEqual(lastSelector, curSelector)) {
+      this.saveToHistory()
+    }
   }
 
   /**
@@ -259,19 +273,19 @@ class ViewModel {
   /**
    * @description 找到视窗范围内可见的全部单元格
    */
-  getViewportCRs() {
+  getViewportCellRange() {
     const { container, sheetData } = this
     const { scrollX, scrollY } = sheetData
     const { width, height } = container.getBoundingClientRect()
 
-    return this.getRectCRs({ left: scrollX, top: scrollY, width, height })
+    return this.getRectCellRange({ left: scrollX, top: scrollY, width, height })
   }
 
   /**
    * @description 获取一个矩形区域内的所有单元格
    * @param {*} param0
    */
-  getRectCRs({ left, top, width, height }) {
+  getRectCellRange({ left, top, width, height }) {
     const start = this.getCellByOffset(left, top)
     const end = this.getCellByOffset(left + width, top + height)
 
@@ -838,6 +852,13 @@ class ViewModel {
     if (finished) {
       this.history.save(this.sheetData)
     }
+  }
+
+  mergeCell({ row, col, rowCount, colCount }) {
+    this.saveLastSelectorStatus()
+    this.sheetData = update.$push(this.sheetData, 'mergedCells', [{ row, col, rowCount, colCount }])
+    // TODO 删除单元格信息（除第一个）
+    this.history.save(this.sheetData)
   }
 }
 
