@@ -111,6 +111,12 @@ export default [
     icon: 'assets/icons/merge-cell.png',
   },
   {
+    key: 'cancel-merge',
+    name: '取消合并单元格',
+    icon: 'assets/icons/cancel-merge.png',
+  },
+
+  {
     key: 'divider',
   },
   {
