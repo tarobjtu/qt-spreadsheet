@@ -164,9 +164,94 @@ class Sheet extends EventEmitter {
     this.draw()
   }
 
-  colResize({ col, count, newSize }, start = false, finished = false) {
-    this.viewModel.colResize({ col, count, newSize }, start, finished)
+  /**
+   * @description 插入行
+   * @param {*} position 插入位置
+   * @param {*} rowCount 插入行数
+   * @param {*} insertData 插入的数据
+   */
+  insertRows(position, rowCount, insertData) {
+    this.viewModel.insertRows(position, rowCount, insertData)
     this.draw()
+    this.emit('insertRows')
+  }
+
+  /**
+   * @description 插入列
+   * @param {*} position 插入位置
+   * @param {*} colCount 插入列数
+   * @param {*} insertData 插入的数据
+   */
+  insertCols(position, colCount, insertData) {
+    this.viewModel.insertCols(position, colCount, insertData)
+    this.draw()
+    this.emit('insertCols')
+  }
+
+  /**
+   * @description 删除行
+   * @param {*} startRow 删除位置
+   * @param {*} rowCount 删除行数
+   */
+  deleteRows(startRow, rowCount) {
+    this.viewModel.deleteRows(startRow, rowCount)
+    this.draw()
+    this.emit('deleteRows')
+  }
+
+  /**
+   * @description 删除列
+   * @param {*} startCol 删除位置
+   * @param {*} colCount 删除列数
+   */
+  deleteCols(startCol, colCount) {
+    this.viewModel.deleteCols(startCol, colCount)
+    this.draw()
+    this.emit('deleteCols')
+  }
+
+  /**
+   * @description 隐藏行
+   * @param {*} startRow 隐藏的起始行
+   * @param {*} rowCount 行数
+   */
+  hideRows(startRow, rowCount) {
+    this.viewModel.hideRows(startRow, rowCount)
+    this.draw()
+    this.emit('hideRows')
+  }
+
+  /**
+   * @description 隐藏列
+   * @param {*} startCol 隐藏的起始列
+   * @param {*} colCount 列数
+   */
+  hideCols(startCol, colCount) {
+    this.viewModel.hideCols(startCol, colCount)
+    this.draw()
+    this.emit('hideCols')
+  }
+
+  /**
+   * @description 取消隐藏行
+   * @param {*} startRow
+   * @param {*} rowCount
+   */
+  cancelHideRows(startRow, rowCount) {
+    this.viewModel.cancelHideRows(startRow, rowCount)
+    this.draw()
+    this.emit('cancelHideRows')
+  }
+
+  /**
+   * @description 取消隐藏列
+   * @param {*} startCol
+   * @param {*} colCount
+   */
+  cancelHideCols(startCol, colCount) {
+    this.viewModel.cancelHideCols(startCol, colCount)
+    this.draw()
+    this.emit('cancelHideCols')
   }
 
   rowResize({ row, count, newSize }, start = false, finished = false) {
@@ -174,40 +259,9 @@ class Sheet extends EventEmitter {
     this.draw()
   }
 
-  insertRows(row, rowCount, rowsData) {
-    this.viewModel.insertRows(row, rowCount, rowsData)
+  colResize({ col, count, newSize }, start = false, finished = false) {
+    this.viewModel.colResize({ col, count, newSize }, start, finished)
     this.draw()
-    this.emit('insertRows')
-  }
-
-  insertCols(col, colCount, colsData) {
-    this.viewModel.insertCols(col, colCount, colsData)
-    this.draw()
-    this.emit('insertCols')
-  }
-
-  deleteRows(row, rowCount) {
-    this.viewModel.deleteRows(row, rowCount)
-    this.draw()
-    this.emit('deleteRows')
-  }
-
-  deleteCols(col, colCount) {
-    this.viewModel.deleteCols(col, colCount)
-    this.draw()
-    this.emit('deleteCols')
-  }
-
-  hideRows(row, rowCount) {
-    this.viewModel.hideRows(row, rowCount)
-    this.draw()
-    this.emit('hideRows')
-  }
-
-  hideCols(col, colCount) {
-    this.viewModel.hideCols(col, colCount)
-    this.draw()
-    this.emit('hideCols')
   }
 
   scroll(scrollX, scrollY) {

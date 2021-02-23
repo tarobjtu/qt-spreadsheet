@@ -78,6 +78,7 @@ class Contextmenu {
     const { offsetX, offsetY } = e
     const { scrollX, scrollY } = this.viewModel.sheetData
     const targetCell = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
+    this.targetCell = targetCell
     this.setTargetRange(targetCell)
     this.filterItems(targetCell.type)
     this.show().position({ offsetX, offsetY })
@@ -181,6 +182,22 @@ class Contextmenu {
     this.sheet.hideRows(row, rowCount)
   }
 
+  onCancelHidden() {
+    const { type } = this.targetCell
+    if (type === 'corner' || type === 'colHeader') {
+      const wholeCols = this.viewModel.getSelectedWholeCols()
+      if (wholeCols) {
+        this.sheet.cancelHideCols(wholeCols.col, wholeCols.colCount)
+      }
+    }
+    if (type === 'corner' || type === 'rowHeader') {
+      const wholeRows = this.viewModel.getSelectedWholeRows()
+      if (wholeRows) {
+        this.sheet.cancelHideRows(wholeRows.row, wholeRows.rowCount)
+      }
+    }
+  }
+
   position({ offsetX, offsetY }) {
     let left = offsetX
     let top = offsetY
@@ -273,6 +290,8 @@ class Contextmenu {
       ) {
         this.sheet.selectRows(cell.row)
       }
+    } else if (cell.type === 'corner') {
+      this.sheet.selectAllCells()
     }
   }
 }

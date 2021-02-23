@@ -4,21 +4,21 @@ export default [
     name: '剪切',
     hotkey: '⌘+X',
     icon: 'assets/icons/cut.png',
-    scope: ['colHeader', 'rowHeader', 'cell'],
+    scope: ['colHeader', 'rowHeader', 'cell', 'corner'],
   },
   {
     key: 'copy',
     name: '复制',
     hotkey: '⌘+C',
     icon: 'assets/icons/copy.png',
-    scope: ['colHeader', 'rowHeader', 'cell'],
+    scope: ['colHeader', 'rowHeader', 'cell', 'corner'],
   },
   {
     key: 'paste',
     name: '粘贴',
     hotkey: '⌘+V',
     icon: 'assets/icons/paste.png',
-    scope: ['colHeader', 'rowHeader', 'cell'],
+    scope: ['colHeader', 'rowHeader', 'cell', 'corner'],
   },
   {
     key: 'divider',
@@ -80,19 +80,25 @@ export default [
     scope: ['colHeader'],
   },
   {
+    key: 'cancel-hidden',
+    name: '取消隐藏',
+    icon: '',
+    scope: ['colHeader', 'rowHeader', 'corner'],
+  },
+  {
     key: 'divider',
   },
   {
     key: 'clear-all',
     name: '清除全部',
     icon: '',
-    scope: ['colHeader', 'rowHeader', 'cell'],
+    scope: ['colHeader', 'rowHeader', 'cell', 'corner'],
   },
   {
     key: 'clear-style',
     name: '清除样式',
     icon: '',
-    scope: ['colHeader', 'rowHeader', 'cell'],
+    scope: ['colHeader', 'rowHeader', 'cell', 'corner'],
   },
   {
     key: 'insert-comment',

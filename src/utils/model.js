@@ -99,11 +99,8 @@ function reCalcOffset(targetMeta, startPosition, startOffset) {
 
   for (let i = nextMetaPosition; i < targetMeta.length; i += 1) {
     const nextMeta = targetMeta[i]
-    // 跳过隐藏的行列
-    if (!nextMeta.hidden) {
-      nextMeta.offset = nextMetaOffset
-      nextMetaOffset += nextMeta.size
-    }
+    nextMeta.offset = nextMetaOffset
+    nextMetaOffset += nextMeta.size
   }
 }
 
@@ -150,6 +147,30 @@ export function hideMeta(targetMeta, position, count) {
   for (let i = position; i < position + count; i += 1) {
     const meta = targetMeta[i]
     meta.hidden = true
+    meta.originSize = meta.size
+    meta.size = 0
+  }
+
+  const startOffset = targetMeta[position].offset
+  reCalcOffset(targetMeta, position, startOffset)
+
+  return targetMeta
+}
+
+/**
+ * @description 取消隐藏一些行、列
+ * @param {*} targetMeta
+ * @param {*} position 起始的位置
+ * @param {*} count 隐藏meta数量
+ */
+export function cancelHideMeta(targetMeta, position, count) {
+  for (let i = position; i < position + count; i += 1) {
+    const meta = targetMeta[i]
+    if (meta.hidden) {
+      meta.size = meta.originSize
+      meta.hidden = undefined
+      meta.originSize = undefined
+    }
   }
 
   const startOffset = targetMeta[position].offset
@@ -168,7 +189,9 @@ export function hideMeta(targetMeta, position, count) {
 export function changeMetaSize(targetMeta, position, count, newSize) {
   for (let i = position; i < position + count; i += 1) {
     const meta = targetMeta[i]
-    meta.size = newSize
+    if (!meta.hidden) {
+      meta.size = newSize
+    }
   }
 
   const startOffset = targetMeta[position].offset

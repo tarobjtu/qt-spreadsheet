@@ -7,6 +7,7 @@ import {
   deleteMeta,
   changeMetaSize,
   hideMeta,
+  cancelHideMeta,
 } from '../utils/model'
 
 /**
@@ -749,6 +750,36 @@ class ViewModel {
     const { colsMeta } = this.sheetData
     // hide colsMeta
     hideMeta(colsMeta, startCol, colCount)
+
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 取消隐藏行
+   * @param {*} startRow
+   * @param {*} rowCount
+   */
+  cancelHideRows(startRow, rowCount) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { rowsMeta } = this.sheetData
+    // cancel hide rowsMeta
+    cancelHideMeta(rowsMeta, startRow, rowCount)
+
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 取消隐藏列
+   * @param {*} startCol
+   * @param {*} colCount
+   */
+  cancelHideCols(startCol, colCount) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { colsMeta } = this.sheetData
+    // cancel hide colsMeta
+    cancelHideMeta(colsMeta, startCol, colCount)
 
     this.history.save(this.sheetData)
   }
