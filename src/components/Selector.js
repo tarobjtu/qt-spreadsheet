@@ -57,17 +57,7 @@ class Selector {
     window.addEventListener('mouseup', mouseup, false)
 
     // 自定义事件
-    this.sheet.on('startSelectCell', this.onStartSelectCell.bind(this))
-    this.sheet.on('endSelectCell', this.onEndSelectCell.bind(this))
     this.sheet.on('scroll', this.position.bind(this))
-  }
-
-  onStartSelectCell() {
-    this.cornerDisable()
-  }
-
-  onEndSelectCell() {
-    this.cornerEnable()
   }
 
   onMousedown(e) {
@@ -96,14 +86,6 @@ class Selector {
       const { target, offsetX, offsetY } = e
       this.autofill(offsetX, offsetY, target, 'finished')
     }
-  }
-
-  cornerDisable() {
-    this.cornerEl.style.pointerEvents = 'none'
-  }
-
-  cornerEnable() {
-    this.cornerEl.style.pointerEvents = 'all'
   }
 
   /**
