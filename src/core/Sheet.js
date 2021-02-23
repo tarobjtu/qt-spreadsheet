@@ -438,6 +438,15 @@ class Sheet extends EventEmitter {
   }
 
   /**
+   * @description 设置单元格边框样式
+   * @param {*} borderStyle
+   */
+  setCellsBorder(borderStyle) {
+    this.viewModel.setCellsBorder(borderStyle)
+    this.draw()
+  }
+
+  /**
    * @description 选中某个单元格，通过快捷键
    * @param {*} direction 选择方向
    * @param {*} multiple 多选

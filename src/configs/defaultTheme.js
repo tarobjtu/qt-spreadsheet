@@ -11,7 +11,7 @@ const defaultTheme = {
   },
   default: {
     fillStyle: '#ffffff',
-    strokeStyle: 'rgba(140,140,140,0.3)',
+    strokeStyle: 'rgba(140,140,140,0.2)',
     protectedBackColor: 'rgba(140,140,140,0.1)',
     lineWidth: 1,
     textAlign: 'left',

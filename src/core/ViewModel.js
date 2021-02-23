@@ -49,6 +49,10 @@ class ViewModel {
     return this.sheetData
   }
 
+  /**
+   * @description 本次操作保存到历史版本中
+   * @param {*} func
+   */
   saveToHistory() {
     this.history.save(this.sheetData)
   }
@@ -567,6 +571,32 @@ class ViewModel {
       ...this.getCellStyle(col, row),
       ...style,
     })
+    this.history.save(this.sheetData)
+  }
+
+  setCellsBorder({ left, right, top, bottom }) {
+    this.sheetData = deepClone(this.sheetData)
+
+    const { row, col, rowCount, colCount } = this.getSelector()
+    const { data } = this.sheetData
+
+    for (let ri = row; ri < row + rowCount; ri += 1) {
+      for (let ci = col; ci < col + colCount; ci += 1) {
+        const { style } = data[ri][ci]
+        style.border = { ...style.border, ...{ left, right, top, bottom } }
+        // 右侧单元格的左边框
+        const rightNeighbor = data[ri][ci + 1]
+        if (rightNeighbor) {
+          rightNeighbor.style.border = { ...rightNeighbor.style.border, ...{ left: right } }
+        }
+        // 下面单元格的上边框
+        if (data[ri + 1]) {
+          const bottomNeighbor = data[ri + 1][ci]
+          bottomNeighbor.style.border = { ...bottomNeighbor.style.border, ...{ top: bottom } }
+        }
+      }
+    }
+
     this.history.save(this.sheetData)
   }
 

@@ -171,7 +171,12 @@ class Toolbar {
 
   setBorderAll() {
     const { sheet } = this
-    sheet.setCellsStyle({ border: { type: 'all', color: 'rgba(100,100,100,1)' } })
+    sheet.setCellsBorder({
+      left: { type: 'solid', color: 'rgba(100,100,100,1)' },
+      right: { type: 'solid', color: 'rgba(100,100,100,1)' },
+      top: { type: 'solid', color: 'rgba(100,100,100,1)' },
+      bottom: { type: 'solid', color: 'rgba(100,100,100,1)' },
+    })
   }
 
   setMergeCell() {

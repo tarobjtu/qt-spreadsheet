@@ -76,28 +76,83 @@ class Painter {
   }
 
   drawCell(cMeta, rMeta, data) {
+    this.drawBackground(cMeta, rMeta, data)
+    this.drawBorder(cMeta, rMeta, data.style)
+    this.drawText(cMeta, rMeta, data)
+  }
+
+  /**
+   * @description 填充单元格背景色
+   * @param {*} cMeta
+   * @param {*} rMeta
+   * @param {*} data
+   */
+  drawBackground(cMeta, rMeta, data) {
     const { ctx, viewModel, theme } = this
     const { scrollX, scrollY } = viewModel.sheetData
-    const { strokeStyle, fillStyle } = theme.default
+    const { fillStyle } = theme.default
+    ctx.save()
+    ctx.fillStyle = data.style?.backgroundColor || fillStyle
+    ctx.fillRect(cMeta.offset - scrollX, rMeta.offset - scrollY, cMeta.size, rMeta.size)
+    ctx.restore()
+  }
 
-    // 绘制边框
-    ctx.strokeStyle = data.style?.border?.color || strokeStyle
+  /**
+   * @description 绘制单元格边框
+   * @param {*} cMeta
+   * @param {*} rMeta
+   * @param {*} style
+   */
+  drawBorder(cMeta, rMeta, style) {
+    const { ctx, theme, viewModel } = this
+    const { scrollX, scrollY } = viewModel.sheetData
+    const { strokeStyle, lineWidth } = theme.default
+    const { border } = style
+
+    ctx.save()
+    ctx.lineWidth = lineWidth
+
+    // top
     ctx.beginPath()
+    ctx.strokeStyle = border?.top?.color || strokeStyle
     ctx.moveTo(cMeta.offset - scrollX, rMeta.offset - scrollY)
     ctx.lineTo(cMeta.offset + cMeta.size - scrollX, rMeta.offset - scrollY)
+    ctx.closePath()
+    ctx.stroke()
+
+    // right
+    ctx.beginPath()
+    ctx.strokeStyle = border?.right?.color || strokeStyle
+    ctx.moveTo(cMeta.offset + cMeta.size - scrollX, rMeta.offset - scrollY)
     ctx.lineTo(cMeta.offset + cMeta.size - scrollX, rMeta.offset + rMeta.size - scrollY)
+    ctx.closePath()
+    ctx.stroke()
+
+    // bottom
+    ctx.beginPath()
+    ctx.strokeStyle = border?.bottom?.color || strokeStyle
+    ctx.moveTo(cMeta.offset + cMeta.size - scrollX, rMeta.offset + rMeta.size - scrollY)
     ctx.lineTo(cMeta.offset - scrollX, rMeta.offset + rMeta.size - scrollY)
+    ctx.closePath()
+    ctx.stroke()
+
+    // left
+    ctx.beginPath()
+    ctx.strokeStyle = border?.left?.color || strokeStyle
+    ctx.moveTo(cMeta.offset - scrollX, rMeta.offset + rMeta.size - scrollY)
     ctx.lineTo(cMeta.offset - scrollX, rMeta.offset - scrollY)
     ctx.closePath()
     ctx.stroke()
 
-    // 填充背景色
-    ctx.fillStyle = data.style?.backgroundColor || fillStyle
-    ctx.fillRect(cMeta.offset - scrollX, rMeta.offset - scrollY, cMeta.size, rMeta.size)
-
-    this.drawText(cMeta, rMeta, data)
+    ctx.restore()
   }
 
+  /**
+   * @description 绘制文本
+   * @param {*} cMeta
+   * @param {*} rMeta
+   * @param {*} data
+   */
   drawText(cMeta, rMeta, data) {
     const { ctx, theme, viewModel } = this
     const { scrollX, scrollY } = viewModel.sheetData
