@@ -45,36 +45,37 @@ class Selector {
 
   bindEvents() {
     this.events = []
-    const mousedown = this.onMousedown.bind(this)
-    const mousemove = throttle(this.onMousemove.bind(this), 100)
-    const mouseup = this.onMouseup.bind(this)
+
     // 自动填充的拖拽事件
-    this.events.push([this.cornerEl, 'mousedown', mousedown])
-    this.events.push([window, 'mousemove', mousemove])
-    this.events.push([window, 'mouseup', mouseup])
-    this.cornerEl.addEventListener('mousedown', mousedown, false)
-    window.addEventListener('mousemove', mousemove, false)
-    window.addEventListener('mouseup', mouseup, false)
+    const cornerDown = this.onAutofillStart.bind(this)
+    const cornerMove = throttle(this.onCornerMove.bind(this), 100)
+    const cornerUp = this.onAutofillEnd.bind(this)
+    this.events.push([this.cornerEl, 'mousedown', cornerDown])
+    this.events.push([window, 'mousemove', cornerMove])
+    this.events.push([window, 'mouseup', cornerUp])
+    this.cornerEl.addEventListener('mousedown', cornerDown, false)
+    window.addEventListener('mousemove', cornerMove, false)
+    window.addEventListener('mouseup', cornerUp, false)
 
     // 自定义事件
     this.sheet.on('scroll', this.position.bind(this))
   }
 
-  onMousedown(e) {
+  onAutofillStart(e) {
     this.cornerActive = true
     document.body.style.userSelect = 'none'
     e.stopPropagation() // 禁止冒泡到canvas上
     this.cornerDisable()
   }
 
-  onMousemove(e) {
+  onCornerMove(e) {
     if (!this.cornerActive) return
     this.mousemoving = true
     const { target, offsetX, offsetY } = e
     this.autofill(offsetX, offsetY, target)
   }
 
-  onMouseup(e) {
+  onAutofillEnd(e) {
     if (!this.cornerActive) return
     this.cornerActive = false
     document.body.style.userSelect = 'auto'
@@ -230,6 +231,14 @@ class Selector {
       height: activeCellBBox.height,
     })
     return this
+  }
+
+  cornerDisable() {
+    this.cornerEl.style.pointerEvents = 'none'
+  }
+
+  cornerEnable() {
+    this.cornerEl.style.pointerEvents = 'all'
   }
 
   show() {
