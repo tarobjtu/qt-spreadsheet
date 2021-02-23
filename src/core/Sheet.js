@@ -73,6 +73,7 @@ class Sheet extends EventEmitter {
       sheet: this,
       container,
       viewModel: this.viewModel,
+      canvas: this.painter.getCanvas(),
     })
     // 初始化编辑器
     this.editor = new Editor({

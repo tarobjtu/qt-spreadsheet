@@ -4,10 +4,11 @@ import { deepClone } from '../utils/common'
 import './selector.scss'
 
 class Selector {
-  constructor({ sheet, container, viewModel }) {
+  constructor({ sheet, container, viewModel, canvas }) {
     this.sheet = sheet
     this.container = container
     this.viewModel = viewModel
+    this.canvas = canvas
 
     this.initElements()
     this.bindEvents()
@@ -44,7 +45,19 @@ class Selector {
   }
 
   bindEvents() {
+    const { canvas } = this
     this.events = []
+
+    // 点选、圈选单元格
+    const mousedown = this.onMousedown.bind(this)
+    const mousemove = throttle(this.onMousemove.bind(this), 100)
+    const mouseup = this.onMouseup.bind(this)
+    this.events.push([canvas, 'mousedown', mousedown])
+    this.events.push([window, 'mousemove', mousemove])
+    this.events.push([window, 'mouseup', mouseup])
+    canvas.addEventListener('mousedown', mousedown, false)
+    window.addEventListener('mousemove', mousemove, false)
+    window.addEventListener('mouseup', mouseup, false)
 
     // 自动填充的拖拽事件
     const cornerDown = this.onAutofillStart.bind(this)
@@ -59,6 +72,63 @@ class Selector {
 
     // 自定义事件
     this.sheet.on('scroll', this.position.bind(this))
+  }
+
+  onMousedown(e) {
+    const { offsetX, offsetY, shiftKey, button } = e
+    if (button === 2) return
+
+    this.startMousedown = true
+
+    // shiftKey + click
+    if (shiftKey) {
+      if (this.startOffsetX === undefined) {
+        const { left, top } = this.viewModel.getSelectedActiveCellBBox()
+        this.startOffsetX = left
+        this.startOffsetY = top
+      }
+      this.sheet.selectCellsByOffset(this.startOffsetX, this.startOffsetY, offsetX, offsetY)
+    } else {
+      this.startOffsetX = offsetX
+      this.startOffsetY = offsetY
+      this.sheet.selectCellsByOffset(offsetX, offsetY)
+    }
+    this.sheet.emit('startSelectCell')
+  }
+
+  onMousemove(e) {
+    if (!this.startMousedown) return
+    this.mousemoving = true
+
+    const { startOffsetX, startOffsetY } = this
+    const { offsetLeft, offsetTop } = this.container
+    const { clientX, clientY } = e
+    this.sheet.selectCellsByOffset(
+      startOffsetX,
+      startOffsetY,
+      clientX - offsetLeft,
+      clientY - offsetTop
+    )
+    this.sheet.emit('SelectingCell')
+  }
+
+  onMouseup(e) {
+    if (!this.startMousedown) return
+    this.startMousedown = false
+    this.sheet.emit('endSelectCell')
+
+    if (this.mousemoving) {
+      this.mousemoving = false
+      const { startOffsetX, startOffsetY } = this
+      const { offsetLeft, offsetTop } = this.container
+      const { clientX, clientY } = e
+      this.sheet.selectCellsByOffset(
+        startOffsetX,
+        startOffsetY,
+        clientX - offsetLeft,
+        clientY - offsetTop
+      )
+    }
   }
 
   onAutofillStart(e) {

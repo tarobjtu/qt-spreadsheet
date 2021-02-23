@@ -30,21 +30,18 @@ class Events extends EventEmitter {
     const click = this.onClick.bind(this)
     const keydown = this.onKeydown.bind(this)
     const mousedown = this.onMousedown.bind(this)
-    const mousemove = throttle(this.onMousemove.bind(this), 100)
     const mouseup = this.onMouseup.bind(this)
 
     this.events.push([window, 'resize', resize])
     this.events.push([window, 'click', click])
     this.events.push([document, 'keydown', keydown])
     this.events.push([canvas, 'mousedown', mousedown])
-    this.events.push([window, 'mousemove', mousemove])
     this.events.push([window, 'mouseup', mouseup])
 
     window.addEventListener('resize', resize)
     window.addEventListener('click', click, false)
     document.addEventListener('keydown', keydown, false)
     canvas.addEventListener('mousedown', mousedown, false)
-    window.addEventListener('mousemove', mousemove, false)
     window.addEventListener('mouseup', mouseup, false)
   }
 
@@ -170,60 +167,15 @@ class Events extends EventEmitter {
   }
 
   onMousedown(e) {
-    const { offsetX, offsetY, shiftKey, button } = e
+    const { button } = e
     if (button === 2) return
-
     this.startMousedown = true
-
-    // shiftKey + click
-    if (shiftKey) {
-      if (this.startOffsetX === undefined) {
-        const { left, top } = this.viewModel.getSelectedActiveCellBBox()
-        this.startOffsetX = left
-        this.startOffsetY = top
-      }
-      this.sheet.selectCellsByOffset(this.startOffsetX, this.startOffsetY, offsetX, offsetY)
-    } else {
-      this.startOffsetX = offsetX
-      this.startOffsetY = offsetY
-      this.sheet.selectCellsByOffset(offsetX, offsetY)
-    }
-    this.sheet.emit('startSelectCell')
-  }
-
-  onMousemove(e) {
-    if (!this.startMousedown) return
-    this.mousemoving = true
-
-    const { startOffsetX, startOffsetY } = this
-    const { offsetLeft, offsetTop } = this.container
-    const { clientX, clientY } = e
-    this.sheet.selectCellsByOffset(
-      startOffsetX,
-      startOffsetY,
-      clientX - offsetLeft,
-      clientY - offsetTop
-    )
-    this.sheet.emit('SelectingCell')
   }
 
   onMouseup(e) {
     if (!this.startMousedown) return
     this.startMousedown = false
-    this.sheet.emit('endSelectCell')
 
-    if (this.mousemoving) {
-      this.mousemoving = false
-      const { startOffsetX, startOffsetY } = this
-      const { offsetLeft, offsetTop } = this.container
-      const { clientX, clientY } = e
-      this.sheet.selectCellsByOffset(
-        startOffsetX,
-        startOffsetY,
-        clientX - offsetLeft,
-        clientY - offsetTop
-      )
-    }
     // 鼠标双击
     if (this.mouseupTiming === undefined) this.mouseupTiming = 0
     if (Date.now() - this.mouseupTiming < 300) {
