@@ -9,6 +9,7 @@ class Clipboard {
     this.state = ''
 
     this.initElements()
+    this.bindEvents()
   }
 
   destroy() {
@@ -26,6 +27,11 @@ class Clipboard {
     this.clipboardEl = document.createElement('div')
     this.clipboardEl.classList.add('qt-spreadsheet-clipboard')
     container.appendChild(this.clipboardEl)
+  }
+
+  bindEvents() {
+    // 自定义事件
+    this.sheet.on('scroll', this.position.bind(this))
   }
 
   copy(clips) {
