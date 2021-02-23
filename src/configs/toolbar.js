@@ -105,12 +105,28 @@ export default [
     name: '换行',
     icon: 'assets/icons/word-wrap.png',
   },
-
   {
     key: 'merge-cell',
     name: '合并单元格',
     icon: 'assets/icons/merge-cell.png',
-    disable: true,
+  },
+  {
+    key: 'divider',
+  },
+  {
+    key: 'freeze-all',
+    name: '冻结行与列',
+    icon: 'assets/icons/freeze-all.png',
+  },
+  {
+    key: 'freeze-row',
+    name: '冻结行',
+    icon: 'assets/icons/freeze-row.png',
+  },
+  {
+    key: 'freeze-column',
+    name: '冻结列',
+    icon: 'assets/icons/freeze-column.png',
   },
   {
     key: 'divider',

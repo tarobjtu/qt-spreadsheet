@@ -93,6 +93,7 @@ class Toolbar {
     const itemKey = target.getAttribute('data-item-key')
     if (itemKey) {
       const action = 'set' + upperFirst(itemKey)
+      console.warn(action)
       if (this[action]) this[action](itemKey)
     }
   }
@@ -171,6 +172,11 @@ class Toolbar {
   setBorderAll() {
     const { sheet } = this
     sheet.setCellsStyle({ border: { type: 'all', color: 'rgba(100,100,100,1)' } })
+  }
+
+  setMergeCell() {
+    const selections = this.viewModel.getSelector()
+    this.sheet.mergeCell(selections)
   }
 }
 

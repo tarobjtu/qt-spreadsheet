@@ -149,6 +149,19 @@ class Sheet extends EventEmitter {
     this.emit('delete')
   }
 
+  /**
+   * @description 合并单元格
+   * @param {*} selections 选中的单元格
+   * @param {*} selections.row 选中的起始行
+   * @param {*} selections.col 选中的起始列
+   * @param {*} selections.rowCount 选中的行数
+   * @param {*} selections.colCount 选中的列数
+   */
+  mergeCell({ row, col, rowCount, colCount }) {
+    this.viewModel.mergeCell({ row, col, rowCount, colCount })
+    this.draw()
+  }
+
   getData() {
     return this.viewModel.getSheetData()
   }
