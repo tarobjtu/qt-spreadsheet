@@ -1,4 +1,5 @@
 import isEqual from 'lodash/isEqual'
+import without from 'lodash/without'
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
 import { overlap, mergeCellRanges } from '../utils/canvas'
@@ -909,7 +910,19 @@ class ViewModel {
 
   mergeCell({ row, col, rowCount, colCount }) {
     this.saveLastSelectorStatus()
-    this.sheetData = update.$push(this.sheetData, 'mergedCells', [{ row, col, rowCount, colCount }])
+    const overlapMergedCells = this.getOverlapMergedCells({ row, col, rowCount, colCount })
+    // 待合并的单元格里包含了mergedCell的场景
+    if (overlapMergedCells.length > 0) {
+      let newMergedCells = without(this.getMergedCells(), ...overlapMergedCells)
+      newMergedCells = deepClone(newMergedCells)
+      newMergedCells.push({ row, col, rowCount, colCount })
+      this.sheetData = update.$set(this.sheetData, 'mergedCells', newMergedCells)
+    } else {
+      this.sheetData = update.$push(this.sheetData, 'mergedCells', [
+        { row, col, rowCount, colCount },
+      ])
+    }
+
     // TODO 删除单元格信息（除第一个）
     this.history.save(this.sheetData)
   }
