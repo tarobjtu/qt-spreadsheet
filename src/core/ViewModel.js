@@ -343,6 +343,18 @@ class ViewModel {
    */
   getSelectedActiveCellBBox() {
     const { activeCol, activeRow } = this.getSelector()
+    const mergedCells = this.getOverlapMergedCells({ col: activeCol, row: activeRow })
+    // merged cell
+    if (mergedCells.length > 0) {
+      const mc = mergedCells[0]
+      return this.getCellsBBox({
+        col: mc.col,
+        row: mc.row,
+        colCount: mc.colCount,
+        rowCount: mc.rowCount,
+      })
+    }
+    // normal cell
     return this.getCellsBBox({ col: activeCol, row: activeRow, colCount: 1, rowCount: 1 })
   }
 

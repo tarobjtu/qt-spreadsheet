@@ -89,6 +89,21 @@ export default [
     key: 'divider',
   },
   {
+    key: 'merge-cell',
+    name: '合并单元格',
+    icon: '',
+    scope: ['cell'],
+  },
+  {
+    key: 'cancel-merge-cell',
+    name: '拆分单元格',
+    icon: '',
+    scope: ['cell'],
+  },
+  {
+    key: 'divider',
+  },
+  {
     key: 'clear-all',
     name: '清除全部',
     icon: '',

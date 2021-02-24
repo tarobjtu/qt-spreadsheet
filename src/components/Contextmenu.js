@@ -80,7 +80,7 @@ class Contextmenu {
     const targetCell = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
     this.targetCell = targetCell
     this.setTargetRange(targetCell)
-    this.filterItems(targetCell.type)
+    this.filterItems(targetCell.type, targetCell.mergedCell)
     this.show().position({ offsetX, offsetY })
   }
 
@@ -228,6 +228,10 @@ class Contextmenu {
     return this
   }
 
+  /**
+   * @description 过滤菜单项，不同类型的单元格适配不同的菜单项
+   * @param {*} type
+   */
   filterItems(type) {
     const { col, row, colCount, rowCount } = this.viewModel.getSelector()
     Object.keys(this.itemEls).forEach((key) => {
@@ -235,6 +239,7 @@ class Contextmenu {
       const { symbolType, scope, name } = itemConfig
       const itemEl = this.itemEls[key]
       if (scope.find((s) => s === type)) {
+        // TODO 菜单增加合并单元格、拆分单元格的互斥逻辑
         itemEl.style.display = 'flex'
         if (symbolType === 'colHeader') {
           itemEl.innerHTML = name
@@ -270,7 +275,7 @@ class Contextmenu {
         cell.row < row ||
         cell.row > row + rowCount - 1
       ) {
-        this.sheet.selectCell(cell.col, cell.row)
+        this.sheet.selectCell(cell.col, cell.row, cell.colCount, cell.rowCount)
       }
     } else if (cell.type === 'colHeader') {
       // 不在区域中
