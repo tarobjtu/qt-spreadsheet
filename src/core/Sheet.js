@@ -513,8 +513,8 @@ class Sheet extends EventEmitter {
    * @param {*} col 选中的单元格列位置
    * @param {*} row 选中的单元格行位置
    */
-  selectCell(col = 0, row = 0) {
-    this.selectCells({ col, row, colCount: 1, rowCount: 1, activeCol: col, activeRow: row })
+  selectCell(col = 0, row = 0, colCount = 1, rowCount = 1) {
+    this.selectCells({ col, row, colCount, rowCount, activeCol: col, activeRow: row })
   }
 
   /**
@@ -567,7 +567,7 @@ class Sheet extends EventEmitter {
 
     // 点击选择
     if (endOffsetX === undefined || endOffsetY === undefined) {
-      const { col, row } = this.viewModel.getCellByOffset(
+      const { col, row, colCount, rowCount } = this.viewModel.getCellByOffset(
         startOffsetX + scrollX,
         startOffsetY + scrollY
       )
@@ -584,7 +584,7 @@ class Sheet extends EventEmitter {
           this.selectRows(row)
           break
         case 'cell':
-          this.selectCell(col, row)
+          this.selectCell(col, row, colCount, rowCount)
           break
         default:
           break
@@ -592,12 +592,16 @@ class Sheet extends EventEmitter {
       /* eslint-enable */
     } else {
       // 圈选
-      const { col, row, colCount, rowCount } = this.viewModel.getRectCellRange({
-        left: Math.min(startOffsetX, endOffsetX) + scrollX,
-        top: Math.min(startOffsetY, endOffsetY) + scrollY,
-        width: Math.abs(startOffsetX - endOffsetX),
-        height: Math.abs(startOffsetY - endOffsetY),
-      })
+      const includeMergedCell = true
+      const { col, row, colCount, rowCount } = this.viewModel.getRectCellRange(
+        {
+          left: Math.min(startOffsetX, endOffsetX) + scrollX,
+          top: Math.min(startOffsetY, endOffsetY) + scrollY,
+          width: Math.abs(startOffsetX - endOffsetX),
+          height: Math.abs(startOffsetY - endOffsetY),
+        },
+        includeMergedCell
+      )
 
       /* eslint-disable */
       switch (startCellType) {

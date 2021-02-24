@@ -57,6 +57,11 @@ export function directionToRect(rect, mousePosition) {
   return dir
 }
 
+/**
+ * @description 两个选择器范围合并
+ * @param {*} s1
+ * @param {*} s2
+ */
 export function mergeSelector(s1 = {}, s2 = {}) {
   return {
     col: Math.min(s1.col, s2.col),
@@ -71,16 +76,42 @@ export function mergeSelector(s1 = {}, s2 = {}) {
 }
 
 /**
+ * @description 合并多个区域的范围，一般指多个合并单元格区域
+ * @param {*} cellRanges
+ * @returns {cellRange} 一个新的涵盖cellRanges列表所有区域的最小范围
+ */
+export function mergeCellRanges(cellRanges = []) {
+  let minCol = Infinity
+  let minRow = Infinity
+  let maxCol = -Infinity
+  let maxRow = -Infinity
+
+  cellRanges.forEach(({ col, colCount, row, rowCount }) => {
+    minCol = Math.min(minCol, col)
+    minRow = Math.min(minRow, row)
+    maxCol = Math.max(maxCol, col + colCount - 1)
+    maxRow = Math.max(maxRow, row + rowCount - 1)
+  })
+
+  return {
+    col: Math.max(minCol, 0),
+    row: Math.max(minRow, 0),
+    colCount: Math.max(maxCol - minCol + 1, 1),
+    rowCount: Math.max(maxRow - minRow + 1, 1),
+  }
+}
+
+/**
  * @description 两个区域是否有重叠
  * @param {*} r1
  * @param {*} r2
  */
 export function overlap(r1, r2) {
   if (
-    r1.col + r1.colCount < r2.col ||
-    r1.col > r2.col + r2.colCount ||
-    r1.row + r1.rowCount < r2.row ||
-    r1.row > r2.row + r2.rowCount
+    r1.col + r1.colCount - 1 < r2.col ||
+    r1.col > r2.col + r2.colCount - 1 ||
+    r1.row + r1.rowCount - 1 < r2.row ||
+    r1.row > r2.row + r2.rowCount - 1
   ) {
     return false
   }

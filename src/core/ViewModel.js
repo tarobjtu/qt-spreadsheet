@@ -1,8 +1,10 @@
 import isEqual from 'lodash/isEqual'
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
+import { overlap, mergeCellRanges } from '../utils/canvas'
 import {
   EMPTY_CELL,
+  DEFAULT_CELL_RANGE,
   emptyData,
   insertMeta,
   deleteMeta,
@@ -73,6 +75,10 @@ class ViewModel {
     if (!isEqual(lastSelector, curSelector)) {
       this.saveToHistory()
     }
+  }
+
+  getMergedCells() {
+    return this.sheetData.mergedCells
   }
 
   /**
@@ -283,18 +289,28 @@ class ViewModel {
 
   /**
    * @description 获取一个矩形区域内的所有单元格
-   * @param {*} param0
+   * @param {*} cellRange
+   * @param {boolean} includeMergedCell 是否包含合并单元格
    */
-  getRectCellRange({ left, top, width, height }) {
+  getRectCellRange({ left, top, width, height }, includeMergedCell) {
     const start = this.getCellByOffset(left, top)
     const end = this.getCellByOffset(left + width, top + height)
 
-    return {
+    let cellRange = {
       row: start.row,
       col: start.col,
       rowCount: end.row - start.row + 1,
       colCount: end.col - start.col + 1,
     }
+
+    if (includeMergedCell) {
+      const mergedCells = this.getOverlapMergedCells(cellRange)
+      if (mergedCells.length > 0) {
+        cellRange = mergeCellRanges([].concat(mergedCells, cellRange))
+      }
+    }
+
+    return cellRange
   }
 
   /**
@@ -363,9 +379,26 @@ class ViewModel {
       }
     }
 
+    const col = this.getColByOffset(left)
+    const row = this.getRowByOffset(top)
+    const mergedCells = this.getOverlapMergedCells({ col, row })
+
+    // 合并单元格的情况
+    if (mergedCells.length > 0) {
+      const mc = mergedCells[0] // row、col只能命中一个合并单元格
+      return {
+        col: mc.col,
+        row: mc.row,
+        colCount: mc.colCount,
+        rowCount: mc.rowCount,
+        type: 'cell',
+        mergedCell: true,
+      }
+    }
+
     return {
-      col: this.getColByOffset(left),
-      row: this.getRowByOffset(top),
+      col,
+      row,
       type: 'cell',
     }
   }
@@ -859,6 +892,24 @@ class ViewModel {
     this.sheetData = update.$push(this.sheetData, 'mergedCells', [{ row, col, rowCount, colCount }])
     // TODO 删除单元格信息（除第一个）
     this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 获得一个范围内覆盖到的合并单元格
+   * @param {CellRange} cellRange {row, col, rowCount, colCount}
+   * @returns {Array} mergedCells 覆盖到的合并单元格数组
+   */
+  getOverlapMergedCells(cellRange) {
+    const allMergedCells = this.getMergedCells()
+    const overlapingMC = []
+    const cr = { ...DEFAULT_CELL_RANGE, ...cellRange }
+    allMergedCells.forEach((mc) => {
+      if (overlap(mc, cr)) {
+        overlapingMC.push(mc)
+      }
+    })
+
+    return overlapingMC
   }
 }
 
