@@ -314,7 +314,7 @@ class ViewModel {
   }
 
   /**
-   * @description 获取一组cells的区域信息
+   * @description 获取一组单元格的区域尺寸信息
    * @param {*} param0
    */
   getCellsBBox({ col, row, colCount, rowCount }) {
@@ -331,6 +331,26 @@ class ViewModel {
   }
 
   /**
+   * @description 获取一个单元格的区域尺寸信息
+   * @param {*} param0
+   */
+  getCellBBox({ col, row }) {
+    const mergedCells = this.getOverlapMergedCells({ col, row })
+    // merged cell
+    if (mergedCells.length > 0) {
+      const mc = mergedCells[0]
+      return this.getCellsBBox({
+        col: mc.col,
+        row: mc.row,
+        colCount: mc.colCount,
+        rowCount: mc.rowCount,
+      })
+    }
+    // normal cell
+    return this.getCellsBBox({ col, row, colCount: 1, rowCount: 1 })
+  }
+
+  /**
    * @description 获取选中区域的坐标信息
    */
   getSelectedCellsBBox() {
@@ -343,19 +363,7 @@ class ViewModel {
    */
   getSelectedActiveCellBBox() {
     const { activeCol, activeRow } = this.getSelector()
-    const mergedCells = this.getOverlapMergedCells({ col: activeCol, row: activeRow })
-    // merged cell
-    if (mergedCells.length > 0) {
-      const mc = mergedCells[0]
-      return this.getCellsBBox({
-        col: mc.col,
-        row: mc.row,
-        colCount: mc.colCount,
-        rowCount: mc.rowCount,
-      })
-    }
-    // normal cell
-    return this.getCellsBBox({ col: activeCol, row: activeRow, colCount: 1, rowCount: 1 })
+    return this.getCellBBox({ col: activeCol, row: activeRow })
   }
 
   /**

@@ -246,16 +246,16 @@ class Painter {
 
   getTextBBox(col, row) {
     const { ctx, theme, viewModel } = this
-    const { scrollX, scrollY, colsMeta, rowsMeta } = viewModel.sheetData
+    const { scrollX, scrollY } = viewModel.sheetData
     const data = viewModel.getCellData(col, row)
-    const cMeta = colsMeta[col]
-    const rMeta = rowsMeta[row]
+    const cellBBox = viewModel.getCellBBox({ col, row })
 
     const { value, style } = data
-    const offsetX = cMeta.offset
-    const offsetY = rMeta.offset
-    const cellWidth = cMeta.size
-    const cellHeight = rMeta.size
+
+    const offsetX = cellBBox.left
+    const offsetY = cellBBox.top
+    const cellWidth = cellBBox.width
+    const cellHeight = cellBBox.height
     const { paddingLeft, paddingRight } = theme.cellPadding
     const borderWidth = 2
     const fontSize = style.fontSize || theme.default.fontSize
