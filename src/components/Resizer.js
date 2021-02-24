@@ -87,23 +87,27 @@ class Resizer {
   resizerPosition(e) {
     // 如果已经在Resize拖拽中，停止定位
     if (this.resizing) return
-
     const { target, offsetX, offsetY } = e
-    const { scrollX, scrollY } = this.viewModel.getSheetData()
 
     if (this.canvas.contains(target)) {
-      const { col, row, type } = this.viewModel.getCellByOffset(
-        offsetX + scrollX,
-        offsetY + scrollY
-      )
-      const { left, top } = this.viewModel.getCellsBBox({
-        col,
-        row,
-        colCount: 1,
-        rowCount: 1,
-      })
-      this.currentCRCell = { col, row, left, top, type }
-      this.position({ type, col, row, scrollX, scrollY })
+      const { colHeaderHeight, rowHeaderWidth } = this.theme
+
+      // 只考虑行头、列头的情况
+      if (offsetX < rowHeaderWidth || offsetY < colHeaderHeight) {
+        const { scrollX, scrollY } = this.viewModel.getSheetData()
+        const { col, row, type } = this.viewModel.getCellByOffset(
+          offsetX + scrollX,
+          offsetY + scrollY
+        )
+        const { left, top } = this.viewModel.getCellsBBox({
+          col,
+          row,
+          colCount: 1,
+          rowCount: 1,
+        })
+        this.currentCRCell = { col, row, left, top, type }
+        this.position({ type, col, row, scrollX, scrollY })
+      }
     }
   }
 

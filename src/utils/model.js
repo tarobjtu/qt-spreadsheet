@@ -3,6 +3,7 @@ import isObject from 'lodash/isObject'
 import { deepClone } from './common'
 
 export const EMPTY_CELL = { style: {}, value: '' }
+export const DEFAULT_CELL_RANGE = { row: 0, col: 0, rowCount: 1, colCount: 1 }
 
 function defaultCRMeta({ size, count, headerOffset }) {
   const crMeta = []
