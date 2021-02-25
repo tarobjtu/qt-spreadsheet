@@ -83,6 +83,10 @@ class ViewModel {
     return this.sheetData.mergedCells
   }
 
+  setMergedCells(mergedCells) {
+    this.sheetData.mergedCells = mergedCells
+  }
+
   /**
    * @description 更新选中区域或单元格信息
    */
@@ -666,19 +670,19 @@ class ViewModel {
     this.history.save(this.sheetData)
   }
 
-  paste(clips, state) {
-    this.pasteDeepClone(clips, state)
+  paste(clipRange, state) {
+    this.pasteDeepClone(clipRange, state)
     // perf(() => {
-    //   this.pasteDeepClone(clips, state)
+    //   this.pasteDeepClone(clipRange, state)
     // }, 'paste')
   }
 
-  pasteDeepClone(clips, state) {
+  pasteDeepClone(clipRange, state) {
     const { activeCol, activeRow } = this.getSelector()
-    const { col, row, colCount, rowCount } = clips
+    const { col, row, colCount, rowCount } = clipRange
 
     this.setSelector({ col: activeCol, row: activeRow, activeCol, activeRow, colCount, rowCount })
-    this.history.save(this.sheetData)
+    this.saveLastSelectorStatus()
 
     this.sheetData = deepClone(this.sheetData)
 
@@ -686,8 +690,8 @@ class ViewModel {
 
     for (let ri = row; ri < row + rowCount; ri += 1) {
       for (let ci = col; ci < col + colCount; ci += 1) {
-        const colPointer = ci - col
-        const rowPointer = ri - row
+        const colPointer = ci - col // 相对起始列的偏移量
+        const rowPointer = ri - row // 相对起始行的偏移量
         const tempData = deepClone(data[ri][ci])
 
         if (state === 'cut') {
@@ -702,6 +706,27 @@ class ViewModel {
           }
         }
         data[activeRow + rowPointer][activeCol + colPointer] = tempData
+      }
+    }
+
+    // merged cells case
+    const overlapMergedCells = this.getOverlapMergedCells(clipRange)
+    if (overlapMergedCells.length > 0) {
+      let mergedCells = this.getMergedCells()
+      overlapMergedCells.forEach((omc) => {
+        const colPointer = omc.col - col // 相对起始列的偏移量
+        const rowPointer = omc.row - row // 相对起始行的偏移量
+        mergedCells.push({
+          col: activeCol + colPointer,
+          row: activeRow + rowPointer,
+          colCount: omc.colCount,
+          rowCount: omc.rowCount,
+        })
+      })
+
+      if (state === 'cut') {
+        mergedCells = without(mergedCells, ...overlapMergedCells)
+        this.setMergedCells(mergedCells)
       }
     }
 

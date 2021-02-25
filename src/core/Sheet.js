@@ -132,8 +132,8 @@ class Sheet extends EventEmitter {
     if (!this.clipboard.canPaste()) return
 
     const state = this.clipboard.getState()
-    const selections = this.clipboard.getClipboardData()
-    this.viewModel.paste(selections, state)
+    const clipRange = this.clipboard.getClipboardData()
+    this.viewModel.paste(clipRange, state)
     if (state === 'cut') {
       this.clipboard.stopPaste()
     }
