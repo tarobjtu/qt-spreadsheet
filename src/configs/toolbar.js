@@ -111,9 +111,9 @@ export default [
     icon: 'assets/icons/merge-cell.png',
   },
   {
-    key: 'cancel-merge',
+    key: 'cancel-merge-cell',
     name: '取消合并单元格',
-    icon: 'assets/icons/cancel-merge.png',
+    icon: 'assets/icons/cancel-merge-cell.png',
   },
 
   {

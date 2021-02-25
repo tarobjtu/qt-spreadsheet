@@ -12,6 +12,7 @@ import {
   changeMetaSize,
   hideMeta,
   cancelHideMeta,
+  clearCellsData,
 } from '../utils/model'
 
 /**
@@ -501,14 +502,11 @@ class ViewModel {
   }
 
   clearCellsData({ col, colCount, row, rowCount }) {
+    this.saveLastSelectorStatus()
     this.sheetData = deepClone(this.sheetData)
 
     const { data } = this.sheetData
-    for (let ri = row; ri < row + rowCount; ri += 1) {
-      for (let ci = col; ci < col + colCount; ci += 1) {
-        data[ri][ci] = EMPTY_CELL
-      }
-    }
+    clearCellsData(data, { col, colCount, row, rowCount })
 
     this.history.save(this.sheetData)
   }
@@ -910,20 +908,24 @@ class ViewModel {
 
   mergeCell({ row, col, rowCount, colCount }) {
     this.saveLastSelectorStatus()
+
+    this.sheetData = deepClone(this.sheetData)
+
     const overlapMergedCells = this.getOverlapMergedCells({ row, col, rowCount, colCount })
     // 嵌套单元格合并：待合并的单元格里包含了mergedCell的场景
     if (overlapMergedCells.length > 0) {
       let newMergedCells = without(this.getMergedCells(), ...overlapMergedCells)
       newMergedCells = deepClone(newMergedCells)
       newMergedCells.push({ row, col, rowCount, colCount })
-      this.sheetData = update.$set(this.sheetData, 'mergedCells', newMergedCells)
+      this.sheetData.mergedCells = newMergedCells
     } else {
-      this.sheetData = update.$push(this.sheetData, 'mergedCells', [
-        { row, col, rowCount, colCount },
-      ])
+      this.sheetData.mergedCells.push({ row, col, rowCount, colCount })
     }
 
-    // TODO 删除单元格信息（除第一个）
+    // 删除单元格信息（除第一个）
+    const { data } = this.sheetData
+    clearCellsData(data, { col, colCount, row, rowCount }, { col, row })
+
     this.history.save(this.sheetData)
   }
 

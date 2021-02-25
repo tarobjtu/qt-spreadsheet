@@ -215,10 +215,37 @@ export function getRangeMeta(meta, position, count) {
   }
 }
 
+/**
+ * @description 清除单元格信息
+ * @param {*} cellsData
+ * @param {*} cellRange 待清除的单元格范围
+ * @param {*} cellRange.row 选中的起始行
+ * @param {*} cellRange.col 选中的起始列
+ * @param {*} cellRange.rowCount 选中的行数
+ * @param {*} cellRange.colCount 选中的列数
+ * @param {*} without 不被清除的单元格
+ */
+export function clearCellsData(cellsData, cellRange, without = {}) {
+  const data = cellsData
+  const { col, colCount, row, rowCount } = cellRange
+
+  for (let ri = row; ri < row + rowCount; ri += 1) {
+    for (let ci = col; ci < col + colCount; ci += 1) {
+      if (without.col === ci && without.row === ri) {
+        // eslint-disable-next-line no-continue
+        continue
+      }
+      data[ri][ci] = EMPTY_CELL
+    }
+  }
+  return data
+}
+
 export default {
   getSheetData,
   emptyData,
   insertMeta,
   deleteMeta,
   changeMetaSize,
+  clearCellsData,
 }
