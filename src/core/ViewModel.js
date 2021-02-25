@@ -2,7 +2,7 @@ import isEqual from 'lodash/isEqual'
 import without from 'lodash/without'
 import update from '../utils/immutability-helper-y'
 import { deepClone, perf } from '../utils/common'
-import { overlap, mergeCellRanges } from '../utils/canvas'
+import { overlap, mergeCellRanges, overlapRange } from '../utils/canvas'
 import {
   EMPTY_CELL,
   DEFAULT_CELL_RANGE,
@@ -766,6 +766,9 @@ class ViewModel {
       rowCount,
     })
 
+    // refresh merged cells when row number changed
+    this.refreshMergedCellsWhenInsert(position, rowCount, 'row')
+
     this.history.save(this.sheetData)
   }
 
@@ -805,6 +808,9 @@ class ViewModel {
       rowCount,
     })
 
+    // refresh merged cells when col number changed
+    this.refreshMergedCellsWhenInsert(position, colCount, 'col')
+
     this.history.save(this.sheetData)
   }
 
@@ -821,6 +827,9 @@ class ViewModel {
     deleteMeta(rowsMeta, startRow, rowCount)
     // delete data
     data.splice(startRow, rowCount)
+
+    // refresh merged cells when row number changed
+    this.refreshMergedCellsWhenDelete(startRow, rowCount, 'row')
 
     this.history.save(this.sheetData)
   }
@@ -841,6 +850,9 @@ class ViewModel {
     for (let ri = 0; ri < rowCount; ri += 1) {
       data[ri].splice(startCol, colCount)
     }
+
+    // refresh merged cells when col number changed
+    this.refreshMergedCellsWhenDelete(startCol, colCount, 'col')
 
     this.history.save(this.sheetData)
   }
@@ -984,6 +996,101 @@ class ViewModel {
     })
 
     return overlapingMC
+  }
+
+  /**
+   * @description refresh merged cells when row or column number changed
+   * @param {*} start start row | col number
+   * @param {*} count row | col count
+   * @param {*} direction row or col
+   */
+  refreshMergedCellsWhenInsert(start, count, direction) {
+    const allMergedCells = this.getMergedCells()
+    allMergedCells.forEach(({ col, row, colCount, rowCount }, index) => {
+      const mc = allMergedCells[index]
+      if (direction === 'row') {
+        // through merged cell
+        if (start > row && start <= row + rowCount - 1) {
+          mc.rowCount += count
+        } else if (start <= row) {
+          // start row above merged cell
+          mc.row += count
+        }
+      } else if (direction === 'col') {
+        // through merged cell
+        if (start > col && start <= col + colCount - 1) {
+          mc.colCount += count
+        } else if (start <= col) {
+          // to the left of merged cell
+          mc.col += count
+        }
+      }
+    })
+  }
+
+  /**
+   * @description refresh merged cells when row or column number changed
+   * @param {*} start start row | col number
+   * @param {*} count row | col count
+   * @param {*} direction row or col
+   */
+  refreshMergedCellsWhenDelete(start, count, direction) {
+    let allMergedCells = this.getMergedCells()
+    const waitingToDelete = []
+    allMergedCells.forEach((mergedCell) => {
+      const mc = mergedCell
+      if (direction === 'row') {
+        // end row above merged cell
+        if (start + count - 1 < mc.row) {
+          mc.row -= count
+        } else {
+          const olRange = overlapRange({ start: mc.row, count: mc.rowCount }, { start, count })
+          if (olRange) {
+            // if merged cell delete
+            if (olRange.count === mc.rowCount) {
+              waitingToDelete.push(mc)
+            }
+            // 如果合并单元格删的只剩一行，并且合并单元格只有一列，等同于合并单元格被删除
+            else if (olRange.count === mc.rowCount - 1 && mc.colCount === 1) {
+              waitingToDelete.push(mc)
+            }
+            // 合并单元格上半部分被删除
+            else if (olRange.start === mc.row) {
+              mc.row -= olRange.count
+              mc.rowCount -= olRange.count
+            } else {
+              mc.rowCount -= olRange.count
+            }
+          }
+        }
+      } else if (direction === 'col') {
+        // end col to the left of merged cell
+        if (start + count - 1 < mc.col) {
+          mc.col -= count
+        } else {
+          const olRange = overlapRange({ start: mc.col, count: mc.colCount }, { start, count })
+          if (olRange) {
+            // if merged cell delete
+            if (olRange.count === mc.colCount) {
+              waitingToDelete.push(mc)
+            }
+            // 如果合并单元格删的只剩一列，并且合并单元格只有一行，等同于合并单元格被删除
+            else if (olRange.count === mc.colCount - 1 && mc.rowCount === 1) {
+              waitingToDelete.push(mc)
+            }
+            // 合并单元格的左半部分被删除
+            else if (olRange.start === mc.col) {
+              mc.col -= olRange.count
+              mc.colCount -= olRange.count
+            } else {
+              mc.colCount -= olRange.count
+            }
+          }
+        }
+      }
+    })
+    allMergedCells = without(allMergedCells, ...waitingToDelete)
+    this.setMergedCells(allMergedCells)
   }
 }
 

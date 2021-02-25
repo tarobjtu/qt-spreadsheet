@@ -118,6 +118,29 @@ export function overlap(r1, r2) {
   return true
 }
 
+/**
+ * @description 重叠的单元格范围
+ * @param {*} source: source
+ * @param {*} source.start: start cell position
+ * @param {*} source.count: cell number
+ * @param {*} target: target
+ * @param {*} target.start: start cell position
+ * @param {*} target.count: cell number
+ */
+export function overlapRange(source, target) {
+  const range = []
+  for (let i = source.start; i < source.start + source.count - 1; i += 1) {
+    if (i >= target.start && i <= target.start + target.count - 1) {
+      range.push(i)
+    }
+  }
+
+  return {
+    start: range[0],
+    count: range.length,
+  }
+}
+
 export default {
   font,
 }
