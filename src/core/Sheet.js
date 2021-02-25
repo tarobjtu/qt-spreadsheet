@@ -163,6 +163,19 @@ class Sheet extends EventEmitter {
     this.draw()
   }
 
+  /**
+   * @description 取消合并单元格
+   * @param {*} selections 选中的单元格
+   * @param {*} selections.row 选中的起始行
+   * @param {*} selections.col 选中的起始列
+   * @param {*} selections.rowCount 选中的行数
+   * @param {*} selections.colCount 选中的列数
+   */
+  cancelMergeCell({ row, col, rowCount, colCount }) {
+    this.viewModel.cancelMergeCell({ row, col, rowCount, colCount })
+    this.draw()
+  }
+
   getData() {
     return this.viewModel.getSheetData()
   }

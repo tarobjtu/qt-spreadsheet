@@ -198,6 +198,16 @@ class Contextmenu {
     }
   }
 
+  onMergeCell() {
+    const selections = this.viewModel.getSelector()
+    this.sheet.mergeCell(selections)
+  }
+
+  onCancelMergeCell() {
+    const selections = this.viewModel.getSelector()
+    this.sheet.cancelMergeCell(selections)
+  }
+
   position({ offsetX, offsetY }) {
     let left = offsetX
     let top = offsetY

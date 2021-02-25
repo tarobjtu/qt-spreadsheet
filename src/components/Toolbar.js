@@ -183,6 +183,11 @@ class Toolbar {
     const selections = this.viewModel.getSelector()
     this.sheet.mergeCell(selections)
   }
+
+  setCancelMergeCell() {
+    const selections = this.viewModel.getSelector()
+    this.sheet.cancelMergeCell(selections)
+  }
 }
 
 export default Toolbar

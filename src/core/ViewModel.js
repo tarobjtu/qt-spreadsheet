@@ -911,7 +911,7 @@ class ViewModel {
   mergeCell({ row, col, rowCount, colCount }) {
     this.saveLastSelectorStatus()
     const overlapMergedCells = this.getOverlapMergedCells({ row, col, rowCount, colCount })
-    // 待合并的单元格里包含了mergedCell的场景
+    // 嵌套单元格合并：待合并的单元格里包含了mergedCell的场景
     if (overlapMergedCells.length > 0) {
       let newMergedCells = without(this.getMergedCells(), ...overlapMergedCells)
       newMergedCells = deepClone(newMergedCells)
@@ -924,6 +924,20 @@ class ViewModel {
     }
 
     // TODO 删除单元格信息（除第一个）
+    this.history.save(this.sheetData)
+  }
+
+  cancelMergeCell({ row, col, rowCount, colCount }) {
+    this.saveLastSelectorStatus()
+
+    const overlapMergedCells = this.getOverlapMergedCells({ row, col, rowCount, colCount })
+    // 嵌套单元格合并：待合并的单元格里包含了mergedCell的场景
+    if (overlapMergedCells.length > 0) {
+      let newMergedCells = without(this.getMergedCells(), ...overlapMergedCells)
+      newMergedCells = deepClone(newMergedCells)
+      this.sheetData = update.$set(this.sheetData, 'mergedCells', newMergedCells)
+    }
+
     this.history.save(this.sheetData)
   }
 

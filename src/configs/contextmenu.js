@@ -96,7 +96,7 @@ export default [
   },
   {
     key: 'cancel-merge-cell',
-    name: '拆分单元格',
+    name: '取消合并单元格',
     icon: '',
     scope: ['cell'],
   },
