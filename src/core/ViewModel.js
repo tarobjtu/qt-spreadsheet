@@ -1056,7 +1056,7 @@ class ViewModel {
             }
             // 合并单元格上半部分被删除
             else if (olRange.start === mc.row) {
-              mc.row -= olRange.count
+              mc.row = start
               mc.rowCount -= olRange.count
             } else {
               mc.rowCount -= olRange.count
@@ -1080,7 +1080,7 @@ class ViewModel {
             }
             // 合并单元格的左半部分被删除
             else if (olRange.start === mc.col) {
-              mc.col -= olRange.count
+              mc.col = start
               mc.colCount -= olRange.count
             } else {
               mc.colCount -= olRange.count

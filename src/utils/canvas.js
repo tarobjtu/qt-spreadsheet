@@ -129,7 +129,7 @@ export function overlap(r1, r2) {
  */
 export function overlapRange(source, target) {
   const range = []
-  for (let i = source.start; i < source.start + source.count - 1; i += 1) {
+  for (let i = source.start; i <= source.start + source.count - 1; i += 1) {
     if (i >= target.start && i <= target.start + target.count - 1) {
       range.push(i)
     }
