@@ -9,6 +9,7 @@ const stylesOfUpdateState = {
   fontSize: 'fontSize',
   fontFamily: 'fontFamily',
   backgroundColor: 'backgroundColor',
+  textAlign: 'textAlign',
 }
 
 class Editor {
