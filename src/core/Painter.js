@@ -328,7 +328,7 @@ class Painter {
     )
 
     return {
-      left: x - scrollX,
+      left: Math.min(x, offsetX) - scrollX,
       top: offsetY - scrollY,
       width: wordWrap ? cellWidth : editorWidth,
       height: Math.max(lines.length * fontSize * lineHeight, cellHeight),
