@@ -169,7 +169,9 @@ class Painter {
   drawText(cMeta, rMeta, data) {
     const { ctx, theme, viewModel } = this
     const { scrollX, scrollY } = viewModel.sheetData
-    const { value, style } = data
+    const { style } = data
+    // 如果有公式，显示计算结果；否则显示原始值
+    const value = data.formula ? data.calculated : data.value
     const offsetX = cMeta.offset
     const offsetY = rMeta.offset
     const cellWidth = cMeta.size
@@ -250,7 +252,9 @@ class Painter {
     const data = viewModel.getCellData(col, row)
     const cellBBox = viewModel.getCellBBox({ col, row })
 
-    const { value, style } = data
+    const { style } = data
+    // 如果有公式，显示计算结果；否则显示原始值
+    const value = data.formula ? data.calculated : data.value
 
     const offsetX = cellBBox.left
     const offsetY = cellBBox.top

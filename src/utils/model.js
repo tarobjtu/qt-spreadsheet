@@ -2,7 +2,13 @@ import isArray from 'lodash/isArray'
 import isObject from 'lodash/isObject'
 import { deepClone } from './common'
 
-export const EMPTY_CELL = { style: {}, value: '' }
+export const EMPTY_CELL = {
+  style: {},
+  value: '',
+  formula: null, // 公式文本 (如 "=SUM(A1:A10)")
+  calculated: null, // 公式计算结果
+  error: null, // 公式错误 (如 "#REF!", "#DIV/0!")
+}
 export const DEFAULT_CELL_RANGE = { row: 0, col: 0, rowCount: 1, colCount: 1 }
 
 function defaultCRMeta({ size, count, headerOffset }) {

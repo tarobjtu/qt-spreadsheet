@@ -5,7 +5,7 @@
 }
 .qt-spreadsheet-formula {
   width: 100vw;
-  height: 20px;
+  height: 26px;
   position: relative;
   background: #fff;
   z-index: 1000;
@@ -13,7 +13,7 @@
 .qt-spreadsheet-canvas-container {
   position: relative;
   width: 100vw;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 66px);
 
   &.col-resize {
     cursor: col-resize;

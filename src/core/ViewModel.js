@@ -539,11 +539,28 @@ class ViewModel {
   }
 
   /**
-   * @description 获取单元格文本信息
+   * @description 获取单元格显示文本（公式返回计算结果）
    * @param {*} col
    * @param {*} row
    */
   getCellText(col, row) {
+    // 如果有公式引擎，使用公式引擎获取显示值
+    if (this.formulaEngine) {
+      return this.formulaEngine.getValue(col, row)
+    }
+    const cell = this.getCellData(col, row)
+    return cell?.value
+  }
+
+  /**
+   * @description 获取单元格原始值/公式文本（用于编辑）
+   * @param {*} col
+   * @param {*} row
+   */
+  getFormulaText(col, row) {
+    if (this.formulaEngine) {
+      return this.formulaEngine.getFormula(col, row)
+    }
     const cell = this.getCellData(col, row)
     return cell?.value
   }
@@ -556,7 +573,19 @@ class ViewModel {
    * @param {*} state 状态包括：input、finished（历史版本只保存最后的一次输入）
    */
   setCellText(col, row, value, state = 'input') {
-    this.sheetData = update.$set(this.sheetData, ['data', row, col, 'value'], value)
+    // 使用公式引擎处理值
+    if (this.formulaEngine) {
+      this.formulaEngine.setCell(col, row, value)
+      // 获取公式引擎处理后的单元格数据，保留 formula、calculated、error 属性
+      const cell = this.getCellData(col, row)
+      this.sheetData = update.$set(this.sheetData, ['data', row, col], {
+        ...cell,
+        value,
+      })
+    } else {
+      this.sheetData = update.$set(this.sheetData, ['data', row, col, 'value'], value)
+    }
+
     if (state === 'finished') {
       // 通过immutable函数创建一个新的sheetData对象，旧的对象存储到history中
       // 新对象的属性值发生变化，不会改变旧的值，immutable比深拷贝节省存储空间
@@ -769,6 +798,11 @@ class ViewModel {
     // refresh merged cells when row number changed
     this.refreshMergedCellsWhenInsert(position, rowCount, 'row')
 
+    // 更新公式引用
+    if (this.formulaEngine) {
+      this.formulaEngine.updateReferences('row', position, rowCount)
+    }
+
     this.history.save(this.sheetData)
   }
 
@@ -811,6 +845,11 @@ class ViewModel {
     // refresh merged cells when col number changed
     this.refreshMergedCellsWhenInsert(position, colCount, 'col')
 
+    // 更新公式引用
+    if (this.formulaEngine) {
+      this.formulaEngine.updateReferences('col', position, colCount)
+    }
+
     this.history.save(this.sheetData)
   }
 
@@ -830,6 +869,11 @@ class ViewModel {
 
     // refresh merged cells when row number changed
     this.refreshMergedCellsWhenDelete(startRow, rowCount, 'row')
+
+    // 更新公式引用
+    if (this.formulaEngine) {
+      this.formulaEngine.updateReferences('row', startRow, -rowCount)
+    }
 
     this.history.save(this.sheetData)
   }
@@ -853,6 +897,11 @@ class ViewModel {
 
     // refresh merged cells when col number changed
     this.refreshMergedCellsWhenDelete(startCol, colCount, 'col')
+
+    // 更新公式引用
+    if (this.formulaEngine) {
+      this.formulaEngine.updateReferences('col', startCol, -colCount)
+    }
 
     this.history.save(this.sheetData)
   }

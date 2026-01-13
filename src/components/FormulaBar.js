@@ -1,0 +1,199 @@
+/**
+ * @description 公式栏组件
+ * 显示当前选中单元格的地址和公式/值，支持直接编辑
+ */
+
+import { colToAlpha } from '../formula/CellReference'
+import './formulabar.scss'
+
+class FormulaBar {
+  constructor({ container, sheet, viewModel, formulaEngine }) {
+    this.container = container
+    this.sheet = sheet
+    this.viewModel = viewModel
+    this.formulaEngine = formulaEngine
+
+    this.col = 0
+    this.row = 0
+    this.isEditing = false
+
+    this.initElements()
+    this.bindEvents()
+    this.update()
+  }
+
+  /**
+   * @description 初始化 DOM 元素
+   */
+  initElements() {
+    // 单元格地址显示
+    this.addressEl = document.createElement('div')
+    this.addressEl.classList.add('qt-formula-bar-address')
+    this.container.appendChild(this.addressEl)
+
+    // 分隔线
+    this.dividerEl = document.createElement('div')
+    this.dividerEl.classList.add('qt-formula-bar-divider')
+    this.container.appendChild(this.dividerEl)
+
+    // fx 图标
+    this.fxEl = document.createElement('div')
+    this.fxEl.classList.add('qt-formula-bar-fx')
+    this.fxEl.textContent = 'fx'
+    this.container.appendChild(this.fxEl)
+
+    // 输入框
+    this.inputEl = document.createElement('input')
+    this.inputEl.type = 'text'
+    this.inputEl.classList.add('qt-formula-bar-input')
+    this.container.appendChild(this.inputEl)
+  }
+
+  /**
+   * @description 绑定事件
+   */
+  bindEvents() {
+    // 监听选择变化
+    this.sheet.on('select', this.update.bind(this))
+
+    // 输入事件
+    this.inputEl.addEventListener('input', this.onInput.bind(this))
+    this.inputEl.addEventListener('keydown', this.onKeydown.bind(this))
+    this.inputEl.addEventListener('focus', this.onFocus.bind(this))
+    this.inputEl.addEventListener('blur', this.onBlur.bind(this))
+  }
+
+  /**
+   * @description 更新公式栏显示
+   */
+  update() {
+    const selector = this.viewModel.getSelector()
+    const { activeCol, activeRow } = selector
+
+    this.col = activeCol
+    this.row = activeRow
+
+    // 更新地址显示
+    this.addressEl.textContent = `${colToAlpha(activeCol)}${activeRow + 1}`
+
+    // 更新公式/值显示
+    if (this.formulaEngine) {
+      const formula = this.formulaEngine.getFormula(activeCol, activeRow)
+      this.inputEl.value = formula ?? ''
+    } else {
+      const cellText = this.viewModel.getCellText(activeCol, activeRow)
+      this.inputEl.value = cellText ?? ''
+    }
+  }
+
+  /**
+   * @description 输入事件处理
+   */
+  onInput() {
+    const { value } = this.inputEl
+
+    // 实时更新单元格
+    this.sheet.setCellText(value, this.col, this.row, 'input')
+
+    // 同步到编辑器（如果编辑器打开）
+    if (this.sheet.editor && this.sheet.editor.isVisible()) {
+      this.sheet.editor.setValue(value, this.col, this.row)
+    }
+  }
+
+  /**
+   * @description 键盘事件处理
+   */
+  onKeydown(e) {
+    const keyCode = e.keyCode || e.which
+
+    // Enter - 确认并向下移动
+    if (keyCode === 13 && !e.altKey) {
+      e.preventDefault()
+      this.confirmEdit()
+      this.sheet.selectorMove('down')
+      this.inputEl.blur()
+    }
+
+    // Tab - 确认并向右移动
+    if (keyCode === 9) {
+      e.preventDefault()
+      this.confirmEdit()
+      this.sheet.selectorMove(e.shiftKey ? 'left' : 'right')
+      this.inputEl.blur()
+    }
+
+    // Escape - 取消编辑
+    if (keyCode === 27) {
+      e.preventDefault()
+      this.cancelEdit()
+      this.inputEl.blur()
+    }
+  }
+
+  /**
+   * @description 获得焦点
+   */
+  onFocus() {
+    this.isEditing = true
+    this.inputEl.classList.add('editing')
+
+    // 隐藏单元格选择器，显示编辑状态
+    // this.sheet.selector.hide()
+  }
+
+  /**
+   * @description 失去焦点
+   */
+  onBlur() {
+    if (this.isEditing) {
+      this.confirmEdit()
+    }
+    this.isEditing = false
+    this.inputEl.classList.remove('editing')
+  }
+
+  /**
+   * @description 确认编辑
+   */
+  confirmEdit() {
+    const { value } = this.inputEl
+    this.sheet.setCellText(value, this.col, this.row, 'finished')
+    this.sheet.draw()
+  }
+
+  /**
+   * @description 取消编辑
+   */
+  cancelEdit() {
+    this.update() // 恢复原值
+  }
+
+  /**
+   * @description 设置输入值（供外部调用，如编辑器同步）
+   */
+  setValue(value) {
+    if (!this.isEditing) {
+      this.inputEl.value = value ?? ''
+    }
+  }
+
+  /**
+   * @description 聚焦输入框
+   */
+  focus() {
+    this.inputEl.focus()
+  }
+
+  /**
+   * @description 销毁
+   */
+  destroy() {
+    this.inputEl.removeEventListener('input', this.onInput)
+    this.inputEl.removeEventListener('keydown', this.onKeydown)
+    this.inputEl.removeEventListener('focus', this.onFocus)
+    this.inputEl.removeEventListener('blur', this.onBlur)
+  }
+}
+
+export default FormulaBar

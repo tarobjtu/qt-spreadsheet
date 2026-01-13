@@ -58,7 +58,12 @@ class Events extends EventEmitter {
   }
 
   onKeydown(e) {
-    // if (!this.canvasActive) return
+    // 如果焦点在输入框或编辑器中，不处理键盘事件
+    const { tagName } = e.target
+    if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+      return
+    }
+
     const keyCode = e.keyCode || e.which
     const { shiftKey, ctrlKey, metaKey, altKey } = e
 

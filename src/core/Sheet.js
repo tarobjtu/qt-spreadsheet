@@ -3,12 +3,14 @@ import History from './History'
 import ViewModel from './ViewModel'
 import Painter from './Painter'
 import Events from './Events'
+import FormulaEngine from '../formula/FormulaEngine'
 import Scrollbar from '../components/Scrollbar'
 import Selector from '../components/Selector'
 import Resizer from '../components/Resizer'
 import Editor from '../components/Editor'
 import Clipboard from '../components/Clipboard'
 import Contextmenu from '../components/Contextmenu'
+import FormulaBar from '../components/FormulaBar'
 import defaultTheme from '../configs/defaultTheme'
 import { perf } from '../utils/common'
 
@@ -36,6 +38,9 @@ class Sheet extends EventEmitter {
     this.scrollbar.destroy()
     this.editor.destroy()
     this.events.destroy()
+    if (this.formulaBar) {
+      this.formulaBar.destroy()
+    }
   }
 
   initComponents() {
@@ -48,6 +53,22 @@ class Sheet extends EventEmitter {
       sheetData: data,
       history: this.history,
     })
+
+    // 初始化公式引擎
+    this.formulaEngine = new FormulaEngine(this.viewModel)
+    this.viewModel.formulaEngine = this.formulaEngine
+
+    // 初始化公式栏
+    const formulaContainer = document.querySelector('.qt-spreadsheet-formula')
+    if (formulaContainer) {
+      this.formulaBar = new FormulaBar({
+        container: formulaContainer,
+        sheet: this,
+        viewModel: this.viewModel,
+        formulaEngine: this.formulaEngine,
+      })
+    }
+
     this.painter = new Painter({
       container,
       options: opts,
@@ -343,7 +364,8 @@ class Sheet extends EventEmitter {
     const type = cellType === undefined ? selections.type : cellType
 
     if (type === 'cell') {
-      const cellData = clearText === true ? '' : this.viewModel.getCellText(col, row)
+      // 使用 getFormulaText 获取原始公式文本（而非计算结果）
+      const cellData = clearText === true ? '' : this.viewModel.getFormulaText(col, row)
       this.editor.setValue(cellData, col, row)
       this.editor.position().show().focus()
       this.selector.hide()
