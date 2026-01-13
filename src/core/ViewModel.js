@@ -14,6 +14,7 @@ import {
   cancelHideMeta,
   clearCellsData,
 } from '../utils/model'
+import { adjustFormulaRefs } from '../formula/CellReference'
 
 /**
  * @description 电子表格视图相关数据的计算函数
@@ -710,6 +711,10 @@ class ViewModel {
     const { activeCol, activeRow } = this.getSelector()
     const { col, row, colCount, rowCount } = clipRange
 
+    // 计算粘贴位置与复制位置的偏移量
+    const colDelta = activeCol - col
+    const rowDelta = activeRow - row
+
     this.setSelector({ col: activeCol, row: activeRow, activeCol, activeRow, colCount, rowCount })
     this.saveLastSelectorStatus()
 
@@ -722,6 +727,19 @@ class ViewModel {
         const colPointer = ci - col // 相对起始列的偏移量
         const rowPointer = ri - row // 相对起始行的偏移量
         const tempData = deepClone(data[ri][ci])
+
+        // 如果是公式单元格，调整引用（仅复制时调整，剪切时保持原引用）
+        if (
+          state === 'copy' &&
+          tempData.value &&
+          typeof tempData.value === 'string' &&
+          tempData.value.startsWith('=')
+        ) {
+          tempData.value = adjustFormulaRefs(tempData.value, colDelta, rowDelta)
+          // 清除缓存的计算结果，让公式引擎重新计算
+          tempData.formula = null
+          tempData.calculated = null
+        }
 
         if (state === 'cut') {
           // 不删除cut与paste重叠区域的单元格

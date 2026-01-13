@@ -195,3 +195,101 @@ export function expandRange(range) {
   }
   return cells
 }
+
+/**
+ * @description 调整公式中的引用（用于拖拽填充、复制粘贴）
+ * @param {string} formula - 原公式字符串
+ * @param {number} colDelta - 列偏移量
+ * @param {number} rowDelta - 行偏移量
+ * @returns {string} 调整后的公式
+ */
+export function adjustFormulaRefs(formula, colDelta, rowDelta) {
+  if (!formula || !formula.startsWith('=')) {
+    return formula
+  }
+
+  // 匹配单元格引用和范围引用
+  const pattern = /(\$?)([A-Z]+)(\$?)(\d+)(?::(\$?)([A-Z]+)(\$?)(\d+))?/gi
+
+  return formula.replace(
+    pattern,
+    (match, colAbs1, col1, rowAbs1, row1, colAbs2, col2, rowAbs2, row2) => {
+      // 调整起始单元格
+      let newCol1 = alphaToCol(col1)
+      let newRow1 = parseInt(row1, 10) - 1
+
+      if (colAbs1 !== '$') {
+        newCol1 += colDelta
+      }
+      if (rowAbs1 !== '$') {
+        newRow1 += rowDelta
+      }
+
+      // 检查边界
+      if (newCol1 < 0 || newRow1 < 0) {
+        return '#REF!'
+      }
+
+      const newColStr1 = (colAbs1 || '') + colToAlpha(newCol1)
+      const newRowStr1 = (rowAbs1 || '') + (newRow1 + 1)
+
+      // 如果是范围引用
+      if (col2) {
+        let newCol2 = alphaToCol(col2)
+        let newRow2 = parseInt(row2, 10) - 1
+
+        if (colAbs2 !== '$') {
+          newCol2 += colDelta
+        }
+        if (rowAbs2 !== '$') {
+          newRow2 += rowDelta
+        }
+
+        // 检查边界
+        if (newCol2 < 0 || newRow2 < 0) {
+          return '#REF!'
+        }
+
+        const newColStr2 = (colAbs2 || '') + colToAlpha(newCol2)
+        const newRowStr2 = (rowAbs2 || '') + (newRow2 + 1)
+
+        return `${newColStr1}${newRowStr1}:${newColStr2}${newRowStr2}`
+      }
+
+      return `${newColStr1}${newRowStr1}`
+    }
+  )
+}
+
+/**
+ * @description 切换引用的绝对/相对模式 (F4 键功能)
+ * @param {string} refString - 引用字符串，如 'A1', '$A$1'
+ * @returns {string} 切换后的引用字符串
+ * 循环顺序: A1 -> $A$1 -> A$1 -> $A1 -> A1
+ */
+export function toggleRefAbsolute(refString) {
+  const pattern = /^(\$?)([A-Z]+)(\$?)(\d+)$/i
+  const match = refString.match(pattern)
+
+  if (!match) {
+    return refString
+  }
+
+  const [, colAbs, colAlpha, rowAbs, rowNum] = match
+
+  // 确定当前模式并切换到下一个
+  if (colAbs === '' && rowAbs === '') {
+    // A1 -> $A$1
+    return `$${colAlpha}$${rowNum}`
+  }
+  if (colAbs === '$' && rowAbs === '$') {
+    // $A$1 -> A$1
+    return `${colAlpha}$${rowNum}`
+  }
+  if (colAbs === '' && rowAbs === '$') {
+    // A$1 -> $A1
+    return `$${colAlpha}${rowNum}`
+  }
+  // $A1 -> A1
+  return `${colAlpha}${rowNum}`
+}

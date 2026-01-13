@@ -160,6 +160,10 @@ class Events extends EventEmitter {
           this.sheet.escape()
           e.preventDefault()
           break
+        case 113: // F2 - 编辑当前单元格
+          this.sheet.showEditor()
+          e.preventDefault()
+          break
         default:
           break
       }

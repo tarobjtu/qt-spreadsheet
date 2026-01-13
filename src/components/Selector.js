@@ -1,6 +1,7 @@
 import throttle from 'lodash/throttle'
 import { directionToRect, mergeSelector } from '../utils/canvas'
 import { deepClone } from '../utils/common'
+import { adjustFormulaRefs } from '../formula/CellReference'
 import './selector.scss'
 
 class Selector {
@@ -191,6 +192,13 @@ class Selector {
       const selections = this.viewModel.getSelector()
       const mergedSelector = mergeSelector(selections, rect)
       this.viewModel.setSelector(mergedSelector)
+
+      // 重新初始化公式引擎以计算新填充的公式
+      if (this.sheet.formulaEngine) {
+        this.sheet.formulaEngine.graph.clear()
+        this.sheet.formulaEngine.initializeFormulas()
+      }
+
       this.viewModel.saveToHistory()
       this.sheet.draw()
     }
@@ -208,7 +216,12 @@ class Selector {
           sourceRowPointer = sourceRect.row + ((ri - row) % sourceRect.rowCount)
           sourceColPointer = sourceRect.col + ((ci - col) % sourceRect.colCount)
           const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
-          this.viewModel.setCellDataBatched(ci, ri, deepClone(sourceData), start)
+          const newData = this.adjustCellDataForAutofill(
+            sourceData,
+            ci - sourceColPointer,
+            ri - sourceRowPointer
+          )
+          this.viewModel.setCellDataBatched(ci, ri, newData, start)
         }
       }
     } else if (direction === 'left' || direction === 'up') {
@@ -226,10 +239,37 @@ class Selector {
             1 -
             ((col + colCount - 1 - ci) % sourceRect.colCount)
           const sourceData = this.viewModel.getCellData(sourceColPointer, sourceRowPointer)
-          this.viewModel.setCellDataBatched(ci, ri, deepClone(sourceData), start)
+          const newData = this.adjustCellDataForAutofill(
+            sourceData,
+            ci - sourceColPointer,
+            ri - sourceRowPointer
+          )
+          this.viewModel.setCellDataBatched(ci, ri, newData, start)
         }
       }
     }
+  }
+
+  /**
+   * @description 调整单元格数据用于自动填充（调整公式引用）
+   * @param {object} sourceData - 源单元格数据
+   * @param {number} colDelta - 列偏移量
+   * @param {number} rowDelta - 行偏移量
+   * @returns {object} 调整后的单元格数据
+   */
+  // eslint-disable-next-line class-methods-use-this
+  adjustCellDataForAutofill(sourceData, colDelta, rowDelta) {
+    const newData = deepClone(sourceData)
+
+    // 如果是公式，调整引用
+    if (newData.value && typeof newData.value === 'string' && newData.value.startsWith('=')) {
+      newData.value = adjustFormulaRefs(newData.value, colDelta, rowDelta)
+      // 清除缓存的计算结果，让公式引擎重新计算
+      newData.formula = null
+      newData.calculated = null
+    }
+
+    return newData
   }
 
   getAutofillRect(offsetX, offsetY) {

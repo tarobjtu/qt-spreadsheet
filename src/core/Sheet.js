@@ -174,6 +174,13 @@ class Sheet extends EventEmitter {
       this.clipboard.stopPaste()
     }
     this.clipboard.hide()
+
+    // 重新初始化公式引擎的依赖图以正确计算粘贴的公式
+    if (this.formulaEngine) {
+      this.formulaEngine.graph.clear()
+      this.formulaEngine.initializeFormulas()
+    }
+
     this.draw()
   }
 
@@ -339,6 +346,11 @@ class Sheet extends EventEmitter {
     if (!this.history.canUndo()) return
     this.history.undo((sheetData) => {
       this.viewModel.setSheetData(sheetData)
+      // 重新初始化公式引擎的依赖图
+      if (this.formulaEngine) {
+        this.formulaEngine.graph.clear()
+        this.formulaEngine.initializeFormulas()
+      }
       this.draw()
       this.emit('undo')
     })
@@ -348,6 +360,11 @@ class Sheet extends EventEmitter {
     if (!this.history.canRedo()) return
     this.history.redo((sheetData) => {
       this.viewModel.setSheetData(sheetData)
+      // 重新初始化公式引擎的依赖图
+      if (this.formulaEngine) {
+        this.formulaEngine.graph.clear()
+        this.formulaEngine.initializeFormulas()
+      }
       this.draw()
       this.emit('redo')
     })

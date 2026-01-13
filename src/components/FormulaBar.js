@@ -3,7 +3,7 @@
  * 显示当前选中单元格的地址和公式/值，支持直接编辑
  */
 
-import { colToAlpha } from '../formula/CellReference'
+import { colToAlpha, toggleRefAbsolute } from '../formula/CellReference'
 import FormulaAutocomplete from './FormulaAutocomplete'
 import './formulabar.scss'
 
@@ -210,6 +210,63 @@ class FormulaBar {
       e.preventDefault()
       this.cancelEdit()
       this.inputEl.blur()
+    }
+
+    // F4 - 切换单元格引用的绝对/相对模式
+    if (keyCode === 115) {
+      e.preventDefault()
+      this.toggleReferenceMode()
+    }
+  }
+
+  /**
+   * @description 切换光标位置处的单元格引用的绝对/相对模式
+   */
+  toggleReferenceMode() {
+    const { value, selectionStart } = this.inputEl
+
+    // 查找光标位置附近的单元格引用
+    const refPattern = /\$?[A-Z]+\$?\d+/gi
+    let match
+    let foundRef = null
+    let refStart = -1
+    let refEnd = -1
+
+    refPattern.lastIndex = 0
+
+    // eslint-disable-next-line no-cond-assign
+    while ((match = refPattern.exec(value)) !== null) {
+      const matchStart = match.index
+      const matchEnd = match.index + match[0].length
+
+      if (selectionStart >= matchStart && selectionStart <= matchEnd) {
+        ;[foundRef] = match
+        refStart = matchStart
+        refEnd = matchEnd
+        break
+      }
+      if (matchStart <= selectionStart + 1 && matchEnd >= selectionStart) {
+        ;[foundRef] = match
+        refStart = matchStart
+        refEnd = matchEnd
+        break
+      }
+    }
+
+    if (foundRef) {
+      const newRef = toggleRefAbsolute(foundRef)
+      const newValue = value.substring(0, refStart) + newRef + value.substring(refEnd)
+
+      this.inputEl.value = newValue
+
+      const newCursorPos = refStart + newRef.length
+      this.inputEl.setSelectionRange(newCursorPos, newCursorPos)
+
+      this.sheet.setCellText(newValue, this.col, this.row, 'input')
+
+      if (this.sheet.editor && this.sheet.editor.visible) {
+        this.sheet.editor.setValue(newValue, this.col, this.row)
+      }
     }
   }
 

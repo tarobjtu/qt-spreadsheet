@@ -1,4 +1,5 @@
 import throttle from 'lodash/throttle'
+import { toggleRefAbsolute } from '../formula/CellReference'
 import './editor.scss'
 
 const stylesOfUpdateState = {
@@ -111,6 +112,74 @@ class Editor {
       this.insertText(target, '\n')
     }
     if (keyCode === 13 && !altKey) e.preventDefault()
+
+    // F4 - 切换单元格引用的绝对/相对模式
+    if (keyCode === 115) {
+      e.preventDefault()
+      this.toggleReferenceMode(target)
+    }
+  }
+
+  /**
+   * @description 切换光标位置处的单元格引用的绝对/相对模式
+   * 循环顺序: A1 -> $A$1 -> A$1 -> $A1 -> A1
+   */
+  toggleReferenceMode(target) {
+    const { value, selectionStart } = target
+
+    // 查找光标位置附近的单元格引用
+    const refPattern = /\$?[A-Z]+\$?\d+/gi
+    let match
+    let foundRef = null
+    let refStart = -1
+    let refEnd = -1
+
+    // 重置 lastIndex
+    refPattern.lastIndex = 0
+
+    // 查找所有引用，找到包含或紧邻光标的那个
+    // eslint-disable-next-line no-cond-assign
+    while ((match = refPattern.exec(value)) !== null) {
+      const matchStart = match.index
+      const matchEnd = match.index + match[0].length
+
+      // 光标在引用内部或紧邻引用
+      if (selectionStart >= matchStart && selectionStart <= matchEnd) {
+        ;[foundRef] = match
+        refStart = matchStart
+        refEnd = matchEnd
+        break
+      }
+      // 光标在引用之前，但离得很近（1个字符内）
+      if (matchStart <= selectionStart + 1 && matchEnd >= selectionStart) {
+        ;[foundRef] = match
+        refStart = matchStart
+        refEnd = matchEnd
+        break
+      }
+    }
+
+    if (foundRef) {
+      const newRef = toggleRefAbsolute(foundRef)
+      const newValue = value.substring(0, refStart) + newRef + value.substring(refEnd)
+
+      // 更新输入框
+      // eslint-disable-next-line no-param-reassign
+      target.value = newValue
+
+      // 更新光标位置
+      const newCursorPos = refStart + newRef.length
+      target.setSelectionRange(newCursorPos, newCursorPos)
+
+      // 更新单元格数据
+      const { col, row } = this.viewModel.getSelector()
+      this.sheet.setCellText(newValue, col, row, 'input')
+
+      // 更新公式栏
+      if (this.sheet.formulaBar) {
+        this.sheet.formulaBar.setValue(newValue)
+      }
+    }
   }
 
   insertText(target, inputText) {
