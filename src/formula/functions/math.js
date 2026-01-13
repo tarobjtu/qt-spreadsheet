@@ -267,4 +267,345 @@ export default function registerMathFunctions(registerFunction) {
     2,
     2
   )
+
+  // CEILING - 向上取整到指定倍数
+  registerFunction(
+    'CEILING',
+    (args) => {
+      const [value, significance = 1] = args
+      if (typeof value !== 'number' || typeof significance !== 'number') {
+        return FormulaError.VALUE
+      }
+      if (significance === 0) return 0
+      return Math.ceil(value / significance) * significance
+    },
+    1,
+    2
+  )
+
+  // FLOOR - 向下取整到指定倍数
+  registerFunction(
+    'FLOOR',
+    (args) => {
+      const [value, significance = 1] = args
+      if (typeof value !== 'number' || typeof significance !== 'number') {
+        return FormulaError.VALUE
+      }
+      if (significance === 0) return 0
+      return Math.floor(value / significance) * significance
+    },
+    1,
+    2
+  )
+
+  // SIGN - 符号函数
+  registerFunction(
+    'SIGN',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      if (value > 0) return 1
+      if (value < 0) return -1
+      return 0
+    },
+    1,
+    1
+  )
+
+  // LOG - 对数
+  registerFunction(
+    'LOG',
+    (args) => {
+      const [value, base = 10] = args
+      if (typeof value !== 'number' || typeof base !== 'number') {
+        return FormulaError.VALUE
+      }
+      if (value <= 0 || base <= 0 || base === 1) {
+        return FormulaError.NUM
+      }
+      return Math.log(value) / Math.log(base)
+    },
+    1,
+    2
+  )
+
+  // LOG10 - 以10为底的对数
+  registerFunction(
+    'LOG10',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number' || value <= 0) {
+        return FormulaError.NUM
+      }
+      return Math.log10(value)
+    },
+    1,
+    1
+  )
+
+  // LN - 自然对数
+  registerFunction(
+    'LN',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number' || value <= 0) {
+        return FormulaError.NUM
+      }
+      return Math.log(value)
+    },
+    1,
+    1
+  )
+
+  // EXP - e的幂
+  registerFunction(
+    'EXP',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      return Math.exp(value)
+    },
+    1,
+    1
+  )
+
+  // FACT - 阶乘
+  registerFunction(
+    'FACT',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number' || value < 0) return FormulaError.NUM
+      const n = Math.floor(value)
+      if (n === 0 || n === 1) return 1
+      let result = 1
+      for (let i = 2; i <= n; i += 1) {
+        result *= i
+      }
+      return result
+    },
+    1,
+    1
+  )
+
+  // PRODUCT - 乘积
+  registerFunction(
+    'PRODUCT',
+    (args) => {
+      const numbers = flattenNumbers(args)
+      if (numbers.length === 0) return 0
+      return numbers.reduce((prod, val) => prod * val, 1)
+    },
+    1,
+    255
+  )
+
+  // QUOTIENT - 整除
+  registerFunction(
+    'QUOTIENT',
+    (args) => {
+      const [numerator, denominator] = args
+      if (typeof numerator !== 'number' || typeof denominator !== 'number') {
+        return FormulaError.VALUE
+      }
+      if (denominator === 0) return FormulaError.DIV0
+      return Math.trunc(numerator / denominator)
+    },
+    2,
+    2
+  )
+
+  // GCD - 最大公约数
+  registerFunction(
+    'GCD',
+    (args) => {
+      const numbers = flattenNumbers(args).map((n) => Math.abs(Math.floor(n)))
+      if (numbers.length === 0) return 0
+
+      const gcdTwo = (a, b) => {
+        let x = a
+        let y = b
+        while (y !== 0) {
+          const t = y
+          y = x % y
+          x = t
+        }
+        return x
+      }
+
+      return numbers.reduce((acc, n) => gcdTwo(acc, n))
+    },
+    1,
+    255
+  )
+
+  // LCM - 最小公倍数
+  registerFunction(
+    'LCM',
+    (args) => {
+      const numbers = flattenNumbers(args).map((n) => Math.abs(Math.floor(n)))
+      if (numbers.length === 0) return 0
+
+      const gcdTwo = (a, b) => {
+        let x = a
+        let y = b
+        while (y !== 0) {
+          const t = y
+          y = x % y
+          x = t
+        }
+        return x
+      }
+
+      const lcmTwo = (a, b) => (a * b) / gcdTwo(a, b)
+
+      return numbers.reduce((acc, n) => lcmTwo(acc, n))
+    },
+    1,
+    255
+  )
+
+  // TRUNC - 截断小数
+  registerFunction(
+    'TRUNC',
+    (args) => {
+      const [value, numDigits = 0] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      const factor = 10 ** numDigits
+      return Math.trunc(value * factor) / factor
+    },
+    1,
+    2
+  )
+
+  // EVEN - 向上取偶数
+  registerFunction(
+    'EVEN',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      const ceil = Math.ceil(Math.abs(value))
+      const result = ceil % 2 === 0 ? ceil : ceil + 1
+      return value >= 0 ? result : -result
+    },
+    1,
+    1
+  )
+
+  // ODD - 向上取奇数
+  registerFunction(
+    'ODD',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      const ceil = Math.ceil(Math.abs(value))
+      const result = ceil % 2 === 1 ? ceil : ceil + 1
+      return value >= 0 ? result : -result
+    },
+    1,
+    1
+  )
+
+  // RADIANS - 角度转弧度
+  registerFunction(
+    'RADIANS',
+    (args) => {
+      const [degrees] = args
+      if (typeof degrees !== 'number') return FormulaError.VALUE
+      return (degrees * Math.PI) / 180
+    },
+    1,
+    1
+  )
+
+  // DEGREES - 弧度转角度
+  registerFunction(
+    'DEGREES',
+    (args) => {
+      const [radians] = args
+      if (typeof radians !== 'number') return FormulaError.VALUE
+      return (radians * 180) / Math.PI
+    },
+    1,
+    1
+  )
+
+  // SIN, COS, TAN
+  registerFunction(
+    'SIN',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      return Math.sin(value)
+    },
+    1,
+    1
+  )
+
+  registerFunction(
+    'COS',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      return Math.cos(value)
+    },
+    1,
+    1
+  )
+
+  registerFunction(
+    'TAN',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      return Math.tan(value)
+    },
+    1,
+    1
+  )
+
+  // ASIN, ACOS, ATAN
+  registerFunction(
+    'ASIN',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number' || value < -1 || value > 1) return FormulaError.NUM
+      return Math.asin(value)
+    },
+    1,
+    1
+  )
+
+  registerFunction(
+    'ACOS',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number' || value < -1 || value > 1) return FormulaError.NUM
+      return Math.acos(value)
+    },
+    1,
+    1
+  )
+
+  registerFunction(
+    'ATAN',
+    (args) => {
+      const [value] = args
+      if (typeof value !== 'number') return FormulaError.VALUE
+      return Math.atan(value)
+    },
+    1,
+    1
+  )
+
+  // ATAN2
+  registerFunction(
+    'ATAN2',
+    (args) => {
+      const [x, y] = args
+      if (typeof x !== 'number' || typeof y !== 'number') return FormulaError.VALUE
+      return Math.atan2(y, x)
+    },
+    2,
+    2
+  )
 }

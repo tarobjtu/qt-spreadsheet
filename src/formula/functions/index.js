@@ -6,6 +6,9 @@
 import registerMathFunctions from './math'
 import registerLogicalFunctions from './logical'
 import registerTextFunctions from './text'
+import registerStatisticalFunctions from './statistical'
+import registerLookupFunctions from './lookup'
+import registerDateTimeFunctions from './datetime'
 import { FormulaError } from '../errors'
 
 // 函数注册表
@@ -85,3 +88,6 @@ export function getAllFunctionNames() {
 registerMathFunctions(registerFunction)
 registerLogicalFunctions(registerFunction)
 registerTextFunctions(registerFunction)
+registerStatisticalFunctions(registerFunction)
+registerLookupFunctions(registerFunction)
+registerDateTimeFunctions(registerFunction)
