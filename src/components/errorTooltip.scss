@@ -1,0 +1,37 @@
+.qt-error-tooltip {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ea4335;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 150px;
+  max-width: 300px;
+  pointer-events: none;
+}
+
+.qt-error-tooltip-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.qt-error-tooltip-icon {
+  color: #ea4335;
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.qt-error-tooltip-code {
+  color: #ea4335;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.qt-error-tooltip-message {
+  color: #555;
+  font-size: 12px;
+  line-height: 1.4;
+}

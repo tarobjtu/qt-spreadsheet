@@ -1,6 +1,7 @@
 import { assignStyle, perf, numberToAlpha } from '../utils/common'
 import { font, overlap } from '../utils/canvas'
 import { getRangeMeta } from '../utils/model'
+import { isError } from '../formula/errors'
 
 class Painter {
   constructor({ sheet, viewModel, theme, container, options }) {
@@ -92,6 +93,7 @@ class Painter {
     this.drawBackground(cMeta, rMeta, data)
     this.drawBorder(cMeta, rMeta, data.style)
     this.drawText(cMeta, rMeta, data)
+    this.drawErrorIndicator(cMeta, rMeta, data)
   }
 
   /**
@@ -157,6 +159,35 @@ class Painter {
     ctx.closePath()
     ctx.stroke()
 
+    ctx.restore()
+  }
+
+  /**
+   * @description 绘制错误指示器（右上角红色三角形）
+   * @param {*} cMeta
+   * @param {*} rMeta
+   * @param {*} data
+   */
+  drawErrorIndicator(cMeta, rMeta, data) {
+    // 检查是否有公式错误
+    const value = data.formula ? data.calculated : data.value
+    if (!isError(value)) return
+
+    const { ctx, viewModel } = this
+    const { scrollX, scrollY } = viewModel.sheetData
+    const triangleSize = 6
+
+    const x = cMeta.offset + cMeta.size - scrollX
+    const y = rMeta.offset - scrollY
+
+    ctx.save()
+    ctx.fillStyle = '#ea4335' // 红色
+    ctx.beginPath()
+    ctx.moveTo(x - triangleSize, y)
+    ctx.lineTo(x, y)
+    ctx.lineTo(x, y + triangleSize)
+    ctx.closePath()
+    ctx.fill()
     ctx.restore()
   }
 

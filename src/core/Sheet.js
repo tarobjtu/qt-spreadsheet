@@ -12,6 +12,7 @@ import Clipboard from '../components/Clipboard'
 import Contextmenu from '../components/Contextmenu'
 import FormulaBar from '../components/FormulaBar'
 import ReferenceHighlight from '../components/ReferenceHighlight'
+import ErrorTooltip from '../components/ErrorTooltip'
 import defaultTheme from '../configs/defaultTheme'
 import { perf } from '../utils/common'
 
@@ -61,6 +62,12 @@ class Sheet extends EventEmitter {
 
     // 初始化引用高亮
     this.referenceHighlight = new ReferenceHighlight({
+      container,
+      viewModel: this.viewModel,
+    })
+
+    // 初始化错误提示
+    this.errorTooltip = new ErrorTooltip({
       container,
       viewModel: this.viewModel,
     })

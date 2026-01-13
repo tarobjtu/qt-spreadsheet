@@ -31,18 +31,24 @@ class Events extends EventEmitter {
     const keydown = this.onKeydown.bind(this)
     const mousedown = this.onMousedown.bind(this)
     const mouseup = this.onMouseup.bind(this)
+    const mousemove = throttle(this.onMousemove.bind(this), 50)
+    const mouseleave = this.onMouseleave.bind(this)
 
     this.events.push([window, 'resize', resize])
     this.events.push([window, 'click', click])
     this.events.push([document, 'keydown', keydown])
     this.events.push([canvas, 'mousedown', mousedown])
     this.events.push([window, 'mouseup', mouseup])
+    this.events.push([canvas, 'mousemove', mousemove])
+    this.events.push([canvas, 'mouseleave', mouseleave])
 
     window.addEventListener('resize', resize)
     window.addEventListener('click', click, false)
     document.addEventListener('keydown', keydown, false)
     canvas.addEventListener('mousedown', mousedown, false)
     window.addEventListener('mouseup', mouseup, false)
+    canvas.addEventListener('mousemove', mousemove, false)
+    canvas.addEventListener('mouseleave', mouseleave, false)
   }
 
   resize() {
@@ -192,6 +198,39 @@ class Events extends EventEmitter {
   dbclick(e) {
     const { offsetX, offsetY } = e
     this.sheet.showEditorByOffset(offsetX, offsetY)
+  }
+
+  /**
+   * @description 鼠标移动事件 - 用于显示错误提示
+   */
+  onMousemove(e) {
+    const { sheet, viewModel } = this
+    if (!sheet.errorTooltip) return
+
+    const { offsetX, offsetY } = e
+    const { scrollX, scrollY } = viewModel.sheetData
+    const cellInfo = viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
+
+    if (cellInfo && cellInfo.type === 'cell') {
+      const { col, row } = cellInfo
+      if (sheet.errorTooltip.hasError(col, row)) {
+        sheet.errorTooltip.show(col, row, { x: offsetX, y: offsetY })
+      } else {
+        sheet.errorTooltip.hide()
+      }
+    } else {
+      sheet.errorTooltip.hide()
+    }
+  }
+
+  /**
+   * @description 鼠标离开事件
+   */
+  onMouseleave() {
+    const { sheet } = this
+    if (sheet.errorTooltip) {
+      sheet.errorTooltip.hide()
+    }
   }
 }
 
