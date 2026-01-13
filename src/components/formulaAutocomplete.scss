@@ -1,0 +1,65 @@
+.qt-formula-autocomplete {
+  position: absolute;
+  z-index: 2000;
+  min-width: 200px;
+  max-width: 350px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  .qt-formula-autocomplete-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.1s;
+
+    &:hover,
+    &.selected {
+      background-color: #e8f0fe;
+    }
+
+    .func-name {
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-weight: 600;
+      color: #1a73e8;
+      margin-right: 10px;
+      min-width: 80px;
+    }
+
+    .func-desc {
+      color: #666;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.qt-formula-tooltip {
+  position: absolute;
+  z-index: 2000;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+  white-space: nowrap;
+
+  .func-name {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-weight: 600;
+    color: #1a73e8;
+  }
+
+  .func-params {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    color: #666;
+    margin-left: 2px;
+  }
+}

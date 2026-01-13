@@ -4,6 +4,7 @@
  */
 
 import { colToAlpha } from '../formula/CellReference'
+import FormulaAutocomplete from './FormulaAutocomplete'
 import './formulabar.scss'
 
 class FormulaBar {
@@ -18,6 +19,7 @@ class FormulaBar {
     this.isEditing = false
 
     this.initElements()
+    this.initAutocomplete()
     this.bindEvents()
     this.update()
   }
@@ -47,6 +49,16 @@ class FormulaBar {
     this.inputEl.type = 'text'
     this.inputEl.classList.add('qt-formula-bar-input')
     this.container.appendChild(this.inputEl)
+  }
+
+  /**
+   * @description 初始化自动补全
+   */
+  initAutocomplete() {
+    this.autocomplete = new FormulaAutocomplete({
+      container: document.body,
+      onSelect: this.onAutocompleteSelect.bind(this),
+    })
   }
 
   /**
@@ -84,6 +96,11 @@ class FormulaBar {
       const cellText = this.viewModel.getCellText(activeCol, activeRow)
       this.inputEl.value = cellText ?? ''
     }
+
+    // 隐藏自动补全
+    if (this.autocomplete) {
+      this.autocomplete.hide()
+    }
   }
 
   /**
@@ -99,12 +116,64 @@ class FormulaBar {
     if (this.sheet.editor && this.sheet.editor.isVisible()) {
       this.sheet.editor.setValue(value, this.col, this.row)
     }
+
+    // 更新自动补全
+    this.updateAutocomplete()
+  }
+
+  /**
+   * @description 更新自动补全状态
+   */
+  updateAutocomplete() {
+    const { value, selectionStart } = this.inputEl
+    const rect = this.inputEl.getBoundingClientRect()
+
+    this.autocomplete.update(value, selectionStart, {
+      left: rect.left,
+      bottom: rect.bottom,
+    })
+  }
+
+  /**
+   * @description 自动补全选择回调
+   */
+  onAutocompleteSelect(funcName) {
+    const { value, selectionStart } = this.inputEl
+
+    // 找到需要替换的函数名前缀
+    const beforeCursor = value.substring(0, selectionStart)
+    const match = beforeCursor.match(/=([A-Z]*)$/i)
+
+    if (match) {
+      const prefixStart = selectionStart - match[1].length
+      const newValue =
+        value.substring(0, prefixStart) + funcName + '(' + value.substring(selectionStart)
+
+      this.inputEl.value = newValue
+      this.inputEl.setSelectionRange(
+        prefixStart + funcName.length + 1,
+        prefixStart + funcName.length + 1
+      )
+
+      // 更新单元格
+      this.sheet.setCellText(newValue, this.col, this.row, 'input')
+
+      // 更新自动补全显示参数提示
+      this.updateAutocomplete()
+    }
+
+    this.inputEl.focus()
   }
 
   /**
    * @description 键盘事件处理
    */
   onKeydown(e) {
+    // 先让自动补全处理
+    if (this.autocomplete && this.autocomplete.handleKeydown(e)) {
+      return
+    }
+
     const keyCode = e.keyCode || e.which
 
     // Enter - 确认并向下移动
@@ -137,15 +206,19 @@ class FormulaBar {
   onFocus() {
     this.isEditing = true
     this.inputEl.classList.add('editing')
-
-    // 隐藏单元格选择器，显示编辑状态
-    // this.sheet.selector.hide()
   }
 
   /**
    * @description 失去焦点
    */
   onBlur() {
+    // 延迟隐藏，以便点击自动补全项时能处理
+    setTimeout(() => {
+      if (this.autocomplete) {
+        this.autocomplete.hide()
+      }
+    }, 150)
+
     if (this.isEditing) {
       this.confirmEdit()
     }
@@ -193,6 +266,10 @@ class FormulaBar {
     this.inputEl.removeEventListener('keydown', this.onKeydown)
     this.inputEl.removeEventListener('focus', this.onFocus)
     this.inputEl.removeEventListener('blur', this.onBlur)
+
+    if (this.autocomplete) {
+      this.autocomplete.destroy()
+    }
   }
 }
 
