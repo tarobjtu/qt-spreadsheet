@@ -93,6 +93,11 @@ class Editor {
     this.curEditingCell = this.viewModel.getSelector()
     this.sheet.setCellText(this.textareaEl.value)
     this.position()
+
+    // 更新引用高亮
+    if (this.sheet.referenceHighlight) {
+      this.sheet.referenceHighlight.update(this.textareaEl.value)
+    }
   }
 
   onKeydown(e) {
@@ -144,12 +149,22 @@ class Editor {
     this.setStyle()
     this.editorEl.style.display = 'block'
     this.visible = true
+
+    // 显示引用高亮
+    if (this.sheet.referenceHighlight) {
+      this.sheet.referenceHighlight.update(this.textareaEl.value)
+    }
     return this
   }
 
   hide() {
     this.editorEl.style.display = 'none'
     this.visible = false
+
+    // 隐藏引用高亮
+    if (this.sheet.referenceHighlight) {
+      this.sheet.referenceHighlight.hide()
+    }
     return this
   }
 

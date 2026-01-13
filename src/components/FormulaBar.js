@@ -8,11 +8,12 @@ import FormulaAutocomplete from './FormulaAutocomplete'
 import './formulabar.scss'
 
 class FormulaBar {
-  constructor({ container, sheet, viewModel, formulaEngine }) {
+  constructor({ container, sheet, viewModel, formulaEngine, referenceHighlight }) {
     this.container = container
     this.sheet = sheet
     this.viewModel = viewModel
     this.formulaEngine = formulaEngine
+    this.referenceHighlight = referenceHighlight
 
     this.col = 0
     this.row = 0
@@ -119,6 +120,9 @@ class FormulaBar {
 
     // 更新自动补全
     this.updateAutocomplete()
+
+    // 更新引用高亮
+    this.updateReferenceHighlight(value)
   }
 
   /**
@@ -132,6 +136,15 @@ class FormulaBar {
       left: rect.left,
       bottom: rect.bottom,
     })
+  }
+
+  /**
+   * @description 更新引用高亮
+   */
+  updateReferenceHighlight(formula) {
+    if (this.referenceHighlight) {
+      this.referenceHighlight.update(formula)
+    }
   }
 
   /**
@@ -206,6 +219,10 @@ class FormulaBar {
   onFocus() {
     this.isEditing = true
     this.inputEl.classList.add('editing')
+
+    // 显示引用高亮
+    const { value } = this.inputEl
+    this.updateReferenceHighlight(value)
   }
 
   /**
@@ -216,6 +233,10 @@ class FormulaBar {
     setTimeout(() => {
       if (this.autocomplete) {
         this.autocomplete.hide()
+      }
+      // 隐藏引用高亮
+      if (this.referenceHighlight) {
+        this.referenceHighlight.hide()
       }
     }, 150)
 

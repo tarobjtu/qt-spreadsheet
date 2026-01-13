@@ -391,7 +391,7 @@ class Parser {
     // 括号表达式
     if (this.match(TokenType.LPAREN)) {
       const expr = this.parseExpression()
-      this.expect(TokenType.RPAREN, `缺少 ')'`)
+      this.expect(TokenType.RPAREN, '缺少右括号')
 
       return expr
     }

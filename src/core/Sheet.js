@@ -11,6 +11,7 @@ import Editor from '../components/Editor'
 import Clipboard from '../components/Clipboard'
 import Contextmenu from '../components/Contextmenu'
 import FormulaBar from '../components/FormulaBar'
+import ReferenceHighlight from '../components/ReferenceHighlight'
 import defaultTheme from '../configs/defaultTheme'
 import { perf } from '../utils/common'
 
@@ -58,6 +59,12 @@ class Sheet extends EventEmitter {
     this.formulaEngine = new FormulaEngine(this.viewModel)
     this.viewModel.formulaEngine = this.formulaEngine
 
+    // 初始化引用高亮
+    this.referenceHighlight = new ReferenceHighlight({
+      container,
+      viewModel: this.viewModel,
+    })
+
     // 初始化公式栏
     const formulaContainer = document.querySelector('.qt-spreadsheet-formula')
     if (formulaContainer) {
@@ -66,6 +73,7 @@ class Sheet extends EventEmitter {
         sheet: this,
         viewModel: this.viewModel,
         formulaEngine: this.formulaEngine,
+        referenceHighlight: this.referenceHighlight,
       })
     }
 
