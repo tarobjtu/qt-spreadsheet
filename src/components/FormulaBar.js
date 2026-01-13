@@ -114,7 +114,7 @@ class FormulaBar {
     this.sheet.setCellText(value, this.col, this.row, 'input')
 
     // 同步到编辑器（如果编辑器打开）
-    if (this.sheet.editor && this.sheet.editor.isVisible()) {
+    if (this.sheet.editor && this.sheet.editor.visible) {
       this.sheet.editor.setValue(value, this.col, this.row)
     }
 
@@ -153,9 +153,9 @@ class FormulaBar {
   onAutocompleteSelect(funcName) {
     const { value, selectionStart } = this.inputEl
 
-    // 找到需要替换的函数名前缀
+    // 找到需要替换的函数名前缀（在 = 后面或运算符/括号后面）
     const beforeCursor = value.substring(0, selectionStart)
-    const match = beforeCursor.match(/=([A-Z]*)$/i)
+    const match = beforeCursor.match(/(?:^=|[+\-*/^(,=<>])([A-Z]+)$/i)
 
     if (match) {
       const prefixStart = selectionStart - match[1].length

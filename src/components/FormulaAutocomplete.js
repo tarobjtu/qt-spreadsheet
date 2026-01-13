@@ -172,22 +172,23 @@ class FormulaAutocomplete {
    * @param {object} inputRect - 输入框位置
    */
   update(text, cursorPos, inputRect) {
-    if (!text.startsWith('=')) {
+    if (!text || !text.startsWith('=')) {
       this.hide()
       return
     }
 
     const beforeCursor = text.substring(0, cursorPos)
 
-    // 检查是否在函数名输入中
-    const funcMatch = beforeCursor.match(/=([A-Z]*)$/i)
+    // 检查是否在函数名输入中（在 = 后面或运算符/括号后面输入字母）
+    const funcMatch = beforeCursor.match(/(?:^=|[+\-*/^(,=<>])([A-Z]+)$/i)
+
     if (funcMatch && funcMatch[1].length > 0) {
       this.showAutocomplete(funcMatch[1], inputRect)
       return
     }
 
-    // 检查是否在函数参数中
-    const funcParamMatch = beforeCursor.match(/=.*?([A-Z]+)\s*\([^)]*$/i)
+    // 检查是否在函数参数中（已经输入了函数名和左括号）
+    const funcParamMatch = beforeCursor.match(/([A-Z]+)\s*\([^)]*$/i)
     if (funcParamMatch) {
       this.showTooltip(funcParamMatch[1].toUpperCase(), inputRect)
       this.hideDropdown()
