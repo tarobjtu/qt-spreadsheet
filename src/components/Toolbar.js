@@ -7,6 +7,11 @@ import './toolbar.scss'
  * @description 工具栏中需要更新状态的图标，用户选中一个带样式的带元格后，需要更新工具栏中的样式状态
  */
 const stylesOfUpdateState = ['bold', 'italic', 'underline', 'wordWrap']
+
+/**
+ * @description 需要更新冻结状态的按钮
+ */
+const freezeButtons = ['freezeAll', 'freezeRow', 'freezeColumn']
 class Toolbar {
   constructor({ container, sheet }) {
     this.sheet = sheet
@@ -57,8 +62,12 @@ class Toolbar {
 
     this.sheet.on('select', this.updateStyleState.bind(this))
     this.sheet.on('loadData', this.updateStyleState.bind(this))
+    this.sheet.on('loadData', this.updateFreezeState.bind(this))
+    this.sheet.on('freeze', this.updateFreezeState.bind(this))
+    this.sheet.on('unfreeze', this.updateFreezeState.bind(this))
     this.history.on('change', this.updateStyleState.bind(this))
     this.history.on('change', this.updateHistoryState.bind(this))
+    this.history.on('change', this.updateFreezeState.bind(this))
   }
 
   /**
@@ -187,6 +196,76 @@ class Toolbar {
   setCancelMergeCell() {
     const selections = this.viewModel.getSelector()
     this.sheet.cancelMergeCell(selections)
+  }
+
+  // ==================== 冻结行/列相关方法 ====================
+
+  /**
+   * @description 冻结当前单元格的行和列（或取消冻结）
+   */
+  setFreezeAll() {
+    const { freezeX, freezeY } = this.viewModel.getFreeze()
+    // 如果已经冻结，则取消冻结
+    if (freezeX > 0 && freezeY > 0) {
+      this.sheet.unfreeze()
+    } else {
+      this.sheet.freezeAll()
+    }
+  }
+
+  /**
+   * @description 冻结行（或取消冻结行）
+   */
+  setFreezeRow() {
+    const { freezeY } = this.viewModel.getFreeze()
+    // 如果已经冻结行，则取消冻结行
+    if (freezeY > 0) {
+      const { freezeX } = this.viewModel.getFreeze()
+      this.viewModel.setFreeze(freezeX, 0)
+      this.sheet.draw()
+      this.sheet.emit('unfreeze')
+    } else {
+      this.sheet.freezeRow()
+    }
+  }
+
+  /**
+   * @description 冻结列（或取消冻结列）
+   */
+  setFreezeColumn() {
+    const { freezeX } = this.viewModel.getFreeze()
+    // 如果已经冻结列，则取消冻结列
+    if (freezeX > 0) {
+      const { freezeY } = this.viewModel.getFreeze()
+      this.viewModel.setFreeze(0, freezeY)
+      this.sheet.draw()
+      this.sheet.emit('unfreeze')
+    } else {
+      this.sheet.freezeColumn()
+    }
+  }
+
+  /**
+   * @description 更新冻结按钮状态
+   */
+  updateFreezeState() {
+    const { freezeX, freezeY } = this.viewModel.getFreeze()
+
+    freezeButtons.forEach((key) => {
+      const itemEl = this.itemEls[key]
+      if (!itemEl) return
+
+      let isActive = false
+      if (key === 'freezeAll') {
+        isActive = freezeX > 0 && freezeY > 0
+      } else if (key === 'freezeRow') {
+        isActive = freezeY > 0
+      } else if (key === 'freezeColumn') {
+        isActive = freezeX > 0
+      }
+
+      itemEl.classList.toggle('active', isActive)
+    })
   }
 }
 

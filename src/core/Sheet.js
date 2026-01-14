@@ -324,6 +324,69 @@ class Sheet extends EventEmitter {
     this.emit('cancelHideCols')
   }
 
+  // ==================== 冻结行/列相关方法 ====================
+
+  /**
+   * @description 冻结当前单元格的行和列（包含当前行列）
+   */
+  freezeAll() {
+    const { activeCol, activeRow } = this.viewModel.getSelector()
+    // +1 表示冻结包含当前单元格的行和列
+    this.viewModel.setFreeze(activeCol + 1, activeRow + 1)
+    this.draw()
+    this.emit('freeze')
+  }
+
+  /**
+   * @description 仅冻结行（包含当前行）
+   */
+  freezeRow() {
+    const { activeRow } = this.viewModel.getSelector()
+    const { freezeX } = this.viewModel.getFreeze()
+    // +1 表示冻结包含当前行
+    this.viewModel.setFreeze(freezeX, activeRow + 1)
+    this.draw()
+    this.emit('freeze')
+  }
+
+  /**
+   * @description 仅冻结列（包含当前列）
+   */
+  freezeColumn() {
+    const { activeCol } = this.viewModel.getSelector()
+    const { freezeY } = this.viewModel.getFreeze()
+    // +1 表示冻结包含当前列
+    this.viewModel.setFreeze(activeCol + 1, freezeY)
+    this.draw()
+    this.emit('freeze')
+  }
+
+  /**
+   * @description 取消所有冻结
+   */
+  unfreeze() {
+    this.viewModel.setFreeze(0, 0)
+    this.draw()
+    this.emit('unfreeze')
+  }
+
+  /**
+   * @description 检查是否有冻结窗格
+   * @returns {boolean}
+   */
+  hasFrozenPanes() {
+    const { freezeX, freezeY } = this.viewModel.getFreeze()
+    return freezeX > 0 || freezeY > 0
+  }
+
+  /**
+   * @description 获取冻结配置
+   * @returns {{freezeX: number, freezeY: number}}
+   */
+  getFreeze() {
+    return this.viewModel.getFreeze()
+  }
+
   rowResize({ row, count, newSize }, start = false, finished = false) {
     this.viewModel.rowResize({ row, count, newSize }, start, finished)
     this.draw()
@@ -377,8 +440,25 @@ class Sheet extends EventEmitter {
    */
   showEditorByOffset(offsetX, offsetY) {
     const { scrollX, scrollY } = this.viewModel.sheetData
-    const { row, col, type } = this.viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
+    const frozenColsWidth = this.viewModel.getFrozenColsWidth()
+    const frozenRowsHeight = this.viewModel.getFrozenRowsHeight()
 
+    // 判断点击位置是否在冻结区域内
+    const inFrozenColsArea = offsetX < frozenColsWidth
+    const inFrozenRowsArea = offsetY < frozenRowsHeight
+
+    // 计算文档坐标
+    let docX = offsetX
+    let docY = offsetY
+
+    if (!inFrozenColsArea) {
+      docX = offsetX + scrollX
+    }
+    if (!inFrozenRowsArea) {
+      docY = offsetY + scrollY
+    }
+
+    const { row, col, type } = this.viewModel.getCellByOffset(docX, docY)
     this.showEditor({ colIndex: col, rowIndex: row, cellType: type })
   }
 
@@ -620,6 +700,32 @@ class Sheet extends EventEmitter {
   }
 
   /**
+   * @description 将屏幕坐标转换为文档坐标（考虑冻结区域）
+   * @param {*} screenX
+   * @param {*} screenY
+   */
+  screenToDocCoords(screenX, screenY) {
+    const { scrollX, scrollY } = this.viewModel.sheetData
+    const frozenColsWidth = this.viewModel.getFrozenColsWidth()
+    const frozenRowsHeight = this.viewModel.getFrozenRowsHeight()
+
+    const inFrozenColsArea = screenX < frozenColsWidth
+    const inFrozenRowsArea = screenY < frozenRowsHeight
+
+    let docX = screenX
+    let docY = screenY
+
+    if (!inFrozenColsArea) {
+      docX = screenX + scrollX
+    }
+    if (!inFrozenRowsArea) {
+      docY = screenY + scrollY
+    }
+
+    return { docX, docY }
+  }
+
+  /**
    * @description 通过鼠标位置选中单元格（点击、圈选）
    * @param {*} startOffsetX 点击或圈选的起始位置
    * @param {*} startOffsetY 点击或圈选的起始位置
@@ -627,17 +733,14 @@ class Sheet extends EventEmitter {
    * @param {*} endOffsetY 圈选的终止位置
    */
   selectCellsByOffset(startOffsetX, startOffsetY, endOffsetX, endOffsetY) {
-    const { scrollX, scrollY } = this.viewModel.sheetData
-
-    const startCell = this.viewModel.getCellByOffset(startOffsetX + scrollX, startOffsetY + scrollY)
+    // 转换起始点坐标
+    const { docX: startDocX, docY: startDocY } = this.screenToDocCoords(startOffsetX, startOffsetY)
+    const startCell = this.viewModel.getCellByOffset(startDocX, startDocY)
     const startCellType = startCell.type
 
     // 点击选择
     if (endOffsetX === undefined || endOffsetY === undefined) {
-      const { col, row, colCount, rowCount } = this.viewModel.getCellByOffset(
-        startOffsetX + scrollX,
-        startOffsetY + scrollY
-      )
+      const { col, row, colCount, rowCount } = this.viewModel.getCellByOffset(startDocX, startDocY)
       // switch+case缩进的eslint判断有些问题
       /* eslint-disable */
       switch (startCellType) {
@@ -658,14 +761,15 @@ class Sheet extends EventEmitter {
       }
       /* eslint-enable */
     } else {
-      // 圈选
+      // 圈选 - 转换终止点坐标
+      const { docX: endDocX, docY: endDocY } = this.screenToDocCoords(endOffsetX, endOffsetY)
       const includeMergedCell = true
       const { col, row, colCount, rowCount } = this.viewModel.getRectCellRange(
         {
-          left: Math.min(startOffsetX, endOffsetX) + scrollX,
-          top: Math.min(startOffsetY, endOffsetY) + scrollY,
-          width: Math.abs(startOffsetX - endOffsetX),
-          height: Math.abs(startOffsetY - endOffsetY),
+          left: Math.min(startDocX, endDocX),
+          top: Math.min(startDocY, endDocY),
+          width: Math.abs(startDocX - endDocX),
+          height: Math.abs(startDocY - endDocY),
         },
         includeMergedCell
       )

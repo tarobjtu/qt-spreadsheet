@@ -322,21 +322,45 @@ class Selector {
   }
 
   position() {
-    const { scrollX, scrollY } = this.viewModel.sheetData
+    const { scrollX, scrollY, freezeX, freezeY } = this.viewModel.sheetData
+    const selector = this.viewModel.getSelector()
+
+    // 计算选中区域的滚动偏移（考虑冻结区域）
+    let sectionScrollX = scrollX
+    let sectionScrollY = scrollY
+
+    // 如果选中区域的起始位置在冻结区域内，不应用对应的滚动偏移
+    if (selector.col < freezeX) {
+      sectionScrollX = 0
+    }
+    if (selector.row < freezeY) {
+      sectionScrollY = 0
+    }
+
     // 设置选中区域位置信息
     const sectionBBox = this.viewModel.getSelectedCellsBBox()
-
     this.setOffset(this.sectionEl, {
-      left: sectionBBox.left - scrollX,
-      top: sectionBBox.top - scrollY,
+      left: sectionBBox.left - sectionScrollX,
+      top: sectionBBox.top - sectionScrollY,
       width: sectionBBox.width,
       height: sectionBBox.height,
     })
 
+    // 计算激活单元格的滚动偏移
+    let activeScrollX = scrollX
+    let activeScrollY = scrollY
+
+    if (selector.activeCol < freezeX) {
+      activeScrollX = 0
+    }
+    if (selector.activeRow < freezeY) {
+      activeScrollY = 0
+    }
+
     const activeCellBBox = this.viewModel.getSelectedActiveCellBBox()
     this.setOffset(this.activeCellEl, {
-      left: activeCellBBox.left - scrollX,
-      top: activeCellBBox.top - scrollY,
+      left: activeCellBBox.left - activeScrollX,
+      top: activeCellBBox.top - activeScrollY,
       width: activeCellBBox.width,
       height: activeCellBBox.height,
     })

@@ -63,11 +63,31 @@ class Clipboard {
   }
 
   position() {
-    const { scrollX, scrollY } = this.viewModel.sheetData
-    const { left, top, width, height } = this.viewModel.getSelectedCellsBBox()
+    const { col, row } = this.clips
+
+    // 如果没有剪贴数据，直接返回
+    if (col === undefined || row === undefined) {
+      return this
+    }
+
+    const { scrollX, scrollY, freezeX, freezeY } = this.viewModel.sheetData
+
+    // 计算滚动偏移（考虑冻结区域）
+    let effectiveScrollX = scrollX
+    let effectiveScrollY = scrollY
+
+    // 如果剪贴区域在冻结区域内，不应用对应的滚动偏移
+    if (col < freezeX) {
+      effectiveScrollX = 0
+    }
+    if (row < freezeY) {
+      effectiveScrollY = 0
+    }
+
+    const { left, top, width, height } = this.viewModel.getCellsBBox(this.clips)
     this.setOffset({
-      left: left + 1 - scrollX,
-      top: top + 1 - scrollY,
+      left: left + 1 - effectiveScrollX,
+      top: top + 1 - effectiveScrollY,
       width: width - 2,
       height: height - 2,
     })

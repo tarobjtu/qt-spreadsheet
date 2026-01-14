@@ -47,6 +47,10 @@ const defaultTheme = {
     fillStyle: '#eff9ff',
     color: '#2a83ea',
   },
+  freezeLine: {
+    strokeStyle: '#4285f4',
+    lineWidth: 2,
+  },
 }
 
 export default defaultTheme

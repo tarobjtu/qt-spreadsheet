@@ -213,7 +213,25 @@ class Events extends EventEmitter {
 
     const { offsetX, offsetY } = e
     const { scrollX, scrollY } = viewModel.sheetData
-    const cellInfo = viewModel.getCellByOffset(offsetX + scrollX, offsetY + scrollY)
+    const frozenColsWidth = viewModel.getFrozenColsWidth()
+    const frozenRowsHeight = viewModel.getFrozenRowsHeight()
+
+    // 判断鼠标位置是否在冻结区域内
+    const inFrozenColsArea = offsetX < frozenColsWidth
+    const inFrozenRowsArea = offsetY < frozenRowsHeight
+
+    // 计算文档坐标
+    let docX = offsetX
+    let docY = offsetY
+
+    if (!inFrozenColsArea) {
+      docX = offsetX + scrollX
+    }
+    if (!inFrozenRowsArea) {
+      docY = offsetY + scrollY
+    }
+
+    const cellInfo = viewModel.getCellByOffset(docX, docY)
 
     if (cellInfo && cellInfo.type === 'cell') {
       const { col, row } = cellInfo

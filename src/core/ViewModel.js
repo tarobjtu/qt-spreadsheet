@@ -1095,6 +1095,184 @@ class ViewModel {
     })
   }
 
+  // ==================== 冻结行/列相关方法 ====================
+
+  /**
+   * @description 设置冻结配置
+   * @param {number} freezeX - 冻结的列数 (0 = 不冻结)
+   * @param {number} freezeY - 冻结的行数 (0 = 不冻结)
+   */
+  setFreeze(freezeX, freezeY) {
+    this.sheetData = update.$set(this.sheetData, ['freezeX'], freezeX)
+    this.sheetData = update.$set(this.sheetData, ['freezeY'], freezeY)
+    this.history.save(this.sheetData)
+  }
+
+  /**
+   * @description 获取冻结配置
+   * @returns {{freezeX: number, freezeY: number}}
+   */
+  getFreeze() {
+    return {
+      freezeX: this.sheetData.freezeX || 0,
+      freezeY: this.sheetData.freezeY || 0,
+    }
+  }
+
+  /**
+   * @description 获取冻结列的总像素宽度（包含行头）
+   * @returns {number}
+   */
+  getFrozenColsWidth() {
+    const { colsMeta, freezeX } = this.sheetData
+    const { rowHeaderWidth } = this.theme
+    if (!freezeX || freezeX <= 0) return rowHeaderWidth
+
+    let width = rowHeaderWidth
+    for (let i = 0; i < freezeX && i < colsMeta.length; i += 1) {
+      width += colsMeta[i].size
+    }
+    return width
+  }
+
+  /**
+   * @description 获取冻结行的总像素高度（包含列头）
+   * @returns {number}
+   */
+  getFrozenRowsHeight() {
+    const { rowsMeta, freezeY } = this.sheetData
+    const { colHeaderHeight } = this.theme
+    if (!freezeY || freezeY <= 0) return colHeaderHeight
+
+    let height = colHeaderHeight
+    for (let i = 0; i < freezeY && i < rowsMeta.length; i += 1) {
+      height += rowsMeta[i].size
+    }
+    return height
+  }
+
+  /**
+   * @description 获取四个区域的单元格范围（用于冻结渲染）
+   * @returns {Object} 包含 frozenCorner, frozenRows, frozenCols, normal 四个区域
+   */
+  getViewportCellRangeWithFreeze() {
+    const { container, sheetData } = this
+    const { scrollX, scrollY, freezeX, freezeY } = sheetData
+    const { width, height } = container.getBoundingClientRect()
+
+    const frozenColsWidth = this.getFrozenColsWidth()
+    const frozenRowsHeight = this.getFrozenRowsHeight()
+
+    // 计算可视区域的右边界和下边界对应的列/行索引
+    const rightEdgeCol = this.getColByOffset(frozenColsWidth + scrollX + (width - frozenColsWidth))
+    const bottomEdgeRow = this.getRowByOffset(
+      frozenRowsHeight + scrollY + (height - frozenRowsHeight)
+    )
+
+    // 计算普通区域的起始列/行
+    const normalStartCol = Math.max(freezeX, this.getColByOffset(frozenColsWidth + scrollX))
+    const normalStartRow = Math.max(freezeY, this.getRowByOffset(frozenRowsHeight + scrollY))
+
+    // 区域A: 冻结角落 (不滚动)
+    let frozenCorner = null
+    if (freezeX > 0 && freezeY > 0) {
+      frozenCorner = { col: 0, row: 0, colCount: freezeX, rowCount: freezeY }
+    }
+
+    // 区域B: 仅冻结行 (水平滚动)
+    let frozenRows = null
+    if (freezeY > 0) {
+      frozenRows = {
+        col: freezeX,
+        row: 0,
+        colCount: Math.max(rightEdgeCol - freezeX + 1, 0),
+        rowCount: freezeY,
+      }
+    }
+
+    // 区域C: 仅冻结列 (垂直滚动)
+    let frozenCols = null
+    if (freezeX > 0) {
+      frozenCols = {
+        col: 0,
+        row: freezeY,
+        colCount: freezeX,
+        rowCount: Math.max(bottomEdgeRow - freezeY + 1, 0),
+      }
+    }
+
+    // 区域D: 普通可滚动区域 (双向滚动)
+    const normal = {
+      col: normalStartCol,
+      row: normalStartRow,
+      colCount: Math.max(rightEdgeCol - normalStartCol + 1, 0),
+      rowCount: Math.max(bottomEdgeRow - normalStartRow + 1, 0),
+    }
+
+    return { frozenCorner, frozenRows, frozenCols, normal }
+  }
+
+  /**
+   * @description 根据屏幕坐标获取单元格（支持冻结区域）
+   * @param {number} screenX - 屏幕X坐标（相对于canvas）
+   * @param {number} screenY - 屏幕Y坐标（相对于canvas）
+   * @returns {Object} 单元格信息
+   */
+  getCellByScreenOffset(screenX, screenY) {
+    const { sheetData } = this
+    const { scrollX, scrollY } = sheetData
+
+    const frozenColsWidth = this.getFrozenColsWidth()
+    const frozenRowsHeight = this.getFrozenRowsHeight()
+
+    // 判断点击位置所在区域
+    const inFrozenColsArea = screenX < frozenColsWidth
+    const inFrozenRowsArea = screenY < frozenRowsHeight
+
+    // 计算文档坐标
+    let docX = screenX
+    let docY = screenY
+
+    // 如果不在冻结列区域，需要加上水平滚动偏移
+    if (!inFrozenColsArea) {
+      docX = screenX + scrollX
+    }
+    // 如果不在冻结行区域，需要加上垂直滚动偏移
+    if (!inFrozenRowsArea) {
+      docY = screenY + scrollY
+    }
+
+    return this.getCellByOffset(docX, docY)
+  }
+
+  /**
+   * @description 获取前N列的总宽度
+   * @param {number} colCount
+   * @returns {number}
+   */
+  getColsWidthUpTo(colCount) {
+    const { colsMeta } = this.sheetData
+    let width = 0
+    for (let i = 0; i < colCount && i < colsMeta.length; i += 1) {
+      width += colsMeta[i].size
+    }
+    return width
+  }
+
+  /**
+   * @description 获取前N行的总高度
+   * @param {number} rowCount
+   * @returns {number}
+   */
+  getRowsHeightUpTo(rowCount) {
+    const { rowsMeta } = this.sheetData
+    let height = 0
+    for (let i = 0; i < rowCount && i < rowsMeta.length; i += 1) {
+      height += rowsMeta[i].size
+    }
+    return height
+  }
+
   /**
    * @description refresh merged cells when row or column number changed
    * @param {*} start start row | col number

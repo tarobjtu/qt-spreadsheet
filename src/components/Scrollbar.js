@@ -7,7 +7,7 @@ class Scrollbar {
     this.theme = theme
     this.viewModel = viewModel
     this.container = container
-    this.wheelTiming = 0
+    this.pendingScroll = null // 用于 requestAnimationFrame 优化
 
     this.initElements()
     this.bindEvent()
@@ -38,15 +38,15 @@ class Scrollbar {
 
   bindEvent() {
     this.events = []
-    // 滚轮事件
+    // 滚轮事件 - 使用 passive: false 以允许 preventDefault
     const wheel = this.onWheel.bind(this)
     this.events.push([this.container, 'wheel', wheel])
-    this.container.addEventListener('wheel', wheel)
+    this.container.addEventListener('wheel', wheel, { passive: false })
 
-    // triggerX 拖拽事件
+    // triggerX 拖拽事件 - 降低节流时间以提高响应速度
     const xMouseDown = this.onMouseDown.bind(this, 'X')
     const yMouseDown = this.onMouseDown.bind(this, 'Y')
-    const mouseMove = throttle(this.onMouseMove.bind(this), 50)
+    const mouseMove = throttle(this.onMouseMove.bind(this), 16) // ~60fps
     const mouseUp = this.onMouseUp.bind(this)
     this.events.push([this.triggerX, 'mousedown', xMouseDown])
     this.events.push([this.triggerY, 'mousedown', yMouseDown])
@@ -107,16 +107,31 @@ class Scrollbar {
 
   onWheel(event) {
     event.preventDefault()
-    if (this.wheelFlag) return
-    this.wheelFlag = true
 
-    setTimeout(() => {
-      this.wheelFlag = false
-      const { deltaX, deltaY } = event
-      const { scrollX, scrollY } = this.viewModel.sheetData
-      // console.warn({ deltaX, deltaY })
-      this.sheet.scroll(scrollX + Math.round(deltaX), scrollY + Math.round(deltaY))
-    }, 50)
+    const { deltaX, deltaY } = event
+
+    // 累积滚动量
+    if (!this.pendingScroll) {
+      this.pendingScroll = { deltaX: 0, deltaY: 0 }
+    }
+    this.pendingScroll.deltaX += deltaX
+    this.pendingScroll.deltaY += deltaY
+
+    // 使用 requestAnimationFrame 确保流畅渲染
+    if (!this.scrollRafId) {
+      this.scrollRafId = requestAnimationFrame(() => {
+        const { scrollX, scrollY } = this.viewModel.sheetData
+        const dx = Math.round(this.pendingScroll.deltaX)
+        const dy = Math.round(this.pendingScroll.deltaY)
+
+        if (dx !== 0 || dy !== 0) {
+          this.sheet.scroll(scrollX + dx, scrollY + dy)
+        }
+
+        this.pendingScroll = null
+        this.scrollRafId = null
+      })
+    }
   }
 
   draw() {

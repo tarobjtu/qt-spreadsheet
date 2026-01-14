@@ -78,8 +78,22 @@ class Editor {
 
   position() {
     const { activeCol, activeRow } = this.viewModel.getSelector()
+    const { scrollX, scrollY, freezeX, freezeY } = this.viewModel.sheetData
     const { top, left, width, height } = this.painter.getTextBBox(activeCol, activeRow)
-    this.setOffset({ top, left, width, height })
+
+    // getTextBBox 返回的是已经减去了 scrollX/scrollY 的位置
+    // 如果单元格在冻结区域内，需要加回滚动偏移
+    let adjustedLeft = left
+    let adjustedTop = top
+
+    if (activeCol < freezeX) {
+      adjustedLeft = left + scrollX
+    }
+    if (activeRow < freezeY) {
+      adjustedTop = top + scrollY
+    }
+
+    this.setOffset({ top: adjustedTop, left: adjustedLeft, width, height })
     return this
   }
 
