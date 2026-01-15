@@ -20,7 +20,10 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider webpack serve --config config/webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config config/webpack.prod.js",
-    "lint": "eslint . src config || true"
+    "lint": "eslint . src config || true",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "spreadsheet",
@@ -29,7 +32,8 @@
   "devDependencies": {
     "@babel/core": "^7.12.1",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-env": "^7.28.6",
+    "babel-jest": "^30.2.0",
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.4.1",
@@ -44,6 +48,8 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-webpack-plugin": "^2.1.0",
     "html-webpack-plugin": "^5.0.0-alpha.7",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "mini-css-extract-plugin": "^1.0.0",
     "postcss-loader": "^6.2.1",
     "postcss-preset-env": "^6.7.0",
