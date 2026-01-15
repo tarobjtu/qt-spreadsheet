@@ -208,6 +208,35 @@ class Contextmenu {
     this.sheet.cancelMergeCell(selections)
   }
 
+  onSortAsc() {
+    const { col } = this.viewModel.getSelector()
+    this.sheet.sortByColumn(col, 'asc')
+  }
+
+  onSortDesc() {
+    const { col } = this.viewModel.getSelector()
+    this.sheet.sortByColumn(col, 'desc')
+  }
+
+  onDataValidation() {
+    if (this.sheet.dataValidation) {
+      this.sheet.dataValidation.show()
+    }
+  }
+
+  onToggleFilter() {
+    if (this.sheet.filter) {
+      const isEnabled = this.sheet.filter.filterEnabled
+      this.sheet.filter.setEnabled(!isEnabled)
+    }
+  }
+
+  onConditionalFormat() {
+    if (this.sheet.conditionalFormat) {
+      this.sheet.conditionalFormat.show()
+    }
+  }
+
   position({ offsetX, offsetY }) {
     let left = offsetX
     let top = offsetY
@@ -216,13 +245,35 @@ class Contextmenu {
     const canvasHeight = this.container.offsetHeight
     const menuWidth = this.contextmenuEl.offsetWidth
     const menuHeight = this.contextmenuEl.offsetHeight
-    // console.warn({ offsetX, offsetY }, { canvasWidth, canvasHeight }, { menuWidth, menuHeight })
+
+    // 水平方向：如果右侧空间不够，显示在左侧
     if (left + menuWidth > canvasWidth) {
       left = offsetX - menuWidth
     }
-    if (top + menuHeight > canvasHeight) {
-      top = offsetY - menuHeight - 20
+    // 确保不超出左边界
+    if (left < 0) {
+      left = 0
     }
+
+    // 垂直方向：如果下方空间不够，尝试显示在上方
+    if (top + menuHeight > canvasHeight) {
+      top = offsetY - menuHeight
+    }
+    // 确保不超出上边界
+    if (top < 0) {
+      top = 0
+    }
+
+    // 如果菜单高度大于容器高度，启用滚动
+    if (menuHeight > canvasHeight) {
+      this.contextmenuEl.style.maxHeight = canvasHeight - 10 + 'px'
+      this.contextmenuEl.style.overflowY = 'auto'
+      top = 5
+    } else {
+      this.contextmenuEl.style.maxHeight = ''
+      this.contextmenuEl.style.overflowY = ''
+    }
+
     this.contextmenuEl.style.left = left + 'px'
     this.contextmenuEl.style.top = top + 'px'
     return this

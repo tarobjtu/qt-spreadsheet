@@ -1,5 +1,23 @@
 export default [
   {
+    key: 'import',
+    name: '导入',
+    icon: 'assets/icons/import.png',
+  },
+  {
+    key: 'export-csv',
+    name: '导出CSV',
+    icon: 'assets/icons/export-csv.png',
+  },
+  {
+    key: 'export-excel',
+    name: '导出Excel',
+    icon: 'assets/icons/export-excel.png',
+  },
+  {
+    key: 'divider',
+  },
+  {
     key: 'save',
     name: '保存',
     icon: 'assets/icons/save.png',

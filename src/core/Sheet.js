@@ -10,9 +10,14 @@ import Resizer from '../components/Resizer'
 import Editor from '../components/Editor'
 import Clipboard from '../components/Clipboard'
 import Contextmenu from '../components/Contextmenu'
+import FindReplace from '../components/FindReplace'
+import DataValidation from '../components/DataValidation'
+import Filter from '../components/Filter'
+import ConditionalFormat from '../components/ConditionalFormat'
 import FormulaBar from '../components/FormulaBar'
 import ReferenceHighlight from '../components/ReferenceHighlight'
 import ErrorTooltip from '../components/ErrorTooltip'
+import ImportExport from '../utils/ImportExport'
 import defaultTheme from '../configs/defaultTheme'
 import { perf } from '../utils/common'
 
@@ -58,6 +63,9 @@ class Sheet extends EventEmitter {
 
     // 初始化公式引擎
     this.formulaEngine = new FormulaEngine(this.viewModel)
+
+    // 初始化导入导出
+    this.importExport = new ImportExport(this.viewModel)
     this.viewModel.formulaEngine = this.formulaEngine
 
     // 初始化引用高亮
@@ -125,6 +133,30 @@ class Sheet extends EventEmitter {
     })
     // 初始化右键菜单
     this.contextmenu = new Contextmenu({
+      sheet: this,
+      container,
+      viewModel: this.viewModel,
+    })
+    // 初始化查找替换
+    this.findReplace = new FindReplace({
+      sheet: this,
+      container,
+      viewModel: this.viewModel,
+    })
+    // 初始化数据验证
+    this.dataValidation = new DataValidation({
+      sheet: this,
+      container,
+      viewModel: this.viewModel,
+    })
+    // 初始化筛选器
+    this.filter = new Filter({
+      sheet: this,
+      container,
+      viewModel: this.viewModel,
+    })
+    // 初始化条件格式
+    this.conditionalFormat = new ConditionalFormat({
       sheet: this,
       container,
       viewModel: this.viewModel,
@@ -385,6 +417,65 @@ class Sheet extends EventEmitter {
    */
   getFreeze() {
     return this.viewModel.getFreeze()
+  }
+
+  // ==================== 排序相关方法 ====================
+
+  /**
+   * @description 按列排序
+   * @param {number} col - 排序的列索引
+   * @param {string} order - 排序方向 'asc' | 'desc'
+   */
+  sortByColumn(col, order = 'asc') {
+    this.viewModel.sortByColumn(col, order)
+    this.draw()
+    this.emit('sort')
+  }
+
+  // ==================== 导入导出相关方法 ====================
+
+  /**
+   * @description 导出为 CSV 格式
+   * @param {Object} options - 导出选项
+   */
+  exportToCSV(options = {}) {
+    this.importExport.exportToCSV(options)
+    this.emit('export', { format: 'csv' })
+  }
+
+  /**
+   * @description 导出为 Excel 格式
+   * @param {Object} options - 导出选项
+   */
+  exportToExcel(options = {}) {
+    this.importExport.exportToExcel(options)
+    this.emit('export', { format: 'excel' })
+  }
+
+  /**
+   * @description 从文件导入
+   * @returns {Promise}
+   */
+  importFromFile() {
+    return this.importExport.openFileDialog().then((file) => {
+      if (!file) return Promise.resolve()
+
+      const ext = file.name.split('.').pop().toLowerCase()
+      const importPromise =
+        ext === 'csv'
+          ? this.importExport.importFromCSV(file)
+          : this.importExport.importFromExcel(file)
+
+      return importPromise
+        .then(() => {
+          this.draw()
+          this.emit('import', { filename: file.name })
+        })
+        .catch((error) => {
+          console.error('Import failed:', error)
+          this.emit('importError', { error })
+        })
+    })
   }
 
   rowResize({ row, count, newSize }, start = false, finished = false) {

@@ -1095,6 +1095,156 @@ class ViewModel {
     })
   }
 
+  // ==================== 查找替换相关方法 ====================
+
+  /**
+   * @description 查找所有匹配的单元格
+   * @param {string} keyword - 搜索关键词
+   * @param {Object} options - 搜索选项
+   * @returns {Array} 匹配的单元格位置数组 [{col, row}, ...]
+   */
+  findAll(keyword, options = {}) {
+    const { caseSensitive = false, wholeWord = false } = options
+    const { data } = this.sheetData
+    const results = []
+
+    if (!keyword) return results
+
+    const searchKeyword = caseSensitive ? keyword : keyword.toLowerCase()
+
+    for (let row = 0; row < data.length; row += 1) {
+      const rowData = data[row]
+      if (rowData) {
+        for (let col = 0; col < rowData.length; col += 1) {
+          const cell = rowData[col]
+          if (cell && cell.value !== undefined && cell.value !== null) {
+            let cellValue = String(cell.value)
+            if (!caseSensitive) {
+              cellValue = cellValue.toLowerCase()
+            }
+
+            let isMatch = false
+            if (wholeWord) {
+              isMatch = cellValue === searchKeyword
+            } else {
+              isMatch = cellValue.includes(searchKeyword)
+            }
+
+            if (isMatch) {
+              results.push({ col, row })
+            }
+          }
+        }
+      }
+    }
+
+    return results
+  }
+
+  /**
+   * @description 替换单个单元格的内容
+   * @param {number} col - 列索引
+   * @param {number} row - 行索引
+   * @param {string} keyword - 要替换的关键词
+   * @param {string} replacement - 替换后的内容
+   * @param {Object} options - 替换选项
+   */
+  replaceCell(col, row, keyword, replacement, options = {}) {
+    const { caseSensitive = false } = options
+    const cell = this.getCellData(col, row)
+    if (!cell || cell.value === undefined || cell.value === null) return
+
+    const cellValue = String(cell.value)
+    const flags = caseSensitive ? 'g' : 'gi'
+    const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags)
+    const newValue = cellValue.replace(regex, replacement)
+
+    this.setCellsData([[{ value: newValue }]], col, row, 1, 1)
+  }
+
+  /**
+   * @description 替换所有匹配的单元格
+   * @param {string} keyword - 要替换的关键词
+   * @param {string} replacement - 替换后的内容
+   * @param {Object} options - 替换选项
+   * @returns {number} 替换的数量
+   */
+  replaceAll(keyword, replacement, options = {}) {
+    const results = this.findAll(keyword, options)
+    const { caseSensitive = false } = options
+
+    results.forEach(({ col, row }) => {
+      this.replaceCell(col, row, keyword, replacement, { caseSensitive })
+    })
+
+    if (results.length > 0) {
+      this.history.save(this.sheetData)
+    }
+
+    return results.length
+  }
+
+  // ==================== 排序相关方法 ====================
+
+  /**
+   * @description 按列排序
+   * @param {number} col - 排序的列索引
+   * @param {string} order - 排序方向 'asc' | 'desc'
+   * @param {number} startRow - 开始排序的行（跳过表头），默认为1
+   */
+  sortByColumn(col, order = 'asc', startRow = 1) {
+    const { data, rowsMeta } = this.sheetData
+    const rowCount = data.length
+
+    // 保留表头行（不参与排序）
+    const headerData = data.slice(0, startRow)
+    const headerRowsMeta = rowsMeta.slice(0, startRow)
+
+    // 创建数据行的索引数组用于排序
+    const rowIndices = []
+    for (let i = startRow; i < rowCount; i += 1) {
+      rowIndices.push(i)
+    }
+
+    // 根据指定列的值进行排序
+    rowIndices.sort((a, b) => {
+      const cellA = data[a] && data[a][col]
+      const cellB = data[b] && data[b][col]
+      const valueA = cellA ? cellA.value : ''
+      const valueB = cellB ? cellB.value : ''
+
+      // 处理空值 - 空值排在最后
+      if (valueA === '' || valueA === null || valueA === undefined) return 1
+      if (valueB === '' || valueB === null || valueB === undefined) return -1
+
+      // 尝试数字比较
+      const numA = parseFloat(valueA)
+      const numB = parseFloat(valueB)
+
+      let result
+      if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+        result = numA - numB
+      } else {
+        // 字符串比较
+        result = String(valueA).localeCompare(String(valueB), 'zh-CN')
+      }
+
+      return order === 'asc' ? result : -result
+    })
+
+    // 重新排列数据行（保留表头）
+    const sortedData = rowIndices.map((i) => data[i])
+    const sortedRowsMeta = rowIndices.map((i) => rowsMeta[i])
+
+    // 合并表头和排序后的数据
+    const newData = [...headerData, ...sortedData]
+    const newRowsMeta = [...headerRowsMeta, ...sortedRowsMeta]
+
+    this.sheetData = update.$set(this.sheetData, ['data'], newData)
+    this.sheetData = update.$set(this.sheetData, ['rowsMeta'], newRowsMeta)
+    this.history.save(this.sheetData)
+  }
+
   // ==================== 冻结行/列相关方法 ====================
 
   /**

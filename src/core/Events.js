@@ -121,6 +121,18 @@ class Events extends EventEmitter {
           this.sheet.cut()
           e.preventDefault()
           break
+        case 70: // Command + F 查找替换
+          if (this.sheet.findReplace) {
+            this.sheet.findReplace.toggle()
+          }
+          e.preventDefault()
+          break
+        case 72: // Command + H 替换（直接打开查找替换对话框）
+          if (this.sheet.findReplace) {
+            this.sheet.findReplace.show()
+          }
+          e.preventDefault()
+          break
         default:
           break
       }

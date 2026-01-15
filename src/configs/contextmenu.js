@@ -104,6 +104,42 @@ export default [
     key: 'divider',
   },
   {
+    key: 'sort-asc',
+    name: '升序排列',
+    icon: '',
+    scope: ['colHeader', 'cell'],
+  },
+  {
+    key: 'sort-desc',
+    name: '降序排列',
+    icon: '',
+    scope: ['colHeader', 'cell'],
+  },
+  {
+    key: 'divider',
+  },
+  {
+    key: 'data-validation',
+    name: '数据验证',
+    icon: '',
+    scope: ['cell'],
+  },
+  {
+    key: 'toggle-filter',
+    name: '启用筛选',
+    icon: '',
+    scope: ['colHeader', 'cell'],
+  },
+  {
+    key: 'conditional-format',
+    name: '条件格式',
+    icon: '',
+    scope: ['cell'],
+  },
+  {
+    key: 'divider',
+  },
+  {
     key: 'clear-all',
     name: '清除全部',
     icon: '',

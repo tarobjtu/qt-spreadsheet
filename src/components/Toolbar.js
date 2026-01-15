@@ -107,6 +107,20 @@ class Toolbar {
     }
   }
 
+  // ==================== 导入导出相关方法 ====================
+
+  setImport() {
+    this.sheet.importFromFile()
+  }
+
+  setExportCsv() {
+    this.sheet.exportToCSV()
+  }
+
+  setExportExcel() {
+    this.sheet.exportToExcel()
+  }
+
   setSave() {
     this.sheet.save()
   }
